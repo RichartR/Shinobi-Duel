@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { GameState } from '../../../application/state/gameInitialState';
 import { WHEEL_COLORS, WheelSegment, ShinobiFigureState } from '../../../domain/models/ShinobiFigure';
 import { ChakraDiskSVG } from '../wheel/ChakraDiskSVG';
@@ -27,6 +27,45 @@ export const ChakraDuelModal: React.FC<ChakraDuelModalProps> = ({
     revealed &&
     state.activeBuffs[attacker.owner]?.doubleChance &&
     !(state.mode === 'ai' && attacker.owner === 2);
+
+  const prevBattleKeyRef = useRef<string | null>(null);
+  const [atkAngle, setAtkAngle] = useState(0);
+  const [defAngle, setDefAngle] = useState(0);
+  const [isSpinning, setIsSpinning] = useState(true);
+
+  useEffect(() => {
+    const battleKey = `${b.attackerId}_vs_${b.defenderId}_${b.atkRotations}`;
+    const isNewDuel = prevBattleKeyRef.current !== `${b.attackerId}_vs_${b.defenderId}`;
+    prevBattleKeyRef.current = `${b.attackerId}_vs_${b.defenderId}`;
+
+    if (isNewDuel) {
+      setAtkAngle(0);
+      setDefAngle(0);
+      setIsSpinning(true);
+
+      let r2: number;
+      const r1 = requestAnimationFrame(() => {
+        r2 = requestAnimationFrame(() => {
+          setAtkAngle(b.atkRotations);
+          setDefAngle(b.defRotations);
+        });
+      });
+      return () => {
+        cancelAnimationFrame(r1);
+        if (r2) cancelAnimationFrame(r2);
+      };
+    } else {
+      setIsSpinning(true);
+      setAtkAngle(b.atkRotations);
+      setDefAngle(b.defRotations);
+    }
+  }, [b.attackerId, b.defenderId, b.atkRotations, b.defRotations]);
+
+  useEffect(() => {
+    if (revealed) {
+      setIsSpinning(false);
+    }
+  }, [revealed]);
 
   const renderSpinBadge = (seg: WheelSegment, unit: ShinobiFigureState) => {
     const col = WHEEL_COLORS[seg.color];
@@ -113,15 +152,17 @@ export const ChakraDuelModal: React.FC<ChakraDuelModalProps> = ({
               </div>
 
               <div className="relative w-48 h-48 flex items-center justify-center my-1">
-                <div className="absolute -top-3.5 z-20 drop-shadow">
+                <div className={`absolute -top-3.5 z-20 drop-shadow transition-transform ${isSpinning ? 'animate-needle-vibe' : ''}`}>
                   <svg width="28" height="30" viewBox="0 0 24 28">
                     <circle cx="12" cy="4" r="3" fill="none" stroke="#f59e0b" strokeWidth="2" />
                     <polygon points="12,27 5,9 12,12 19,9" fill="#dc2626" stroke="#fef3c7" strokeWidth="1.5" />
                   </svg>
                 </div>
                 <div
-                  className="w-44 h-44 rounded-full transition-transform duration-[2400ms] ease-out"
-                  style={{ transform: `rotate(${b.atkRotations}deg)` }}
+                  className={`w-44 h-44 rounded-full wheel-spin-transition ${
+                    isSpinning ? 'ring-4 ring-amber-500/50 shadow-[0_0_25px_rgba(245,158,11,0.6)]' : ''
+                  }`}
+                  style={{ transform: `rotate(${atkAngle}deg)` }}
                 >
                   <ChakraDiskSVG figure={attacker} size={176} />
                 </div>
@@ -131,9 +172,12 @@ export const ChakraDuelModal: React.FC<ChakraDuelModalProps> = ({
                 {revealed && spinAttacker ? (
                   renderSpinBadge(spinAttacker.segment, attacker)
                 ) : (
-                  <span className="text-xs text-amber-300 font-mono animate-pulse">
-                    Girando ruleta de chakra...
-                  </span>
+                  <div className="flex items-center justify-center gap-2">
+                    <span className="inline-block w-3 h-3 border-2 border-amber-400 border-t-transparent rounded-full animate-spin" />
+                    <span className="text-xs text-amber-300 font-mono tracking-wide">
+                      Girando ruleta de chakra...
+                    </span>
+                  </div>
                 )}
               </div>
             </div>
@@ -158,15 +202,17 @@ export const ChakraDuelModal: React.FC<ChakraDuelModalProps> = ({
               </div>
 
               <div className="relative w-48 h-48 flex items-center justify-center my-1">
-                <div className="absolute -top-3.5 z-20 drop-shadow">
+                <div className={`absolute -top-3.5 z-20 drop-shadow transition-transform ${isSpinning ? 'animate-needle-vibe' : ''}`}>
                   <svg width="28" height="30" viewBox="0 0 24 28">
                     <circle cx="12" cy="4" r="3" fill="none" stroke="#ef4444" strokeWidth="2" />
                     <polygon points="12,27 5,9 12,12 19,9" fill="#dc2626" stroke="#fef3c7" strokeWidth="1.5" />
                   </svg>
                 </div>
                 <div
-                  className="w-44 h-44 rounded-full transition-transform duration-[2400ms] ease-out"
-                  style={{ transform: `rotate(${b.defRotations}deg)` }}
+                  className={`w-44 h-44 rounded-full wheel-spin-transition ${
+                    isSpinning ? 'ring-4 ring-red-500/50 shadow-[0_0_25px_rgba(239,68,68,0.6)]' : ''
+                  }`}
+                  style={{ transform: `rotate(${defAngle}deg)` }}
                 >
                   <ChakraDiskSVG figure={defender} size={176} />
                 </div>
@@ -176,9 +222,12 @@ export const ChakraDuelModal: React.FC<ChakraDuelModalProps> = ({
                 {revealed && spinDefender ? (
                   renderSpinBadge(spinDefender.segment, defender)
                 ) : (
-                  <span className="text-xs text-amber-300 font-mono animate-pulse">
-                    Girando ruleta de chakra...
-                  </span>
+                  <div className="flex items-center justify-center gap-2">
+                    <span className="inline-block w-3 h-3 border-2 border-red-400 border-t-transparent rounded-full animate-spin" />
+                    <span className="text-xs text-red-300 font-mono tracking-wide">
+                      Girando ruleta de chakra...
+                    </span>
+                  </div>
                 )}
               </div>
             </div>

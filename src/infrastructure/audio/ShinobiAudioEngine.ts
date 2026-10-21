@@ -60,20 +60,27 @@ export class ShinobiAudioEngine {
           osc.stop(now + 0.36);
         });
       } else if (effect === 'spin') {
-        for (let i = 0; i < 10; i++) {
+        const clickOffsets = [
+          0.00, 0.04, 0.08, 0.12, 0.16, 0.20, 0.25, 0.31, 0.38, 0.46,
+          0.55, 0.65, 0.76, 0.89, 1.03, 1.19, 1.37, 1.57, 1.79, 2.02,
+          2.22, 2.38,
+        ];
+        clickOffsets.forEach((offset, idx) => {
           if (!this.ctx) return;
-          const t = now + i * 0.14;
+          const t = now + offset;
           const osc = this.ctx.createOscillator();
           const gain = this.ctx.createGain();
-          osc.type = 'square';
-          osc.frequency.setValueAtTime(320 + i * 35, t);
-          gain.gain.setValueAtTime(0.06, t);
-          gain.gain.exponentialRampToValueAtTime(0.001, t + 0.04);
+          osc.type = 'triangle';
+          const freq = 440 - idx * 6;
+          osc.frequency.setValueAtTime(freq, t);
+          const isFinal = idx === clickOffsets.length - 1;
+          gain.gain.setValueAtTime(isFinal ? 0.14 : 0.07, t);
+          gain.gain.exponentialRampToValueAtTime(0.001, t + (isFinal ? 0.06 : 0.03));
           osc.connect(gain);
           gain.connect(this.ctx.destination);
           osc.start(t);
-          osc.stop(t + 0.045);
-        }
+          osc.stop(t + (isFinal ? 0.07 : 0.035));
+        });
       } else if (effect === 'ko') {
         const osc = this.ctx.createOscillator();
         const gain = this.ctx.createGain();

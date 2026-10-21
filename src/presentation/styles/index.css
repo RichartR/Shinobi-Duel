@@ -43,4 +43,22 @@
   ::-webkit-scrollbar-thumb:hover {
     background: #856548;
   }
+
+  /* Wheel spin decelerating physics */
+  .wheel-spin-transition {
+    transition: transform 2400ms cubic-bezier(0.12, 0.8, 0.32, 1);
+    will-change: transform;
+  }
+
+  /* Needle clicking vibration */
+  @keyframes needle-vibe {
+    0%, 100% { transform: translateY(0) rotate(0deg); }
+    25% { transform: translateY(1.5px) rotate(-1.5deg); }
+    75% { transform: translateY(-0.5px) rotate(1.5deg); }
+  }
+
+  .animate-needle-vibe {
+    animation: needle-vibe 0.08s infinite ease-in-out;
+  }
 }
+

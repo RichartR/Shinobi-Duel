@@ -27,7 +27,7 @@ export function useShinobiDuel() {
       }, 2400);
       return () => clearTimeout(timer);
     }
-  }, [state.phase, state.currentBattle]);
+  }, [state.phase, state.currentBattle?.revealed, state.currentBattle?.atkRotations]);
 
   // AI Akatsuki bot orchestration
   useEffect(() => {
