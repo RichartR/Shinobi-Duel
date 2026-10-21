@@ -10,6 +10,8 @@ import {
 import { calculateEffectiveMp } from '../../../domain/services/BoardMovementService';
 import { ChakraDiskSVG } from '../wheel/ChakraDiskSVG';
 import { CHAR_SVG_FALLBACKS, JUTSU_ANIME_CUTINS } from '../../../infrastructure/assets/animeAssets';
+import { useTranslation } from '../../context/I18nContext';
+import { getLocalizedFigure } from '../../../infrastructure/i18n/locales/figureI18n';
 
 interface BingoInspectorScrollProps {
   figure: ShinobiFigureState | null;
@@ -17,39 +19,42 @@ interface BingoInspectorScrollProps {
   onOpenWorkshop?: () => void;
 }
 
-const STATUS_INFO: Record<string, { label: string; desc: string; color: string; kanji: string }> = {
-  burned: {
-    label: 'Quemadura (Amaterasu)',
-    desc: '-10 DMG en ataques y su sector no-Rojo más pequeño muta a Fallo Rojo.',
-    color: '#f97316',
-    kanji: '炎',
-  },
-  paralyzed: {
-    label: 'Parálisis (Raiton)',
-    desc: 'Su sector no-Rojo más pequeño pasa a ser Fallo Rojo.',
-    color: '#facc15',
-    kanji: '痺',
-  },
-  confused: {
-    label: 'Confusión (Genjutsu)',
-    desc: 'El resultado del giro se desfasa +1 sector en sentido horario.',
-    color: '#c084fc',
-    kanji: '幻',
-  },
-  frozen: {
-    label: 'Sellado en Arena (Congelado)',
-    desc: 'Inmovilizado. Ruleta 100% Fallo Rojo hasta toque de asistencia aliado.',
-    color: '#38bdf8',
-    kanji: '砂',
-  },
-};
-
 export const BingoInspectorScroll: React.FC<BingoInspectorScrollProps> = ({
-  figure,
+  figure: rawFigure,
   state,
   onOpenWorkshop,
 }) => {
-  if (!figure) return null;
+  const { t, language } = useTranslation();
+  if (!rawFigure) return null;
+
+  const figure = getLocalizedFigure(rawFigure, language);
+
+  const STATUS_INFO: Record<string, { label: string; desc: string; color: string; kanji: string }> = {
+    burned: {
+      label: t('status.burned'),
+      desc: t('status.burnedDesc'),
+      color: '#f97316',
+      kanji: '炎',
+    },
+    paralyzed: {
+      label: t('status.paralyzed'),
+      desc: t('status.paralyzedDesc'),
+      color: '#facc15',
+      kanji: '痺',
+    },
+    confused: {
+      label: t('status.confused'),
+      desc: t('status.confusedDesc'),
+      color: '#c084fc',
+      kanji: '幻',
+    },
+    frozen: {
+      label: t('status.frozen'),
+      desc: t('status.frozenDesc'),
+      color: '#38bdf8',
+      kanji: '砂',
+    },
+  };
 
   const effMp = calculateEffectiveMp(figure, state.turnCount, state.activeBuffs[figure.owner]);
   const colorTotals = getFigureColorBreakdown(figure.segments);
@@ -84,15 +89,15 @@ export const BingoInspectorScroll: React.FC<BingoInspectorScrollProps> = ({
                   }`}
                 >
                   {figure.owner === 1
-                    ? '🔵 ALIADO (JUGADOR 1)'
-                    : `🔴 OPONENTE (${state.mode === 'ai' ? 'IA AKATSUKI' : 'JUGADOR 2'})`}
+                    ? `🔵 ${t('common.ally')} (${t('common.player1')})`
+                    : `🔴 ${t('common.opponent')} (${state.mode === 'ai' ? t('common.ai') : t('common.player2')})`}
                 </span>
                 <span className="px-1.5 py-0.5 text-[9px] font-black bg-stone-900 text-amber-400 rounded-sm border border-amber-500">
-                  Nv.{figure.level || 1} • CLv+{figure.clv || 0}
+                  {t('common.level')}.{figure.level || 1} • {t('common.clv')}+{figure.clv || 0}
                 </span>
                 {figure.evolved && (
                   <span className="px-1.5 py-0.5 text-[9px] font-black bg-purple-800 text-amber-200 rounded-sm">
-                    ★ DESPERTAR UX
+                    {t('inspector.awakeningUx')}
                   </span>
                 )}
               </div>
@@ -102,7 +107,7 @@ export const BingoInspectorScroll: React.FC<BingoInspectorScrollProps> = ({
           </div>
 
           <div className="flex flex-col items-center justify-center bg-stone-900 text-amber-400 border-2 border-amber-600 rounded px-2.5 py-1 shrink-0 shadow">
-            <span className="text-[9px] font-bold uppercase tracking-tighter text-amber-200/80">PASOS MP</span>
+            <span className="text-[9px] font-bold uppercase tracking-tighter text-amber-200/80">{t('common.mp')}</span>
             <span className="text-xl font-black leading-none">{effMp}</span>
           </div>
         </div>
@@ -115,9 +120,21 @@ export const BingoInspectorScroll: React.FC<BingoInspectorScrollProps> = ({
           >
             <div>
               <div className="font-black uppercase" style={{ color: statusObj.color }}>
-                {statusObj.kanji} ESTADO: {statusObj.label}
+                {statusObj.kanji} {statusObj.label}
               </div>
               <div className="text-stone-300">{statusObj.desc}</div>
+            </div>
+          </div>
+        )}
+
+        {/* Active Fuinjutsu Wait Condition */}
+        {figure.wait > 0 && (
+          <div className="mb-2 p-2 rounded bg-stone-950 text-white border-l-4 border-amber-500 flex items-center justify-between text-[10px]">
+            <div>
+              <div className="font-black uppercase text-amber-400">
+                ⏳ {t('hierarchy.waitTitle')} ({figure.wait})
+              </div>
+              <div className="text-stone-300">{t('hierarchy.waitDetail')}</div>
             </div>
           </div>
         )}
@@ -125,13 +142,13 @@ export const BingoInspectorScroll: React.FC<BingoInspectorScrollProps> = ({
         {/* Color Distribution Bar */}
         <div className="mb-2.5 bg-stone-900/95 p-2 rounded border border-stone-700 text-stone-100">
           <div className="flex items-center justify-between text-[9px] font-bold uppercase text-amber-300 mb-1">
-            <span>Disco Nv.{figure.level || 1} (Base 96)</span>
+            <span>{t('inspector.diskLevel', { level: figure.level || 1 })}</span>
             {onOpenWorkshop && (
               <button
                 onClick={onOpenWorkshop}
                 className="px-2 py-0.5 rounded bg-amber-600 hover:bg-amber-500 text-stone-950 font-black text-[9px] transition"
               >
-                ⚒️ Forja / Nivel
+                {t('inspector.forgeLevelBtn')}
               </button>
             )}
           </div>
@@ -153,19 +170,19 @@ export const BingoInspectorScroll: React.FC<BingoInspectorScrollProps> = ({
           </div>
           <div className="flex flex-wrap gap-1 mt-1.5 justify-between text-[9px] font-mono">
             <span className={colorTotals.white ? 'text-white font-bold' : 'text-stone-600'}>
-              BLA:{colorTotals.white}
+              {t('inspector.whiteAbbr')}:{colorTotals.white}
             </span>
             <span className={colorTotals.gold ? 'text-amber-400 font-bold' : 'text-stone-600'}>
-              DOR:{colorTotals.gold}
+              {t('inspector.goldAbbr')}:{colorTotals.gold}
             </span>
             <span className={colorTotals.purple ? 'text-purple-300 font-bold' : 'text-stone-600'}>
-              MOR:{colorTotals.purple}
+              {t('inspector.purpleAbbr')}:{colorTotals.purple}
             </span>
             <span className={colorTotals.blue ? 'text-sky-300 font-bold' : 'text-stone-600'}>
-              AZU:{colorTotals.blue}
+              {t('inspector.blueAbbr')}:{colorTotals.blue}
             </span>
             <span className={colorTotals.red ? 'text-red-400 font-bold' : 'text-stone-600'}>
-              ROJ:{colorTotals.red}
+              {t('inspector.redAbbr')}:{colorTotals.red}
             </span>
           </div>
         </div>
@@ -179,7 +196,7 @@ export const BingoInspectorScroll: React.FC<BingoInspectorScrollProps> = ({
           />
           <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/30 to-transparent flex flex-col justify-end p-2">
             <span className="text-[10px] uppercase font-bold text-amber-300">
-              Técnica Suprema de Combate
+              {t('inspector.supremeTechnique')}
             </span>
             <div className="text-xs font-black text-white tracking-wide">{figure.name}</div>
           </div>
@@ -193,8 +210,20 @@ export const BingoInspectorScroll: React.FC<BingoInspectorScrollProps> = ({
         {/* Doctrine Description */}
         <div className="mt-2 p-2 rounded bg-amber-950/10 border-l-4 border-red-800 text-xs space-y-1">
           <div className="font-black text-red-900 text-[10px] flex items-center justify-between">
-            <span>DOCTRINA SHINOBI</span>
-            <span>{figure.status === 'burned' ? '🔥 QUEMADO (-10 DMG)' : '印'}</span>
+            <span>{t('inspector.title')}</span>
+            <span>
+              {figure.status === 'burned'
+                ? t('inspector.burnedTag')
+                : figure.status === 'paralyzed'
+                ? t('inspector.paralyzedTag')
+                : figure.status === 'confused'
+                ? t('inspector.confusedTag')
+                : figure.status === 'frozen'
+                ? t('inspector.frozenTag')
+                : figure.wait > 0
+                ? `⏳ ${t('common.wait')} (${figure.wait})`
+                : '印'}
+            </span>
           </div>
           <p className="text-[10px] text-stone-800 font-medium leading-snug">{figure.ability}</p>
         </div>
@@ -202,8 +231,8 @@ export const BingoInspectorScroll: React.FC<BingoInspectorScrollProps> = ({
         {/* Segments Breakdown */}
         <div className="mt-2.5">
           <div className="text-[10px] font-extrabold text-stone-700 uppercase tracking-wider mb-1 flex justify-between">
-            <span>Sectores del Disco</span>
-            <span>Poder / Tamaño</span>
+            <span>{t('inspector.wheelSectors')}</span>
+            <span>{t('inspector.powerSize')}</span>
           </div>
           <div className="space-y-1 text-xs">
             {figure.segments.map((seg, idx) => {
@@ -212,8 +241,8 @@ export const BingoInspectorScroll: React.FC<BingoInspectorScrollProps> = ({
               let valLabel = '';
               if (seg.color === 'white' || seg.color === 'gold') valLabel = `${seg.power} DMG`;
               else if (seg.color === 'purple') valLabel = `${'★'.repeat(seg.stars)} (0 DMG)`;
-              else if (seg.color === 'blue') valLabel = 'Esquiva';
-              else valLabel = 'Fallo';
+              else if (seg.color === 'blue') valLabel = t('inspector.dodge');
+              else valLabel = t('inspector.miss');
 
               return (
                 <div

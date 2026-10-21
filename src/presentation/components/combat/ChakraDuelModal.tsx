@@ -3,6 +3,8 @@ import { GameState } from '../../../application/state/gameInitialState';
 import { WHEEL_COLORS, WheelSegment, ShinobiFigureState } from '../../../domain/models/ShinobiFigure';
 import { ChakraDiskSVG } from '../wheel/ChakraDiskSVG';
 import { CHAR_SVG_FALLBACKS, JUTSU_ANIME_CUTINS } from '../../../infrastructure/assets/animeAssets';
+import { useTranslation } from '../../context/I18nContext';
+import { getLocalizedFigure } from '../../../infrastructure/i18n/locales/figureI18n';
 
 interface ChakraDuelModalProps {
   state: GameState;
@@ -15,11 +17,15 @@ export const ChakraDuelModal: React.FC<ChakraDuelModalProps> = ({
   onRespin,
   onConfirmResolution,
 }) => {
+  const { t, language } = useTranslation();
   const b = state.currentBattle;
   if (!b) return null;
 
-  const { attacker, defender, spinAttacker, spinDefender, outcome, revealed } = b;
-  const hero = outcome?.hero || attacker;
+  const attacker = getLocalizedFigure(b.attacker, language);
+  const defender = getLocalizedFigure(b.defender, language);
+  const { spinAttacker, spinDefender, outcome, revealed } = b;
+  const rawHero = outcome?.hero || b.attacker;
+  const hero = getLocalizedFigure(rawHero, language);
   const winningSeg = outcome?.seg || spinAttacker?.segment;
   const cutinArt = JUTSU_ANIME_CUTINS[winningSeg?.effect || hero.key] || JUTSU_ANIME_CUTINS.rasengan;
 
@@ -82,10 +88,21 @@ export const ChakraDuelModal: React.FC<ChakraDuelModalProps> = ({
     } else if (seg.color === 'purple') {
       valStr = `${'★'.repeat(seg.stars)} (0 DMG)`;
     } else if (seg.color === 'blue') {
-      valStr = 'ESQUIVA';
+      valStr = t('combat.dodge');
     } else {
-      valStr = 'FALLO';
+      valStr = t('combat.miss');
     }
+
+    const COLOR_LABELS: Record<string, string> = {
+      white: t('combat.whiteLabel'),
+      gold: t('combat.goldLabel'),
+      purple: t('combat.purpleLabel'),
+      blue: t('combat.blueLabel'),
+      red: t('combat.redLabel'),
+    };
+
+    const locUnit = getLocalizedFigure(unit, language);
+    const segName = locUnit.segments.find(s => s.color === seg.color && s.size === seg.size)?.name || seg.name;
 
     return (
       <div>
@@ -94,14 +111,14 @@ export const ChakraDuelModal: React.FC<ChakraDuelModalProps> = ({
             className="px-2 py-0.5 rounded-sm text-[10px] font-black uppercase"
             style={{ background: col.fill, color: seg.color === 'white' || seg.color === 'gold' ? '#0f172a' : '#ffffff' }}
           >
-            {col.label} • {valStr}
+            {COLOR_LABELS[seg.color] || col.label} • {valStr}
           </span>
           <span className="text-[10px] font-mono text-amber-300 bg-stone-900 px-1.5 py-0.5 rounded border border-stone-700">
             {seg.size}/96
           </span>
         </div>
         <div className="text-xs font-extrabold text-white mt-1">
-          {seg.name}
+          {segName}
         </div>
       </div>
     );
@@ -119,15 +136,15 @@ export const ChakraDuelModal: React.FC<ChakraDuelModalProps> = ({
               </span>
               <div>
                 <h2 className="text-lg md:text-2xl font-black text-stone-900 leading-none">
-                  CHOQUE DE DISCOS DE CHAKRA
+                  {t('combat.duelTitle')}
                 </h2>
                 <p className="text-xs text-red-900 font-bold">
-                  Resolución canónica de ruletas de 96 segmentos estilo Pokémon Duel
+                  {t('combat.duelSubtitle')}
                 </p>
               </div>
             </div>
             <span className="px-2.5 py-1 rounded bg-stone-900 text-amber-300 text-xs font-bold border border-amber-600">
-              DUELO EN ARENA
+              {t('combat.arenaDuelBadge')}
             </span>
           </div>
 
@@ -145,7 +162,7 @@ export const ChakraDuelModal: React.FC<ChakraDuelModalProps> = ({
                 />
                 <div className="text-left">
                   <span className="px-1.5 py-0.5 text-[9px] font-extrabold bg-orange-600 text-white rounded-sm">
-                    ATACANTE (J{attacker.owner})
+                    {t('combat.attacker')} (P{attacker.owner})
                   </span>
                   <h3 className="text-base font-black text-amber-100">{attacker.name}</h3>
                 </div>
@@ -175,7 +192,7 @@ export const ChakraDuelModal: React.FC<ChakraDuelModalProps> = ({
                   <div className="flex items-center justify-center gap-2">
                     <span className="inline-block w-3 h-3 border-2 border-amber-400 border-t-transparent rounded-full animate-spin" />
                     <span className="text-xs text-amber-300 font-mono tracking-wide">
-                      Girando ruleta de chakra...
+                      {t('combat.spinning')}
                     </span>
                   </div>
                 )}
@@ -195,7 +212,7 @@ export const ChakraDuelModal: React.FC<ChakraDuelModalProps> = ({
                 />
                 <div className="text-left">
                   <span className="px-1.5 py-0.5 text-[9px] font-extrabold bg-red-700 text-white rounded-sm">
-                    DEFENSOR (J{defender.owner})
+                    {t('combat.defender')} (P{defender.owner})
                   </span>
                   <h3 className="text-base font-black text-stone-100">{defender.name}</h3>
                 </div>
@@ -225,7 +242,7 @@ export const ChakraDuelModal: React.FC<ChakraDuelModalProps> = ({
                   <div className="flex items-center justify-center gap-2">
                     <span className="inline-block w-3 h-3 border-2 border-red-400 border-t-transparent rounded-full animate-spin" />
                     <span className="text-xs text-red-300 font-mono tracking-wide">
-                      Girando ruleta de chakra...
+                      {t('combat.spinning')}
                     </span>
                   </div>
                 )}
@@ -241,7 +258,7 @@ export const ChakraDuelModal: React.FC<ChakraDuelModalProps> = ({
               </div>
               <div className="flex-1 text-center md:text-left">
                 <span className="text-[10px] uppercase font-bold text-amber-400">
-                  Resolución del Choque
+                  {t('combat.outcomeTitle')}
                 </span>
                 <p className="text-xs md:text-sm font-bold text-stone-200 mt-0.5">
                   {outcome.reason}
@@ -253,14 +270,14 @@ export const ChakraDuelModal: React.FC<ChakraDuelModalProps> = ({
                     onClick={onRespin}
                     className="px-3 py-2 rounded bg-amber-600 hover:bg-amber-500 text-stone-950 font-black text-xs transition shadow"
                   >
-                    Re-girar (Doble Chance)
+                    {t('combat.respinButton')}
                   </button>
                 )}
                 <button
                   onClick={onConfirmResolution}
                   className="px-4 py-2 rounded bg-red-800 hover:bg-red-700 text-amber-100 font-black text-xs uppercase tracking-wider transition shadow"
                 >
-                  Confirmar Resolución
+                  {t('combat.confirmResolution')}
                 </button>
               </div>
             </div>

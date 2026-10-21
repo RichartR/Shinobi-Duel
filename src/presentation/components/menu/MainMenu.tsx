@@ -1,11 +1,12 @@
 import React from 'react';
-import { Play, BookOpen, Users, Layers, Volume2, VolumeX, Shield, Award } from 'lucide-react';
+import { Play, BookOpen, Users, Volume2, VolumeX, Shield, Award } from 'lucide-react';
+import { useTranslation } from '../../context/I18nContext';
+import { LanguageSwitcher } from '../common/LanguageSwitcher';
 
 interface MainMenuProps {
   onStartGame: (mode: 'ai' | 'local') => void;
   onOpenGuide: () => void;
   onOpenCodex: () => void;
-  onOpenArch: () => void;
   isMuted: boolean;
   onToggleMute: () => void;
 }
@@ -14,10 +15,11 @@ export const MainMenu: React.FC<MainMenuProps> = ({
   onStartGame,
   onOpenGuide,
   onOpenCodex,
-  onOpenArch,
   isMuted,
   onToggleMute,
 }) => {
+  const { t } = useTranslation();
+
   return (
     <div className="min-h-screen flex flex-col justify-between p-4 md:p-8 relative overflow-hidden">
       {/* Background Ambience */}
@@ -30,24 +32,18 @@ export const MainMenu: React.FC<MainMenuProps> = ({
         }}
       />
 
-      {/* Top Bar with Audio Toggle */}
-      <header className="max-w-5xl w-full mx-auto flex items-center justify-between pb-4 border-b border-stone-800">
+      {/* Top Bar with Language and Audio Toggle */}
+      <header className="max-w-5xl w-full mx-auto flex items-center justify-between pb-4 border-b border-stone-800 gap-2 flex-wrap">
         <div className="flex items-center gap-2.5">
           <span className="w-8 h-8 rounded-sm bg-gradient-to-br from-red-800 to-amber-900 border-2 border-amber-500/80 flex items-center justify-center text-amber-200 font-kanji font-black text-lg shadow">
             忍
           </span>
           <span className="text-xs uppercase tracking-widest font-black text-amber-400">
-            SHINOBI DUEL • EXAMEN CHUNIN
+            {t('menu.badge')}
           </span>
         </div>
         <div className="flex items-center gap-2">
-          <button
-            onClick={onOpenArch}
-            className="px-3 py-1.5 rounded bg-stone-900 hover:bg-stone-800 text-amber-300 text-xs font-bold border border-amber-600/70 flex items-center gap-1.5 transition"
-          >
-            <Layers className="w-4 h-4 text-amber-400" />
-            <span className="hidden sm:inline">Arquitectura Clean</span>
-          </button>
+          <LanguageSwitcher />
           <button
             onClick={onToggleMute}
             aria-label={isMuted ? 'Activar sonido' : 'Silenciar sonido'}
@@ -83,12 +79,12 @@ export const MainMenu: React.FC<MainMenuProps> = ({
               <div className="flex items-center justify-center gap-2">
                 <span className="h-px w-10 bg-red-900" />
                 <p className="text-xs md:text-sm font-black uppercase text-red-900 tracking-widest font-kanji">
-                  中忍試験 • 盤上戦術 — TABLERO TÁCTICO NINJA
+                  {t('menu.subtitle')}
                 </p>
                 <span className="h-px w-10 bg-red-900" />
               </div>
               <p className="text-xs md:text-sm text-stone-700 max-w-lg mx-auto font-medium pt-1">
-                Juego de tablero táctico ambientado en Naruto, con ruletas de chakra de 96 segmentos, capturas de base, jutsus morados y rodeo Fuinjutsu inspirado en Pokémon Duel.
+                {t('menu.description')}
               </p>
             </div>
 
@@ -99,9 +95,9 @@ export const MainMenu: React.FC<MainMenuProps> = ({
                 className="group p-4 rounded-lg bg-gradient-to-r from-red-900 to-red-800 hover:from-red-800 hover:to-red-700 text-amber-100 border-2 border-amber-600 shadow-md transition flex items-center justify-between text-left"
               >
                 <div>
-                  <div className="text-xs font-black text-amber-300 uppercase tracking-wider">MODO PRINCIPAL</div>
-                  <div className="text-lg font-black leading-tight">Vs IA Akatsuki</div>
-                  <div className="text-[11px] text-amber-200/80 mt-0.5">Duelo táctico individual contra el bot</div>
+                  <div className="text-xs font-black text-amber-300 uppercase tracking-wider">{t('common.playVsAi')}</div>
+                  <div className="text-lg font-black leading-tight">{t('menu.quickDuelTitle')}</div>
+                  <div className="text-[11px] text-amber-200/80 mt-0.5">{t('menu.quickDuelDesc')}</div>
                 </div>
                 <Play className="w-6 h-6 text-amber-400 group-hover:translate-x-1 transition-transform" />
               </button>
@@ -111,9 +107,9 @@ export const MainMenu: React.FC<MainMenuProps> = ({
                 className="group p-4 rounded-lg bg-stone-900 hover:bg-stone-800 text-stone-100 border-2 border-stone-700 shadow-md transition flex items-center justify-between text-left"
               >
                 <div>
-                  <div className="text-xs font-black text-amber-400 uppercase tracking-wider">PASAR Y JUGAR</div>
-                  <div className="text-lg font-black leading-tight">2 Jugadores Local</div>
-                  <div className="text-[11px] text-stone-300 mt-0.5">Enfrentamiento en la misma pantalla</div>
+                  <div className="text-xs font-black text-amber-400 uppercase tracking-wider">{t('common.playLocal2P')}</div>
+                  <div className="text-lg font-black leading-tight">{t('menu.local2pTitle')}</div>
+                  <div className="text-[11px] text-stone-300 mt-0.5">{t('menu.local2pDesc')}</div>
                 </div>
                 <Users className="w-6 h-6 text-amber-400 group-hover:scale-110 transition-transform" />
               </button>
@@ -123,9 +119,9 @@ export const MainMenu: React.FC<MainMenuProps> = ({
                 className="group p-4 rounded-lg bg-[#ebdcc2] hover:bg-[#e4d1b1] text-stone-950 border-2 border-[#281b12] shadow transition flex items-center justify-between text-left"
               >
                 <div>
-                  <div className="text-xs font-black text-red-900 uppercase tracking-wider">APRENDE A JUGAR</div>
-                  <div className="text-lg font-black leading-tight">Guía y Reglas Oficiales</div>
-                  <div className="text-[11px] text-stone-700 mt-0.5">Jerarquía de colores, ruleta 96 y rodeo</div>
+                  <div className="text-xs font-black text-red-900 uppercase tracking-wider">{t('common.rulesGuide')}</div>
+                  <div className="text-lg font-black leading-tight">{t('menu.guideTitle')}</div>
+                  <div className="text-[11px] text-stone-700 mt-0.5">{t('menu.guideDesc')}</div>
                 </div>
                 <BookOpen className="w-6 h-6 text-red-900 group-hover:translate-x-1 transition-transform" />
               </button>
@@ -135,9 +131,9 @@ export const MainMenu: React.FC<MainMenuProps> = ({
                 className="group p-4 rounded-lg bg-[#ebdcc2] hover:bg-[#e4d1b1] text-stone-950 border-2 border-[#281b12] shadow transition flex items-center justify-between text-left"
               >
                 <div>
-                  <div className="text-xs font-black text-amber-900 uppercase tracking-wider">PERSONAJES Y MAZO</div>
-                  <div className="text-lg font-black leading-tight">Libro Bingo & Forja</div>
-                  <div className="text-[11px] text-stone-700 mt-0.5">Catálogo, niveles Lv 1-5 y pergaminos</div>
+                  <div className="text-xs font-black text-amber-900 uppercase tracking-wider">{t('common.characterCodex')}</div>
+                  <div className="text-lg font-black leading-tight">{t('menu.codexTitle')}</div>
+                  <div className="text-[11px] text-stone-700 mt-0.5">{t('menu.codexDesc')}</div>
                 </div>
                 <Award className="w-6 h-6 text-amber-900 group-hover:translate-x-1 transition-transform" />
               </button>
@@ -151,9 +147,9 @@ export const MainMenu: React.FC<MainMenuProps> = ({
       <footer className="max-w-5xl w-full mx-auto text-center text-xs text-stone-500 pt-4 border-t border-stone-800 flex flex-wrap items-center justify-between gap-2">
         <span className="flex items-center gap-1.5">
           <Shield className="w-3.5 h-3.5 text-amber-500" />
-          Clean Architecture & DDD • Capas desacopladas
+          {t('menu.footerConcept')}
         </span>
-        <span>Ruletas canónicas de 96 segmentos • Síntesis Web Audio procedural</span>
+        <span>{t('menu.footerAudio')}</span>
       </footer>
     </div>
   );

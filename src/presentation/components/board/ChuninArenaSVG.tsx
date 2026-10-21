@@ -4,6 +4,8 @@ import { BOARD_NODES, BOARD_EDGES } from '../../../domain/models/BoardGraph';
 import { calculateEffectiveMp } from '../../../domain/services/BoardMovementService';
 import { CHAR_SVG_FALLBACKS } from '../../../infrastructure/assets/animeAssets';
 import { FigureStatus } from '../../../domain/models/ShinobiFigure';
+import { useTranslation } from '../../context/I18nContext';
+import { getLocalizedFigure } from '../../../infrastructure/i18n/locales/figureI18n';
 
 interface ChuninArenaSVGProps {
   state: GameState;
@@ -25,6 +27,7 @@ export const ChuninArenaSVG: React.FC<ChuninArenaSVGProps> = ({
   onSelectNode,
   onEndPostMove,
 }) => {
+  const { t, language } = useTranslation();
   const onBoardFigures = useMemo(
     () => state.figures.filter(f => f.location === 'board' && f.nodeId !== null),
     [state.figures]
@@ -117,7 +120,7 @@ export const ChuninArenaSVG: React.FC<ChuninArenaSVGProps> = ({
               const mainCol = isP1 ? '#0284c7' : '#dc2626';
               const strokeCol = isP1 ? '#38bdf8' : '#f87171';
               const kanji = isP1 ? '火' : '暁';
-              const labelText = isP1 ? '🛡️ BASE KONOHA (DEFENDER J1)' : '🎯 BASE AKATSUKI (META J1)';
+              const labelText = isP1 ? `🛡️ ${t('board.baseKonoha')}` : `🎯 ${t('board.baseAkatsuki')}`;
               const labelY = isP1 ? node.y + 38 : node.y - 33;
               return (
                 <g key={`node_${node.id}`}>
@@ -149,7 +152,7 @@ export const ChuninArenaSVG: React.FC<ChuninArenaSVGProps> = ({
                     陣
                   </text>
                   <text x={node.x} y={labelY} textAnchor="middle" fill="#d6c7b2" fontSize="8" fontWeight="800">
-                    {node.label}
+                    {isP1 ? t('board.entryP1') : t('board.entryP2')}
                   </text>
                 </g>
               );
@@ -199,14 +202,15 @@ export const ChuninArenaSVG: React.FC<ChuninArenaSVGProps> = ({
 
         {/* Layer 4: Sculpted Figure Tokens */}
         <g>
-          {onBoardFigures.map(fig => {
+          {onBoardFigures.map(rawFig => {
+            const fig = getLocalizedFigure(rawFig, language);
             const node = BOARD_NODES[fig.nodeId!];
             const isSelected = state.selectedFigureId === fig.id || state.swapCandidateId === fig.id;
             const isAttackTarget = state.validAttackFigureIds.includes(fig.id);
             const isP1 = fig.owner === 1;
             const effMp = calculateEffectiveMp(fig, state.turnCount, state.activeBuffs[fig.owner]);
             const fallbackUri = CHAR_SVG_FALLBACKS[fig.key];
-            const ownerBadgeText = isP1 ? 'J1' : state.mode === 'ai' ? 'IA' : 'J2';
+            const ownerBadgeText = isP1 ? 'P1' : state.mode === 'ai' ? 'AI' : 'P2';
 
             return (
               <g
@@ -226,7 +230,7 @@ export const ChuninArenaSVG: React.FC<ChuninArenaSVGProps> = ({
                     <circle r="35" fill="rgba(220, 38, 38, 0.4)" stroke="#ef4444" strokeWidth="3.5" />
                     <rect x="-28" y="-45" width="56" height="15" rx="3" fill="#991b1b" stroke="#fde047" strokeWidth="1.2" />
                     <text x="0" y="-37" textAnchor="middle" dominantBaseline="central" fill="#fef3c7" fontSize="8.5" fontWeight="900">
-                      ⚔️ ATACAR
+                      ⚔️ {t('board.duelAction')}
                     </text>
                   </g>
                 )}
@@ -373,11 +377,11 @@ export const ChuninArenaSVG: React.FC<ChuninArenaSVGProps> = ({
         <div className="absolute top-3 left-1/2 -translate-x-1/2 bg-amber-950/95 text-amber-100 px-4 py-2 rounded border-2 border-amber-400 shadow-2xl flex items-center gap-3 z-20">
           <span className="px-1.5 py-0.5 text-xs font-black bg-amber-500 text-stone-950 rounded-sm">巻物</span>
           <span className="text-xs font-bold">
-            {state.phase === 'GOAL_BLOCK_SELECT' && 'Selecciona un aliado para teletransportarlo a tu Base.'}
-            {state.phase === 'HEAL_SELECT' && 'Selecciona un aliado para curar sus estados alterados.'}
-            {state.phase === 'REVIVE_SELECT' && 'Selecciona un aliado en tu Prisión Fuinjutsu para revivirlo.'}
-            {state.phase === 'SWAP_SELECT_1' && 'Selecciona el primer aliado para permutar.'}
-            {state.phase === 'SWAP_SELECT_2' && 'Selecciona el segundo aliado para completar Kawarimi.'}
+            {state.phase === 'GOAL_BLOCK_SELECT' && t('scrolls.goalBlockPrompt')}
+            {state.phase === 'HEAL_SELECT' && t('scrolls.healPrompt')}
+            {state.phase === 'REVIVE_SELECT' && t('scrolls.revivePrompt')}
+            {state.phase === 'SWAP_SELECT_1' && t('scrolls.swapPrompt1')}
+            {state.phase === 'SWAP_SELECT_2' && t('scrolls.swapPrompt2')}
           </span>
         </div>
       )}
@@ -389,13 +393,13 @@ export const ChuninArenaSVG: React.FC<ChuninArenaSVGProps> = ({
             戦
           </span>
           <span className="text-xs font-extrabold">
-            ¡Enemigo adyacente! Pulsa sobre el rival con ⚔️ DUELO o:
+            {t('board.postMovePrompt')}
           </span>
           <button
             onClick={onEndPostMove}
             className="px-3 py-1.5 rounded bg-red-800 hover:bg-red-700 text-amber-100 text-xs font-bold shadow transition"
           >
-            Terminar Turno
+            {t('board.endTurnPrompt')}
           </button>
         </div>
       )}

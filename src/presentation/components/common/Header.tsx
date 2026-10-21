@@ -1,10 +1,11 @@
 import React from 'react';
-import { Layers, BookOpen, Users, Volume2, VolumeX, RotateCcw, Home } from 'lucide-react';
+import { BookOpen, Users, Volume2, VolumeX, RotateCcw, Home } from 'lucide-react';
 import { GameState } from '../../../application/state/gameInitialState';
+import { useTranslation } from '../../context/I18nContext';
+import { LanguageSwitcher } from './LanguageSwitcher';
 
 interface HeaderProps {
   state: GameState;
-  onOpenArchModal: () => void;
   onOpenCodexModal: () => void;
   onToggleMode: () => void;
   isMuted: boolean;
@@ -15,7 +16,6 @@ interface HeaderProps {
 
 export const Header: React.FC<HeaderProps> = ({
   state,
-  onOpenArchModal,
   onOpenCodexModal,
   onToggleMode,
   isMuted,
@@ -23,6 +23,8 @@ export const Header: React.FC<HeaderProps> = ({
   onResetGame,
   onReturnToMenu,
 }) => {
+  const { t } = useTranslation();
+
   return (
     <header className="bg-gradient-to-b from-[#261911] to-[#170f0a] border-b-4 border-red-900 px-3 py-2 sticky top-0 z-30 shadow-xl">
       <div className="max-w-[1440px] mx-auto flex flex-wrap items-center justify-between gap-2">
@@ -30,7 +32,7 @@ export const Header: React.FC<HeaderProps> = ({
         <div className="flex items-center gap-3">
           <button
             onClick={onReturnToMenu}
-            title="Volver al Menú Principal"
+            title={t('common.backToMenu')}
             className="p-1.5 rounded bg-stone-900 hover:bg-stone-800 text-amber-300 border border-stone-700 transition"
           >
             <Home className="w-4 h-4" />
@@ -49,12 +51,9 @@ export const Header: React.FC<HeaderProps> = ({
               <h1 className="text-base md:text-lg font-black tracking-wider text-amber-400">
                 SHINOBI DUEL
               </h1>
-              <span className="px-1.5 py-0.5 text-[9px] font-black bg-red-950 text-red-400 border border-red-600 rounded-sm">
-                CLEAN ARCH
-              </span>
             </div>
             <p className="text-[10px] text-amber-200/75 hidden sm:block -mt-0.5">
-              中忍試験 • 盤上戦術 — Tablero Táctico de 28 Nodos
+              {t('header.subtitle')}
             </p>
           </div>
         </div>
@@ -66,10 +65,10 @@ export const Header: React.FC<HeaderProps> = ({
           </span>
           <span className="text-xs font-black tracking-wide text-stone-900">
             {state.turnPlayer === 1
-              ? `TURNO ${state.turnCount}: KONOHA (J1)`
+              ? `${t('header.turnCount')} ${state.turnCount}: KONOHA (${t('common.player1')})`
               : state.mode === 'ai'
-              ? `TURNO ${state.turnCount}: AKATSUKI (IA)...`
-              : `TURNO ${state.turnCount}: AKATSUKI (J2)`}
+              ? `${t('header.turnCount')} ${state.turnCount}: AKATSUKI (${t('common.ai')})...`
+              : `${t('header.turnCount')} ${state.turnCount}: AKATSUKI (${t('common.player2')})`}
           </span>
           {state.turnCount === 1 && (
             <span className="px-1.5 py-0.5 text-[9px] font-extrabold bg-red-800 text-amber-100 rounded-sm">
@@ -80,30 +79,24 @@ export const Header: React.FC<HeaderProps> = ({
 
         {/* Navigation & Action Controls */}
         <div className="flex items-center gap-1.5 flex-wrap">
-          <button
-            onClick={onOpenArchModal}
-            className="px-2.5 py-1 rounded bg-amber-600 hover:bg-amber-500 text-stone-950 border border-amber-300 text-xs font-black transition flex items-center gap-1 shadow"
-          >
-            <Layers className="w-3.5 h-3.5" />
-            <span className="hidden md:inline">Arquitectura</span>
-          </button>
+          <LanguageSwitcher compact />
           <button
             onClick={onOpenCodexModal}
             className="px-2.5 py-1 rounded bg-stone-800 hover:bg-stone-700 text-amber-200 border border-stone-600 text-xs font-bold transition flex items-center gap-1"
           >
             <BookOpen className="w-3.5 h-3.5 text-amber-400" />
-            <span className="hidden md:inline">Libro Bingo</span>
+            <span className="hidden md:inline">{t('common.characterCodex')}</span>
           </button>
           <button
             onClick={onToggleMode}
             className="px-2.5 py-1 rounded bg-stone-800 hover:bg-stone-700 text-amber-200 border border-stone-600 text-xs font-bold transition flex items-center gap-1"
           >
             <Users className="w-3.5 h-3.5 text-sky-400" />
-            <span>{state.mode === 'ai' ? 'Vs IA' : '2J Local'}</span>
+            <span>{state.mode === 'ai' ? t('common.playVsAi') : t('common.playLocal2P')}</span>
           </button>
           <button
             onClick={onToggleMute}
-            aria-label={isMuted ? 'Activar sonido' : 'Silenciar sonido'}
+            aria-label={isMuted ? t('header.soundOn') : t('header.soundOff')}
             className="p-1.5 rounded bg-stone-800 hover:bg-stone-700 text-amber-200 border border-stone-600 transition"
           >
             {isMuted ? <VolumeX className="w-4 h-4 text-red-400" /> : <Volume2 className="w-4 h-4 text-emerald-400" />}
@@ -113,7 +106,7 @@ export const Header: React.FC<HeaderProps> = ({
             className="px-2 py-1 rounded bg-red-900 hover:bg-red-800 text-red-100 border border-red-600 text-xs font-bold transition flex items-center gap-1"
           >
             <RotateCcw className="w-3.5 h-3.5" />
-            <span className="hidden sm:inline">Reiniciar</span>
+            <span className="hidden sm:inline">{t('common.restart')}</span>
           </button>
         </div>
       </div>

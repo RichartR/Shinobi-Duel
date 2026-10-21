@@ -12,9 +12,13 @@ import { SHINOBI_FIGURES_CATALOG } from '../../../infrastructure/repositories/Mo
 import { CHAR_SVG_FALLBACKS } from '../../../infrastructure/assets/animeAssets';
 import { ChakraDiskSVG } from '../wheel/ChakraDiskSVG';
 import { Play } from 'lucide-react';
+import { useTranslation } from '../../context/I18nContext';
+import { LanguageSwitcher } from '../common/LanguageSwitcher';
+import { getLocalizedFigure, getLocalizedScroll } from '../../../infrastructure/i18n/locales/figureI18n';
 
 interface ShinobiCodexProps {
   state: GameState;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   dispatch: React.Dispatch<any>;
   onBackToMenu: () => void;
   onPlayGame: () => void;
@@ -26,10 +30,13 @@ export const ShinobiCodex: React.FC<ShinobiCodexProps> = ({
   onBackToMenu,
   onPlayGame,
 }) => {
+  const { t, language } = useTranslation();
   const [selectedKey, setSelectedKey] = useState<string>('naruto');
   const [activeTab, setActiveTab] = useState<'catalog' | 'deck'>('catalog');
 
-  const selectedFigTemplate = SHINOBI_FIGURES_CATALOG.find(f => f.key === selectedKey) || SHINOBI_FIGURES_CATALOG[0];
+  const rawTemplate = SHINOBI_FIGURES_CATALOG.find(f => f.key === selectedKey) || SHINOBI_FIGURES_CATALOG[0];
+  const selectedFigTemplate = getLocalizedFigure(rawTemplate, language);
+
   const custom = state.customizations[selectedFigTemplate.key] || {
     level: 5,
     clv: 1,
@@ -54,36 +61,39 @@ export const ShinobiCodex: React.FC<ShinobiCodexProps> = ({
 
   // Deck cost calculation
   const currentPlateCost = state.selectedPlateIds.reduce((acc, pid) => {
-    const t = TACTICAL_SCROLLS_CATALOG.find(s => s.id === pid);
-    return acc + (t ? t.cost : 1);
+    const tPlate = TACTICAL_SCROLLS_CATALOG.find(s => s.id === pid);
+    return acc + (tPlate ? tPlate.cost : 1);
   }, 0);
 
   return (
     <div className="min-h-screen bg-[#140e0a] text-stone-100 flex flex-col p-3 md:p-6">
       {/* Header */}
-      <header className="max-w-6xl w-full mx-auto flex items-center justify-between pb-3 border-b border-stone-800">
+      <header className="max-w-6xl w-full mx-auto flex items-center justify-between pb-3 border-b border-stone-800 flex-wrap gap-2">
         <div className="flex items-center gap-2.5">
           <button
             onClick={onBackToMenu}
             className="px-3 py-1.5 rounded bg-stone-900 hover:bg-stone-800 text-amber-300 text-xs font-bold border border-stone-700 transition"
           >
-            ← Volver al Menú
+            {t('common.backToMenu')}
           </button>
           <div className="flex items-center gap-2">
             <span className="w-6 h-6 rounded-sm bg-amber-600 border border-amber-300 flex items-center justify-center text-stone-950 font-kanji font-black text-xs">
               書
             </span>
             <h1 className="text-sm md:text-base font-black text-amber-400 uppercase tracking-wide">
-              LIBRO BINGO & FORJA SHINOBI (CATÁLOGO OFICIAL)
+              {t('codex.title')}
             </h1>
           </div>
         </div>
-        <button
-          onClick={onPlayGame}
-          className="px-4 py-1.5 rounded bg-red-800 hover:bg-red-700 text-amber-100 text-xs font-black uppercase tracking-wider border border-amber-500 shadow transition flex items-center gap-1.5"
-        >
-          <Play className="w-3.5 h-3.5" /> Jugar en Arena
-        </button>
+        <div className="flex items-center gap-2">
+          <LanguageSwitcher compact />
+          <button
+            onClick={onPlayGame}
+            className="px-4 py-1.5 rounded bg-red-800 hover:bg-red-700 text-amber-100 text-xs font-black uppercase tracking-wider border border-amber-500 shadow transition flex items-center gap-1.5"
+          >
+            <Play className="w-3.5 h-3.5" /> {t('common.playNow')}
+          </button>
+        </div>
       </header>
 
       {/* Main Container */}
@@ -98,7 +108,7 @@ export const ShinobiCodex: React.FC<ShinobiCodexProps> = ({
                 : 'bg-stone-950 text-stone-400 hover:text-stone-200'
             }`}
           >
-            Catálogo y Forja (Lv.1-5 & CLv)
+            {t('codex.tabCatalog')}
           </button>
           <button
             onClick={() => setActiveTab('deck')}
@@ -108,7 +118,7 @@ export const ShinobiCodex: React.FC<ShinobiCodexProps> = ({
                 : 'bg-stone-950 text-stone-400 hover:text-stone-200'
             }`}
           >
-            Configuración de Mazo (6 Figuras & 6 Costes)
+            {t('codex.tabDeck')}
           </button>
         </div>
 
@@ -121,10 +131,11 @@ export const ShinobiCodex: React.FC<ShinobiCodexProps> = ({
                 {/* Shinobi List Selector (4 Cols) */}
                 <div className="lg:col-span-4 space-y-2">
                   <h2 className="text-xs font-black text-red-900 uppercase tracking-widest border-b border-stone-800/20 pb-1">
-                    Figuras Oficiales ({SHINOBI_FIGURES_CATALOG.length})
+                    {t('codex.officialFigures')} ({SHINOBI_FIGURES_CATALOG.length})
                   </h2>
                   <div className="space-y-1.5 max-h-[500px] overflow-y-auto pr-1">
-                    {SHINOBI_FIGURES_CATALOG.map(fig => {
+                    {SHINOBI_FIGURES_CATALOG.map(figRaw => {
+                      const fig = getLocalizedFigure(figRaw, language);
                       const isSelected = fig.key === selectedKey;
                       const isInTeam = state.selectedTeamKeys.includes(fig.key);
                       return (
@@ -155,7 +166,7 @@ export const ShinobiCodex: React.FC<ShinobiCodexProps> = ({
                           </div>
                           {isInTeam && (
                             <span className="px-1.5 py-0.5 rounded text-[9px] font-black bg-amber-600 text-stone-950 shrink-0">
-                              En Mazo
+                              {t('codex.inDeck')}
                             </span>
                           )}
                         </button>
@@ -182,7 +193,7 @@ export const ShinobiCodex: React.FC<ShinobiCodexProps> = ({
                             {selectedFigTemplate.rarity}
                           </span>
                           <span className="text-xs font-bold text-amber-400">
-                            {selectedFigTemplate.mp} Puntos de Movimiento (MP)
+                            {selectedFigTemplate.mp} {t('codex.movementPoints')}
                           </span>
                         </div>
                         <h3 className="text-xl font-black text-white">{selectedFigTemplate.name}</h3>
@@ -195,8 +206,10 @@ export const ShinobiCodex: React.FC<ShinobiCodexProps> = ({
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 p-3 rounded-lg bg-stone-950 border border-stone-800 text-xs">
                     <div>
                       <div className="flex items-center justify-between font-bold text-amber-300 mb-1.5">
-                        <span>Nivel de Figura (Lv.{custom.level}/5):</span>
-                        <span className="text-stone-400 font-normal">+{custom.level - 1} segmentos</span>
+                        <span>{t('codex.figureLevel', { level: custom.level })}</span>
+                        <span className="text-stone-400 font-normal">
+                          {t('codex.segmentsGain', { count: custom.level - 1 })}
+                        </span>
                       </div>
                       <div className="flex gap-1.5">
                         {[1, 2, 3, 4, 5].map(lv => (
@@ -222,7 +235,7 @@ export const ShinobiCodex: React.FC<ShinobiCodexProps> = ({
 
                     <div>
                       <div className="flex items-center justify-between font-bold text-emerald-300 mb-1.5">
-                        <span>Nivel de Cadena (CLv):</span>
+                        <span>{t('codex.chainLevel')}</span>
                         <span className="text-white font-mono font-black">+{custom.clv} DMG</span>
                       </div>
                       <div className="flex items-center gap-2">
@@ -242,7 +255,7 @@ export const ShinobiCodex: React.FC<ShinobiCodexProps> = ({
                           -
                         </button>
                         <div className="flex-1 text-center font-mono font-black text-amber-300 bg-stone-900 py-1 rounded border border-stone-700">
-                          +{custom.clv} Daño Extra
+                          {t('codex.extraDamage', { count: custom.clv })}
                         </div>
                         <button
                           onClick={() =>
@@ -271,8 +284,8 @@ export const ShinobiCodex: React.FC<ShinobiCodexProps> = ({
 
                     <div className="md:col-span-7 space-y-2">
                       <div className="text-xs font-bold text-amber-300 flex justify-between">
-                        <span>Distribución Asimétrica (96 Segmentos)</span>
-                        <span className="font-mono text-stone-400">Total: 96/96</span>
+                        <span>{t('codex.wheelDistribution')}</span>
+                        <span className="font-mono text-stone-400">{t('codex.totalLabel')}: 96/96</span>
                       </div>
                       <div className="w-full h-3 rounded overflow-hidden flex border border-stone-700">
                         {(['white', 'gold', 'purple', 'blue', 'red'] as WheelColor[]).map(cKey => {
@@ -341,7 +354,7 @@ export const ShinobiCodex: React.FC<ShinobiCodexProps> = ({
                   </div>
 
                   <p className="text-xs text-stone-300 bg-stone-950 p-2.5 rounded border border-stone-800 leading-relaxed">
-                    <strong>Doctrina:</strong> {selectedFigTemplate.ability}
+                    <strong>{t('codex.doctrine')}:</strong> {selectedFigTemplate.ability}
                   </p>
                 </div>
               </div>
@@ -350,10 +363,10 @@ export const ShinobiCodex: React.FC<ShinobiCodexProps> = ({
               <div className="space-y-6">
                 <div className="border-b-2 border-stone-800/30 pb-3">
                   <span className="text-xs font-black text-red-900 uppercase tracking-widest">
-                    CONFIGURADOR TÁCTICO DE BATALLA
+                    {t('codex.deckConfigBadge')}
                   </span>
                   <h2 className="text-xl md:text-2xl font-black text-stone-900">
-                    Mazo de 6 Shinobis y 6 Puntos de Pergaminos Tácticos
+                    {t('codex.deckConfigTitle')}
                   </h2>
                 </div>
 
@@ -362,16 +375,17 @@ export const ShinobiCodex: React.FC<ShinobiCodexProps> = ({
                   <div className="flex flex-wrap items-center justify-between gap-2 border-b border-stone-700 pb-2">
                     <div>
                       <h3 className="text-xs font-black text-amber-400 uppercase tracking-wider">
-                        1. Escuadrón Konoha ({state.selectedTeamKeys.length}/6 Shinobis)
+                        {t('codex.squadTitle', { count: state.selectedTeamKeys.length })}
                       </h3>
                       <p className="text-[11px] text-stone-300">
-                        Haz clic en una figura para alternar su inclusión en tu mazo activo.
+                        {t('codex.squadDesc')}
                       </p>
                     </div>
                   </div>
 
                   <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
-                    {SHINOBI_FIGURES_CATALOG.map(fig => {
+                    {SHINOBI_FIGURES_CATALOG.map(figRaw => {
+                      const fig = getLocalizedFigure(figRaw, language);
                       const inTeam = state.selectedTeamKeys.includes(fig.key);
                       return (
                         <button
@@ -422,16 +436,17 @@ export const ShinobiCodex: React.FC<ShinobiCodexProps> = ({
                   <div className="flex flex-wrap items-center justify-between gap-2 border-b border-stone-700 pb-2">
                     <div>
                       <h3 className="text-xs font-black text-amber-400 uppercase tracking-wider">
-                        2. Pergaminos Tácticos (Capacidad: {currentPlateCost} / {MAX_PLATE_CAPACITY} Costes)
+                        {t('codex.platesTitle', { cost: currentPlateCost, max: MAX_PLATE_CAPACITY })}
                       </h3>
                       <p className="text-[11px] text-stone-300">
-                        Goal Block y Max Revive consumen 2 puntos de capacidad; las demás consumen 1 punto.
+                        {t('codex.platesDesc')}
                       </p>
                     </div>
                   </div>
 
                   <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-2.5">
-                    {TACTICAL_SCROLLS_CATALOG.map(sc => {
+                    {TACTICAL_SCROLLS_CATALOG.map(scRaw => {
+                      const sc = getLocalizedScroll(scRaw, language);
                       const isEquipped = state.selectedPlateIds.includes(sc.id);
                       return (
                         <button
@@ -462,7 +477,7 @@ export const ShinobiCodex: React.FC<ShinobiCodexProps> = ({
                               {sc.kanji} {sc.name}
                             </span>
                             <span className="px-1.5 py-0.5 rounded bg-stone-900 text-amber-300 text-[10px] font-mono">
-                              Coste {sc.cost}
+                              {t('codex.costLabel', { cost: sc.cost })}
                             </span>
                           </div>
                           <p className="text-[11px] text-stone-300 leading-snug">{sc.description}</p>

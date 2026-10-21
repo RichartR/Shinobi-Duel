@@ -10,14 +10,12 @@ import { PlayerCommandBar } from './presentation/components/scrolls/PlayerComman
 import { BingoInspectorScroll } from './presentation/components/scrolls/BingoInspectorScroll';
 import { BattleChronicleLog } from './presentation/components/scrolls/BattleChronicleLog';
 import { ChakraDuelModal } from './presentation/components/combat/ChakraDuelModal';
-import { CleanArchModal } from './presentation/components/modals/CleanArchModal';
 import { VictoryModal } from './presentation/components/modals/VictoryModal';
 
 type AppScreen = 'menu' | 'game' | 'guide' | 'codex';
 
 export default function App() {
   const [currentScreen, setCurrentScreen] = useState<AppScreen>('menu');
-  const [isArchModalOpen, setIsArchModalOpen] = useState(false);
 
   const { state, dispatch, isMuted, toggleMute } = useShinobiDuel();
 
@@ -77,14 +75,8 @@ export default function App() {
             soundEngine.play('select');
             setCurrentScreen('codex');
           }}
-          onOpenArch={() => setIsArchModalOpen(true)}
           isMuted={isMuted}
           onToggleMute={toggleMute}
-        />
-        <CleanArchModal
-          isOpen={isArchModalOpen}
-          onClose={() => setIsArchModalOpen(false)}
-          state={state}
         />
       </>
     );
@@ -136,7 +128,6 @@ export default function App() {
       {/* Header Bar */}
       <Header
         state={state}
-        onOpenArchModal={() => setIsArchModalOpen(true)}
         onOpenCodexModal={() => setCurrentScreen('codex')}
         onToggleMode={() => dispatch({ type: 'TOGGLE_MODE' })}
         isMuted={isMuted}
@@ -214,13 +205,6 @@ export default function App() {
           onReturnToMenu={() => setCurrentScreen('menu')}
         />
       )}
-
-      {/* Clean Architecture Inspector Modal */}
-      <CleanArchModal
-        isOpen={isArchModalOpen}
-        onClose={() => setIsArchModalOpen(false)}
-        state={state}
-      />
     </div>
   );
 }
