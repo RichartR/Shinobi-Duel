@@ -43,21 +43,27 @@ export const ChuninArenaSVG: React.FC<ChuninArenaSVGProps> = ({
             <stop offset="0%" stopColor="#2d261e" />
             <stop offset="100%" stopColor="#1f1a14" />
           </linearGradient>
-          <linearGradient id="pedestalGold" x1="0%" y1="0%" x2="100%" y2="100%">
-            <stop offset="0%" stopColor="#f59e0b" />
-            <stop offset="50%" stopColor="#fffbeb" />
-            <stop offset="100%" stopColor="#b45309" />
+          <linearGradient id="pedestalP1" x1="0%" y1="0%" x2="100%" y2="100%">
+            <stop offset="0%" stopColor="#38bdf8" />
+            <stop offset="45%" stopColor="#0284c7" />
+            <stop offset="100%" stopColor="#075985" />
           </linearGradient>
-          <linearGradient id="pedestalCrimson" x1="0%" y1="0%" x2="100%" y2="100%">
-            <stop offset="0%" stopColor="#ef4444" />
-            <stop offset="50%" stopColor="#fecaca" />
+          <linearGradient id="pedestalP2" x1="0%" y1="0%" x2="100%" y2="100%">
+            <stop offset="0%" stopColor="#f87171" />
+            <stop offset="45%" stopColor="#dc2626" />
             <stop offset="100%" stopColor="#7f1d1d" />
           </linearGradient>
+          <filter id="p1AuraFilter" x="-40%" y="-40%" width="180%" height="180%">
+            <feDropShadow dx="0" dy="2" stdDeviation="4" floodColor="#0284c7" floodOpacity="0.85" />
+          </filter>
+          <filter id="p2AuraFilter" x="-40%" y="-40%" width="180%" height="180%">
+            <feDropShadow dx="0" dy="2" stdDeviation="4" floodColor="#dc2626" floodOpacity="0.85" />
+          </filter>
           <filter id="tokenDropShadow" x="-25%" y="-25%" width="150%" height="150%">
             <feDropShadow dx="0" dy="4" stdDeviation="3" floodColor="#000000" floodOpacity="0.85" />
           </filter>
           <clipPath id="tokenPortraitClip">
-            <circle cx="0" cy="0" r="20" />
+            <circle cx="0" cy="0" r="19" />
           </clipPath>
         </defs>
 
@@ -108,23 +114,26 @@ export const ChuninArenaSVG: React.FC<ChuninArenaSVGProps> = ({
           {BOARD_NODES.map(node => {
             if (node.type === 'goal_p1' || node.type === 'goal_p2') {
               const isP1 = node.type === 'goal_p1';
-              const mainCol = isP1 ? '#ea580c' : '#dc2626';
+              const mainCol = isP1 ? '#0284c7' : '#dc2626';
+              const strokeCol = isP1 ? '#38bdf8' : '#f87171';
               const kanji = isP1 ? '火' : '暁';
+              const labelText = isP1 ? '🛡️ BASE KONOHA (DEFENDER J1)' : '🎯 BASE AKATSUKI (META J1)';
               const labelY = isP1 ? node.y + 38 : node.y - 33;
               return (
                 <g key={`node_${node.id}`}>
                   <polygon
                     points={`${node.x},${node.y - 28} ${node.x + 26},${node.y - 8} ${node.x + 17},${node.y + 23} ${node.x - 17},${node.y + 23} ${node.x - 26},${node.y - 8}`}
-                    fill="#1c120c"
-                    stroke={mainCol}
-                    strokeWidth="3"
+                    fill="#15100c"
+                    stroke={strokeCol}
+                    strokeWidth="3.5"
+                    filter={isP1 ? 'url(#p1AuraFilter)' : 'url(#p2AuraFilter)'}
                   />
-                  <circle cx={node.x} cy={node.y} r="15" fill={mainCol} opacity="0.25" />
-                  <text x={node.x} y={node.y + 1} textAnchor="middle" dominantBaseline="central" fill="#fde68a" fontSize="16" fontWeight="900">
+                  <circle cx={node.x} cy={node.y} r="15" fill={mainCol} opacity="0.35" />
+                  <text x={node.x} y={node.y + 1} textAnchor="middle" dominantBaseline="central" fill={isP1 ? '#e0f2fe' : '#fee2e2'} fontSize="16" fontWeight="900">
                     {kanji}
                   </text>
-                  <text x={node.x} y={labelY} textAnchor="middle" fill="#fde68a" fontSize="9" fontWeight="900">
-                    {node.label}
+                  <text x={node.x} y={labelY} textAnchor="middle" fill={isP1 ? '#7dd3fc' : '#fca5a5'} fontSize="9.5" fontWeight="900">
+                    {labelText}
                   </text>
                 </g>
               );
@@ -195,9 +204,9 @@ export const ChuninArenaSVG: React.FC<ChuninArenaSVGProps> = ({
             const isSelected = state.selectedFigureId === fig.id || state.swapCandidateId === fig.id;
             const isAttackTarget = state.validAttackFigureIds.includes(fig.id);
             const isP1 = fig.owner === 1;
-            const pedestalFill = isP1 ? 'url(#pedestalGold)' : 'url(#pedestalCrimson)';
             const effMp = calculateEffectiveMp(fig, state.turnCount, state.activeBuffs[fig.owner]);
             const fallbackUri = CHAR_SVG_FALLBACKS[fig.key];
+            const ownerBadgeText = isP1 ? 'J1' : state.mode === 'ai' ? 'IA' : 'J2';
 
             return (
               <g
@@ -206,61 +215,137 @@ export const ChuninArenaSVG: React.FC<ChuninArenaSVGProps> = ({
                 className="cursor-pointer"
                 onClick={() => onSelectUnit(fig.id)}
               >
+                {/* Selection ring */}
                 {isSelected && (
-                  <circle r="32" fill="none" stroke="#fde047" strokeWidth="3.5" strokeDasharray="7 3" />
+                  <circle r="35" fill="none" stroke="#fde047" strokeWidth="4" strokeDasharray="8 4" />
                 )}
+
+                {/* Attack target highlight */}
                 {isAttackTarget && (
                   <g>
-                    <circle r="33" fill="rgba(220, 38, 38, 0.35)" stroke="#ef4444" strokeWidth="3" />
-                    <rect x="-28" y="-42" width="56" height="14" rx="3" fill="#991b1b" stroke="#fde047" strokeWidth="1" />
-                    <text x="0" y="-34" textAnchor="middle" dominantBaseline="central" fill="#fef3c7" fontSize="8.5" fontWeight="900">
-                      ⚔️ DUELO
+                    <circle r="35" fill="rgba(220, 38, 38, 0.4)" stroke="#ef4444" strokeWidth="3.5" />
+                    <rect x="-28" y="-45" width="56" height="15" rx="3" fill="#991b1b" stroke="#fde047" strokeWidth="1.2" />
+                    <text x="0" y="-37" textAnchor="middle" dominantBaseline="central" fill="#fef3c7" fontSize="8.5" fontWeight="900">
+                      ⚔️ ATACAR
                     </text>
                   </g>
                 )}
 
-                <circle r="25" fill={pedestalFill} stroke="#140d08" strokeWidth="2.5" filter="url(#tokenDropShadow)" />
-                <circle r="20.5" fill="#1c1917" stroke="#292524" strokeWidth="1.5" />
+                {/* Directional Marching Pointer Arrow */}
+                {isP1 ? (
+                  // P1 marches UPWARD towards node 2 (top enemy base)
+                  <g transform="translate(0, -29)">
+                    <polygon points="0,-7 -6,1 6,1" fill="#38bdf8" stroke="#0369a1" strokeWidth="1" filter="url(#p1AuraFilter)" />
+                  </g>
+                ) : (
+                  // P2 marches DOWNWARD towards node 15 (bottom Konoha base)
+                  <g transform="translate(0, 29)">
+                    <polygon points="0,7 -6,-1 6,-1" fill="#ef4444" stroke="#7f1d1d" strokeWidth="1" filter="url(#p2AuraFilter)" />
+                  </g>
+                )}
+
+                {/* Outer Pedestal Ring with Team Colors & Aura */}
+                <circle
+                  r="26.5"
+                  fill={isP1 ? 'url(#pedestalP1)' : 'url(#pedestalP2)'}
+                  stroke={isP1 ? '#38bdf8' : '#ef4444'}
+                  strokeWidth="3.2"
+                  filter={isP1 ? 'url(#p1AuraFilter)' : 'url(#p2AuraFilter)'}
+                />
+
+                {/* Inner Dark Frame */}
+                <circle r="20" fill="#140f0c" stroke={isP1 ? '#0c4a6e' : '#450a0a'} strokeWidth="1.5" />
 
                 {/* Deterministic SVG Fallback + Anime Portrait */}
-                <image href={fallbackUri} x="-20" y="-20" width="40" height="40" clipPath="url(#tokenPortraitClip)" preserveAspectRatio="xMidYMin slice" />
-                <image href={fig.portraitUrl} x="-20" y="-20" width="40" height="40" clipPath="url(#tokenPortraitClip)" preserveAspectRatio="xMidYMin slice" />
+                <image href={fallbackUri} x="-19" y="-19" width="38" height="38" clipPath="url(#tokenPortraitClip)" preserveAspectRatio="xMidYMin slice" />
+                <image href={fig.portraitUrl} x="-19" y="-19" width="38" height="38" clipPath="url(#tokenPortraitClip)" preserveAspectRatio="xMidYMin slice" />
 
-                {/* Nameplate */}
-                <rect x="-24" y="13" width="48" height="12" rx="2" fill={isP1 ? '#9a3412' : '#7f1d1d'} stroke="#fde68a" strokeWidth="1" />
-                <text x="0" y="19.5" textAnchor="middle" dominantBaseline="central" fill="#fffbeb" fontSize="8" fontWeight="900">
-                  {fig.shortName}
-                </text>
+                {/* Owner Faction Badge (Top-Left) */}
+                <g transform="translate(-18, -18)">
+                  <circle
+                    r="8.5"
+                    fill={isP1 ? '#0284c7' : '#b91c1c'}
+                    stroke={isP1 ? '#e0f2fe' : '#fee2e2'}
+                    strokeWidth="1.5"
+                  />
+                  <text
+                    x="0"
+                    y="0.5"
+                    textAnchor="middle"
+                    dominantBaseline="central"
+                    fill="#ffffff"
+                    fontSize="7.5"
+                    fontWeight="900"
+                  >
+                    {ownerBadgeText}
+                  </text>
+                </g>
 
-                {/* MP Badge */}
-                <g transform="translate(19, -19)">
-                  <polygon points="0,-11 4,-4 11,0 4,4 0,11 -4,4 -11,0 -4,-4" fill="#1c1917" stroke="#f59e0b" strokeWidth="1.5" />
-                  <text x="0" y="0.5" textAnchor="middle" dominantBaseline="central" fill="#fde047" fontSize="9" fontWeight="900">
+                {/* MP Diamond Badge (Top-Right) */}
+                <g transform="translate(18, -18)">
+                  <polygon
+                    points="0,-9.5 3.5,-3.5 9.5,0 3.5,3.5 0,9.5 -3.5,3.5 -9.5,0 -3.5,-3.5"
+                    fill={isP1 ? '#0c4a6e' : '#450a0a'}
+                    stroke={isP1 ? '#38bdf8' : '#f87171'}
+                    strokeWidth="1.5"
+                  />
+                  <text
+                    x="0"
+                    y="0.5"
+                    textAnchor="middle"
+                    dominantBaseline="central"
+                    fill={isP1 ? '#e0f2fe' : '#fee2e2'}
+                    fontSize="8.5"
+                    fontWeight="900"
+                  >
                     {effMp}
                   </text>
                 </g>
 
+                {/* High-Contrast Colored Nameplate (Bottom) */}
+                <rect
+                  x="-27"
+                  y="13"
+                  width="54"
+                  height="13"
+                  rx="3"
+                  fill={isP1 ? '#0369a1' : '#7f1d1d'}
+                  stroke={isP1 ? '#38bdf8' : '#f87171'}
+                  strokeWidth="1.2"
+                />
+                <text
+                  x="0"
+                  y="19.5"
+                  textAnchor="middle"
+                  dominantBaseline="central"
+                  fill="#ffffff"
+                  fontSize="7.5"
+                  fontWeight="900"
+                >
+                  {ownerBadgeText} • {fig.shortName}
+                </text>
+
                 {/* Fuinjutsu Wait Seal */}
                 {fig.wait > 0 && (
-                  <g transform="translate(-19, -19)">
-                    <rect x="-9" y="-9" width="18" height="18" rx="2" fill="#991b1b" stroke="#fde047" strokeWidth="1.5" />
-                    <text x="0" y="1" textAnchor="middle" dominantBaseline="central" fill="#fef08a" fontSize="9" fontWeight="900">
+                  <g transform="translate(0, 0)">
+                    <circle r="12" fill="rgba(153, 27, 27, 0.9)" stroke="#fde047" strokeWidth="1.5" />
+                    <text x="0" y="0.5" textAnchor="middle" dominantBaseline="central" fill="#fef08a" fontSize="9" fontWeight="900">
                       封{fig.wait}
                     </text>
                   </g>
                 )}
 
-                {/* Status Badge */}
+                {/* Status Badge (Bottom-Left) */}
                 {fig.status && STATUS_ICONS[fig.status] && (
                   <g transform="translate(-20, 18)">
-                    <circle r="10" fill="#09090b" stroke={STATUS_ICONS[fig.status].color} strokeWidth="2" />
+                    <circle r="9" fill="#09090b" stroke={STATUS_ICONS[fig.status].color} strokeWidth="1.8" />
                     <text
                       x="0"
-                      y="1"
+                      y="0.5"
                       textAnchor="middle"
                       dominantBaseline="central"
                       fill={STATUS_ICONS[fig.status].color}
-                      fontSize="10"
+                      fontSize="9"
                       fontWeight="900"
                     >
                       {STATUS_ICONS[fig.status].kanji}
@@ -268,11 +353,11 @@ export const ChuninArenaSVG: React.FC<ChuninArenaSVGProps> = ({
                   </g>
                 )}
 
-                {/* Level / Evolution Badge */}
+                {/* Level / Evolution Badge (Bottom-Right) */}
                 {(fig.evolved || fig.clv > 0) && (
                   <g transform="translate(20, 18)">
-                    <rect x="-11" y="-8" width="22" height="14" rx="3" fill={fig.evolved ? '#7e22ce' : '#0f172a'} stroke="#fde047" strokeWidth="1.2" />
-                    <text x="0" y="-0.5" textAnchor="middle" dominantBaseline="central" fill="#fde047" fontSize="7.5" fontWeight="900">
+                    <rect x="-10" y="-7" width="20" height="13" rx="2.5" fill={fig.evolved ? '#7e22ce' : '#0f172a'} stroke="#fde047" strokeWidth="1.2" />
+                    <text x="0" y="-0.5" textAnchor="middle" dominantBaseline="central" fill="#fde047" fontSize="7" fontWeight="900">
                       {fig.evolved ? 'UX★' : `C+${fig.clv}`}
                     </text>
                   </g>

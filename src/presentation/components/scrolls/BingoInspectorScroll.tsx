@@ -77,11 +77,15 @@ export const BingoInspectorScroll: React.FC<BingoInspectorScrollProps> = ({
             <div>
               <div className="flex items-center gap-1 flex-wrap">
                 <span
-                  className={`px-1.5 py-0.5 text-[9px] font-extrabold uppercase text-white rounded-sm ${
-                    figure.owner === 1 ? 'bg-orange-700' : 'bg-red-800'
+                  className={`px-2 py-0.5 text-[10px] font-black uppercase text-white rounded shadow-sm border ${
+                    figure.owner === 1
+                      ? 'bg-sky-600 border-sky-300'
+                      : 'bg-red-700 border-red-300'
                   }`}
                 >
-                  {figure.owner === 1 ? 'KONOHA J1' : 'AKATSUKI J2'}
+                  {figure.owner === 1
+                    ? '🔵 ALIADO (JUGADOR 1)'
+                    : `🔴 OPONENTE (${state.mode === 'ai' ? 'IA AKATSUKI' : 'JUGADOR 2'})`}
                 </span>
                 <span className="px-1.5 py-0.5 text-[9px] font-black bg-stone-900 text-amber-400 rounded-sm border border-amber-500">
                   Nv.{figure.level || 1} • CLv+{figure.clv || 0}
