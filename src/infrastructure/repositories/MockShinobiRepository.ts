@@ -4,139 +4,175 @@ import { TacticalScroll, TACTICAL_SCROLLS_CATALOG } from '../../domain/models/Ta
 
 export const SHINOBI_FIGURES_CATALOG: ShinobiFigureCatalogItem[] = [
   {
-    key: 'minato',
-    rarity: 'EX',
-    archetype: 'Corredor Anti-Jutsu (Arquetipo Mew)',
-    name: 'Minato Namikaze',
-    shortName: 'Minato',
-    mp: 3,
-    canPassThrough: true,
-    portraitUrl: 'https://cdn.myanimelist.net/images/characters/14/128074.jpg',
-    ability: 'Salto Espacio-Temporal: Con 48/96 Dorado destruye Jutsus Morados. Su Hiraishin (50 DMG) sobrevive e impide ser noqueado si el rival gira 100 DMG o más.',
-    segments: [
-      { name: 'Hiraishin no Jutsu', color: 'gold', power: 50, stars: 0, size: 48, effect: 'survive_100_plus' },
-      { name: 'Rasengan Relámpago', color: 'white', power: 70, stars: 0, size: 24, effect: null },
-      { name: 'Shunshin (Evasión)', color: 'blue', power: 0, stars: 0, size: 20, effect: 'dodge' },
-      { name: 'Kunai Desviado (Fallo)', color: 'red', power: 0, stars: 0, size: 4, effect: null }
-    ]
-  },
-  {
-    key: 'lee',
-    rarity: 'R',
-    archetype: 'Taijutsu Puro (0% Morado, 0% Azul)',
-    name: 'Rock Lee',
-    shortName: 'Rock Lee',
-    mp: 3,
-    portraitUrl: 'https://cdn.myanimelist.net/images/characters/14/433353.jpg',
-    ability: 'Restricción de Taijutsu Puro: Incapaz de usar Ninjutsu o esquivas Azules. Si gana con Ura Renge (140 DMG), sufre Espera 2 por desgaste.',
-    segments: [
-      { name: 'Omote Renge (Loto)', color: 'white', power: 110, stars: 0, size: 32, effect: null },
-      { name: 'Konoha Senpū', color: 'gold', power: 60, stars: 0, size: 28, effect: null },
-      { name: 'Ura Renge (8 Puertas)', color: 'white', power: 140, stars: 0, size: 16, effect: 'self_wait_2' },
-      { name: 'Agotamiento Muscular', color: 'red', power: 0, stars: 0, size: 20, effect: null }
-    ]
-  },
-  {
-    key: 'itachi',
-    rarity: 'EX',
-    archetype: 'Controlador Genjutsu (62.5% Morado)',
-    name: 'Itachi Uchiha',
-    shortName: 'Itachi',
-    mp: 2,
-    portraitUrl: 'https://cdn.myanimelist.net/images/characters/9/284122.jpg',
-    ability: 'Maestro del Genjutsu (0% Dorado): Aplica efectos de estado letales mediante Tsukuyomi (★★★) y Amaterasu (★★). Vulnerable a ataques Dorados.',
-    segments: [
-      { name: 'Tsukuyomi (Pesadilla)', color: 'purple', power: 0, stars: 3, size: 36, effect: 'instant_ko' },
-      { name: 'Amaterasu (Llama Negra)', color: 'purple', power: 0, stars: 2, size: 24, effect: 'burn_knockback' },
-      { name: 'Katon: Gōkakyū no Jutsu', color: 'white', power: 80, stars: 0, size: 16, effect: null },
-      { name: 'Clon de Cuervos', color: 'blue', power: 0, stars: 0, size: 12, effect: 'dodge' },
-      { name: 'Ceguera Mangekyō', color: 'red', power: 0, stars: 0, size: 8, effect: null }
-    ]
-  },
-  {
-    key: 'gaara',
-    rarity: 'EX',
-    archetype: 'Bastión Defensivo (Inmune a Rodeo)',
-    name: 'Gaara del Desierto',
-    shortName: 'Gaara',
-    mp: 1,
-    blocksPassThrough: true,
-    immuneToSurround: true,
-    portraitUrl: 'https://cdn.myanimelist.net/images/characters/10/293375.jpg',
-    ability: 'Muro Inexpugnable (37.5% Azul, 0% Dorado): Inmune a Rodeo y bloquea paso. Prisión de Arena (★★) congela al enemigo en arena.',
-    segments: [
-      { name: 'Escudo de Shukaku', color: 'blue', power: 0, stars: 0, size: 36, effect: 'dodge' },
-      { name: 'Ataúd de Arena', color: 'white', power: 130, stars: 0, size: 32, effect: null },
-      { name: 'Prisión de Arena (Sello)', color: 'purple', power: 0, stars: 2, size: 16, effect: 'freeze_seal' },
-      { name: 'Grieta en la Armadura', color: 'red', power: 0, stars: 0, size: 12, effect: null }
-    ]
-  },
-  {
     key: 'naruto',
-    rarity: 'EX',
-    archetype: 'Brawler Ofensivo (62.5% Blanco, 25% Dorado)',
-    name: 'Naruto Uzumaki',
+    rarity: 'C',
+    archetype: 'Brawler Impetuoso de la Academia',
+    name: 'Naruto Uzumaki (Genin)',
     shortName: 'Naruto',
-    mp: 2,
+    mp: 3,
     portraitUrl: 'https://cdn.myanimelist.net/images/characters/2/284121.jpg',
-    ability: 'Asalto Frontal (0% Azul, 0% Morado): Daño masivo frontal con Rasenshuriken (130 DMG) y Rasengan (90 DMG). Evoluciona a Modo Kurama al noquear.',
+    ability: 'Perseverancia Shinobi: Su voluntad inquebrantable supera su falta de técnica inicial. Si empata en una batalla, gana +1 MP en su siguiente turno.',
     segments: [
-      { name: 'Fūton: Rasenshuriken', color: 'white', power: 130, stars: 0, size: 32, effect: null },
-      { name: 'Rasengan Clásico', color: 'white', power: 90, stars: 0, size: 28, effect: null },
-      { name: 'Naruto Rendan (Clones)', color: 'gold', power: 50, stars: 0, size: 24, effect: null },
-      { name: 'Choque de Chakra', color: 'red', power: 0, stars: 0, size: 12, effect: null }
-    ]
+      { name: 'Kage Bunshin no Jutsu', color: 'purple', power: 0, stars: 1, size: 24, effect: 'confuse_wait' },
+      { name: 'Taijutsu de la Academia', color: 'white', power: 40, stars: 0, size: 32, effect: null },
+      { name: 'Oiroke no Jutsu', color: 'purple', power: 0, stars: 1, size: 16, effect: 'confuse_wait' },
+      { name: 'Kawarimi no Jutsu', color: 'blue', power: 0, stars: 0, size: 12, effect: 'dodge' },
+      { name: 'Tropezón de Novato', color: 'red', power: 0, stars: 0, size: 12, effect: null },
+    ],
   },
   {
     key: 'sasuke',
-    rarity: 'EX',
-    archetype: 'Asesino Táctico Híbrido (0% Azul)',
-    name: 'Sasuke Uchiha',
+    rarity: 'C',
+    archetype: 'Prodigio del Clan Uchiha',
+    name: 'Sasuke Uchiha (Genin)',
     shortName: 'Sasuke',
-    mp: 2,
+    mp: 3,
     portraitUrl: 'https://cdn.myanimelist.net/images/characters/9/131317.jpg',
-    ability: 'Filo Relámpago: Carece de defensa Azul. Gran letalidad con Kirin (140 DMG) y parálisis con Chidori Nagashi (100 DMG).',
+    ability: 'Orgullo Uchiha: Su Shurikenjutsu Dorado (24/96) destruye Jutsus Morados si el rival es de igual o menor rango.',
     segments: [
-      { name: 'Chidori Nagashi', color: 'white', power: 100, stars: 0, size: 32, effect: 'paralyze_enemy' },
-      { name: 'Kirin (Trueno Celestial)', color: 'white', power: 140, stars: 0, size: 24, effect: null },
-      { name: 'Genjutsu: Sharingan', color: 'purple', power: 0, stars: 2, size: 24, effect: 'confuse_wait' },
-      { name: 'Chidori Senbon', color: 'gold', power: 40, stars: 0, size: 8, effect: null },
-      { name: 'Sobrecarga de Marca', color: 'red', power: 0, stars: 0, size: 8, effect: null }
-    ]
+      { name: 'Katon: Gōkakyū no Jutsu', color: 'white', power: 50, stars: 0, size: 32, effect: null },
+      { name: 'Shurikenjutsu Veloz', color: 'gold', power: 30, stars: 0, size: 24, effect: null },
+      { name: 'Taijutsu del Halcón', color: 'white', power: 40, stars: 0, size: 20, effect: null },
+      { name: 'Esquiva Táctica', color: 'blue', power: 0, stars: 0, size: 12, effect: 'dodge' },
+      { name: 'Duda Juvenil', color: 'red', power: 0, stars: 0, size: 8, effect: null },
+    ],
   },
   {
-    key: 'kakashi',
-    rarity: 'EX',
-    archetype: 'Estratega Equilibrado',
-    name: 'Kakashi Hatake',
-    shortName: 'Kakashi',
+    key: 'sakura',
+    rarity: 'C',
+    archetype: 'Estratega de Apoyo Académico',
+    name: 'Sakura Haruno (Genin)',
+    shortName: 'Sakura',
     mp: 2,
-    portraitUrl: 'https://cdn.myanimelist.net/images/characters/7/284129.jpg',
-    ability: 'Versatilidad ANBU: Cortador Relámpago Dorado (80 DMG), Kamui Morado (★★) que empuja rivales y clon de rayo con parálisis.',
+    portraitUrl: 'https://cdn.myanimelist.net/images/characters/16/323862.jpg',
+    ability: 'Control Fino de Chakra: Las figuras aliadas adyacentes reducen su segmento de fallo Rojo en 4.',
     segments: [
-      { name: 'Raikiri (Cortador)', color: 'gold', power: 80, stars: 0, size: 32, effect: null },
-      { name: 'Kamui (Distorsión)', color: 'purple', power: 0, stars: 2, size: 24, effect: 'push_wait' },
-      { name: 'Clon de Rayo (Raiton)', color: 'white', power: 90, stars: 0, size: 20, effect: 'paralyze_enemy' },
-      { name: 'Doton: Muro de Tierra', color: 'blue', power: 0, stars: 0, size: 12, effect: 'dodge' },
-      { name: 'Agotamiento de Chakra', color: 'red', power: 0, stars: 0, size: 8, effect: null }
-    ]
+      { name: '¡Shānnarō!', color: 'white', power: 50, stars: 0, size: 24, effect: null },
+      { name: 'Lanzamiento de Kunai', color: 'white', power: 30, stars: 0, size: 28, effect: null },
+      { name: 'Bunshin Ilusorio', color: 'purple', power: 0, stars: 1, size: 16, effect: 'confuse_wait' },
+      { name: 'Posición Defensiva', color: 'blue', power: 0, stars: 0, size: 16, effect: 'dodge' },
+      { name: 'Duda ante el Peligro', color: 'red', power: 0, stars: 0, size: 12, effect: null },
+    ],
   },
   {
-    key: 'pain',
-    rarity: 'UX',
-    archetype: 'Dominador Gravitacional (Líder Akatsuki)',
-    name: 'Pain (Camino Deva)',
-    shortName: 'Pain',
+    key: 'shikamaru',
+    rarity: 'C',
+    archetype: 'Controlador Táctico de Sombras',
+    name: 'Shikamaru Nara (Genin)',
+    shortName: 'Shikamaru',
     mp: 2,
-    portraitUrl: 'https://cdn.myanimelist.net/images/characters/8/73473.jpg',
-    ability: 'Seis Caminos del Dolor: Shinra Tensei (★★★) empuja con Espera 2 y Chibaku Tensei (130 DMG) aplasta la vanguardia enemiga.',
+    portraitUrl: 'https://cdn.myanimelist.net/images/characters/2/74737.jpg',
+    ability: 'Estrategia Perezosa: Si el enemigo inicia batalla contra él, Shikamaru puede forzar a ambos a girar de nuevo una vez por combate.',
     segments: [
-      { name: 'Chibaku Tensei', color: 'white', power: 130, stars: 0, size: 32, effect: null },
-      { name: 'Shinra Tensei (Repulsión)', color: 'purple', power: 0, stars: 3, size: 28, effect: 'push_wait' },
-      { name: 'Banshō Tenin', color: 'white', power: 90, stars: 0, size: 20, effect: null },
-      { name: 'Intervalo de 5s (Fallo)', color: 'red', power: 0, stars: 0, size: 16, effect: null }
-    ]
-  }
+      { name: 'Kagemane no Jutsu', color: 'purple', power: 0, stars: 2, size: 32, effect: 'paralyze_enemy' },
+      { name: 'Trampa con Hilos Ninja', color: 'gold', power: 30, stars: 0, size: 20, effect: null },
+      { name: 'Golpe Calculado', color: 'white', power: 30, stars: 0, size: 20, effect: null },
+      { name: 'Retirada Estratégica', color: 'blue', power: 0, stars: 0, size: 12, effect: 'dodge' },
+      { name: 'Qué Fastidio...', color: 'red', power: 0, stars: 0, size: 12, effect: null },
+    ],
+  },
+  {
+    key: 'choji',
+    rarity: 'C',
+    archetype: 'Ariete de Impacto Frontal',
+    name: 'Chōji Akimichi (Genin)',
+    shortName: 'Chōji',
+    mp: 2,
+    portraitUrl: 'https://cdn.myanimelist.net/images/characters/16/74736.jpg',
+    ability: 'Glotón Imparable (0% Azul): Si gana con Nikudan Sensha, empuja a la figura rival 1 casilla hacia atrás.',
+    segments: [
+      { name: 'Nikudan Sensha', color: 'white', power: 60, stars: 0, size: 36, effect: 'push_wait' },
+      { name: 'Baika no Jutsu (Parcial)', color: 'white', power: 40, stars: 0, size: 28, effect: null },
+      { name: 'Placaje Pesado', color: 'white', power: 30, stars: 0, size: 16, effect: null },
+      { name: 'Merienda Inoportuna', color: 'red', power: 0, stars: 0, size: 16, effect: null },
+    ],
+  },
+  {
+    key: 'ino',
+    rarity: 'C',
+    archetype: 'Infiltradora Mental de Apoyo',
+    name: 'Ino Yamanaka (Genin)',
+    shortName: 'Ino',
+    mp: 2,
+    portraitUrl: 'https://cdn.myanimelist.net/images/characters/11/74738.jpg',
+    ability: 'Transferencia Mental: Shintenshin no Jutsu (★★) confunde al enemigo y le aplica Espera 2 si gana.',
+    segments: [
+      { name: 'Shintenshin no Jutsu', color: 'purple', power: 0, stars: 2, size: 28, effect: 'confuse_wait' },
+      { name: 'Flor Trampa con Senbon', color: 'gold', power: 30, stars: 0, size: 24, effect: null },
+      { name: 'Bofetada Certera', color: 'white', power: 30, stars: 0, size: 20, effect: null },
+      { name: 'Esquiva Grácil', color: 'blue', power: 0, stars: 0, size: 12, effect: 'dodge' },
+      { name: 'Desconexión Espiritual', color: 'red', power: 0, stars: 0, size: 12, effect: null },
+    ],
+  },
+  {
+    key: 'hinata',
+    rarity: 'C',
+    archetype: 'Bloqueadora de Tenketsu',
+    name: 'Hinata Hyūga (Genin)',
+    shortName: 'Hinata',
+    mp: 2,
+    immuneToSurround: true,
+    portraitUrl: 'https://cdn.myanimelist.net/images/characters/7/74739.jpg',
+    ability: 'Visión del Byakugan: Inmune a Rodeo si hay al menos una figura aliada a 2 casillas.',
+    segments: [
+      { name: 'Jūken: Golpe Suave', color: 'white', power: 40, stars: 0, size: 32, effect: 'paralyze_enemy' },
+      { name: 'Reflejo Byakugan', color: 'gold', power: 30, stars: 0, size: 24, effect: null },
+      { name: 'Guardia Protectora', color: 'blue', power: 0, stars: 0, size: 24, effect: 'dodge' },
+      { name: 'Bloqueo de Tenketsu', color: 'purple', power: 0, stars: 1, size: 8, effect: 'confuse_wait' },
+      { name: 'Timidez Paralizante', color: 'red', power: 0, stars: 0, size: 8, effect: null },
+    ],
+  },
+  {
+    key: 'kiba',
+    rarity: 'C',
+    archetype: 'Rastreador Cuadrúpedo de Asalto',
+    name: 'Kiba Inuzuka & Akamaru (Genin)',
+    shortName: 'Kiba',
+    mp: 3,
+    canPassThrough: true,
+    portraitUrl: 'https://cdn.myanimelist.net/images/characters/5/74740.jpg',
+    ability: 'Dúo Canino: Puede atravesar figuras aliadas durante su movimiento sin gastar MP extra.',
+    segments: [
+      { name: 'Tsūga (Colmillo Perforador)', color: 'white', power: 50, stars: 0, size: 36, effect: null },
+      { name: 'Shikyaku no Jutsu', color: 'gold', power: 30, stars: 0, size: 24, effect: null },
+      { name: 'Mordisco de Akamaru', color: 'white', power: 30, stars: 0, size: 20, effect: null },
+      { name: 'Desvío Rápido', color: 'blue', power: 0, stars: 0, size: 8, effect: 'dodge' },
+      { name: 'Distracción Canina', color: 'red', power: 0, stars: 0, size: 8, effect: null },
+    ],
+  },
+  {
+    key: 'shino',
+    rarity: 'C',
+    archetype: 'Parásito Drenador de Chakra',
+    name: 'Shino Aburame (Genin)',
+    shortName: 'Shino',
+    mp: 2,
+    portraitUrl: 'https://cdn.myanimelist.net/images/characters/12/74741.jpg',
+    ability: 'Enjambre Kikaichū: Si empata en combate, la figura rival pierde 1 MP en su próximo turno.',
+    segments: [
+      { name: 'Mushi Dama', color: 'purple', power: 0, stars: 2, size: 32, effect: 'paralyze_enemy' },
+      { name: 'Drenaje Kikaichū', color: 'white', power: 40, stars: 0, size: 28, effect: null },
+      { name: 'Clon de Insectos', color: 'blue', power: 0, stars: 0, size: 20, effect: 'dodge' },
+      { name: 'Ataque Sorpresa', color: 'white', power: 30, stars: 0, size: 8, effect: null },
+      { name: 'Dispersión de Enjambre', color: 'red', power: 0, stars: 0, size: 8, effect: null },
+    ],
+  },
+  {
+    key: 'lee',
+    rarity: 'C',
+    archetype: 'Genin de Taijutsu Puro',
+    name: 'Rock Lee (Genin)',
+    shortName: 'Rock Lee',
+    mp: 3,
+    portraitUrl: 'https://cdn.myanimelist.net/images/characters/14/433353.jpg',
+    ability: 'Pesas en los Tobillos (0% Morado, 0% Azul): Incapaz de usar Ninjutsu o esquivas. Si gana con Konoha Senpū, avanza 1 casilla.',
+    segments: [
+      { name: 'Konoha Senpū', color: 'gold', power: 40, stars: 0, size: 36, effect: null },
+      { name: 'Patada Directa', color: 'white', power: 50, stars: 0, size: 32, effect: null },
+      { name: 'Ráfaga de Puños', color: 'white', power: 30, stars: 0, size: 16, effect: null },
+      { name: 'Tropiezo con las Pesas', color: 'red', power: 0, stars: 0, size: 12, effect: null },
+    ],
+  },
 ];
 
 export class MockShinobiRepository implements IShinobiRepository {
@@ -155,12 +191,12 @@ export class MockShinobiRepository implements IShinobiRepository {
 
   async getDefaultTeam(player: 1 | 2): Promise<string[]> {
     if (player === 1) {
-      return Promise.resolve(['minato', 'lee', 'itachi', 'gaara', 'naruto', 'sasuke']);
+      return Promise.resolve(['naruto', 'sasuke', 'sakura', 'shikamaru', 'choji', 'lee']);
     }
-    return Promise.resolve(['pain', 'itachi', 'sasuke', 'gaara', 'kakashi', 'minato']);
+    return Promise.resolve(['kiba', 'shino', 'hinata', 'ino', 'sasuke', 'naruto']);
   }
 
-  async getDefaultPlateLoadout(): Promise<string[]> {
+  async getDefaultPlateLoadout(_player: 1 | 2): Promise<string[]> {
     return Promise.resolve(['goal_block', 'max_revive', 'double_chance', 'x_attack']);
   }
 }

@@ -128,15 +128,29 @@ export const CHAR_REAL_ARTWORK: Record<string, string> = {
   minato: '/assets/minato_hero.jpg',
 };
 
+const createGeninAvatarSvg = (bgColor: string, accentColor: string, kanji: string, clanName: string) => svgToDataUri(`
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200">
+    <rect width="200" height="200" fill="${bgColor}" />
+    <circle cx="100" cy="100" r="82" fill="none" stroke="${accentColor}" stroke-width="6" opacity="0.4" />
+    <circle cx="100" cy="100" r="70" fill="${bgColor}" stroke="#111111" stroke-width="4" />
+    <text x="100" y="118" text-anchor="middle" fill="${accentColor}" font-family="sans-serif" font-weight="900" font-size="64">${kanji}</text>
+    <rect x="25" y="152" width="150" height="24" rx="4" fill="#111111" />
+    <text x="100" y="169" text-anchor="middle" fill="#ffffff" font-family="sans-serif" font-weight="800" font-size="11" letter-spacing="2">${clanName}</text>
+  </svg>
+`);
+
 export const CHAR_SVG_FALLBACKS: Record<string, string> = {
-  naruto: '/assets/naruto_hero.jpg',
-  sasuke: '/assets/sasuke_hero.jpg',
-  kakashi: '/assets/kakashi_hero.jpg',
-  gaara: '/assets/gaara_hero.jpg',
-  itachi: '/assets/itachi_hero.jpg',
-  minato: '/assets/minato_hero.jpg',
-  lee: '/assets/naruto_hero.jpg',
-  pain: '/assets/itachi_hero.jpg',
+  naruto: createGeninAvatarSvg('#ea580c', '#fef08a', '鳴', 'UZUMAKI'),
+  sasuke: createGeninAvatarSvg('#1e3a8a', '#93c5fd', '佐', 'UCHIHA'),
+  sakura: createGeninAvatarSvg('#be185d', '#fbcfe8', '桜', 'HARUNO'),
+  shikamaru: createGeninAvatarSvg('#14532d', '#86efac', '鹿', 'NARA'),
+  choji: createGeninAvatarSvg('#78350f', '#fde68a', '丁', 'AKIMICHI'),
+  ino: createGeninAvatarSvg('#581c87', '#d8b4fe', '亥', 'YAMANAKA'),
+  hinata: createGeninAvatarSvg('#312e81', '#c7d2fe', '雛', 'HYUGA'),
+  kiba: createGeninAvatarSvg('#7f1d1d', '#fca5a5', '牙', 'INUZUKA'),
+  shino: createGeninAvatarSvg('#064e3b', '#6ee7b7', '志', 'ABURAME'),
+  lee: createGeninAvatarSvg('#047857', '#fed7aa', '李', 'TAIJUTSU'),
 };
+
 
 

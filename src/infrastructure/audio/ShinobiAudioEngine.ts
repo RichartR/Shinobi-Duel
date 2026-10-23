@@ -1,4 +1,4 @@
-export type SoundEffectType = 'select' | 'move' | 'scroll' | 'spin' | 'ko' | 'win' | 'jutsu';
+export type SoundEffectType = 'select' | 'move' | 'scroll' | 'spin' | 'ko' | 'win' | 'jutsu' | 'summon' | 'forge';
 
 export class ShinobiAudioEngine {
   private ctx: AudioContext | null = null;
@@ -121,6 +121,60 @@ export class ShinobiAudioEngine {
           osc.start(t);
           osc.stop(t + 0.56);
         });
+      } else if (effect === 'summon') {
+        // Dramatic Taiko Slam + Rising Chakra Surge
+        const oscSub = this.ctx.createOscillator();
+        const gainSub = this.ctx.createGain();
+        oscSub.type = 'sine';
+        oscSub.frequency.setValueAtTime(110, now);
+        oscSub.frequency.exponentialRampToValueAtTime(35, now + 0.4);
+        gainSub.gain.setValueAtTime(0.4, now);
+        gainSub.gain.exponentialRampToValueAtTime(0.001, now + 0.45);
+        oscSub.connect(gainSub);
+        gainSub.connect(this.ctx.destination);
+        oscSub.start(now);
+        oscSub.stop(now + 0.45);
+
+        // Shimmering chord arpeggio
+        [329.63, 440, 554.37, 659.25, 880, 1108.73].forEach((freq, idx) => {
+          if (!this.ctx) return;
+          const t = now + 0.15 + idx * 0.08;
+          const osc = this.ctx.createOscillator();
+          const gain = this.ctx.createGain();
+          osc.type = 'triangle';
+          osc.frequency.setValueAtTime(freq, t);
+          gain.gain.setValueAtTime(0.18, t);
+          gain.gain.exponentialRampToValueAtTime(0.001, t + 0.6);
+          osc.connect(gain);
+          gain.connect(this.ctx.destination);
+          osc.start(t);
+          osc.stop(t + 0.62);
+        });
+      } else if (effect === 'forge') {
+        // Metallic Anvil Strike + Resonant Hum
+        const oscClang = this.ctx.createOscillator();
+        const gainClang = this.ctx.createGain();
+        oscClang.type = 'triangle';
+        oscClang.frequency.setValueAtTime(1200, now);
+        oscClang.frequency.exponentialRampToValueAtTime(320, now + 0.35);
+        gainClang.gain.setValueAtTime(0.35, now);
+        gainClang.gain.exponentialRampToValueAtTime(0.001, now + 0.38);
+        oscClang.connect(gainClang);
+        gainClang.connect(this.ctx.destination);
+        oscClang.start(now);
+        oscClang.stop(now + 0.38);
+
+        // High metallic ping overtone
+        const oscPing = this.ctx.createOscillator();
+        const gainPing = this.ctx.createGain();
+        oscPing.type = 'sine';
+        oscPing.frequency.setValueAtTime(2400, now);
+        gainPing.gain.setValueAtTime(0.2, now);
+        gainPing.gain.exponentialRampToValueAtTime(0.001, now + 0.5);
+        oscPing.connect(gainPing);
+        gainPing.connect(this.ctx.destination);
+        oscPing.start(now);
+        oscPing.stop(now + 0.5);
       }
     } catch {
       // Audio context might be restricted before user gesture

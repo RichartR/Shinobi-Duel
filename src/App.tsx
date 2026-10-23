@@ -4,6 +4,11 @@ import { soundEngine } from './infrastructure/audio/ShinobiAudioEngine';
 import { MainMenu } from './presentation/components/menu/MainMenu';
 import { ShinobiRulesGuide } from './presentation/components/guide/ShinobiRulesGuide';
 import { ShinobiCodex } from './presentation/components/codex/ShinobiCodex';
+import { ShinobiGacha } from './presentation/components/gacha/ShinobiGacha';
+import { ShinobiForge } from './presentation/components/forge/ShinobiForge';
+import { ShinobiArenaSelector } from './presentation/components/arena/ShinobiArenaSelector';
+import { shinobiDbRepository } from './infrastructure/repositories/SupabaseShinobiRepository';
+import { CANONICAL_ARENA_THEMES } from './domain/models/CraftingEconomy';
 import { Header } from './presentation/components/common/Header';
 import { ChuninArenaSVG } from './presentation/components/board/ChuninArenaSVG';
 import { PlayerCommandBar } from './presentation/components/scrolls/PlayerCommandBar';
@@ -13,10 +18,16 @@ import { ChakraDuelModal } from './presentation/components/combat/ChakraDuelModa
 import { VictoryModal } from './presentation/components/modals/VictoryModal';
 import { NarutoMangaBackground } from './presentation/components/common/NarutoMangaBackground';
 
-type AppScreen = 'menu' | 'game' | 'guide' | 'codex';
+type AppScreen = 'menu' | 'game' | 'guide' | 'codex' | 'gacha' | 'forge' | 'arena-select';
 
 export default function App() {
   const [currentScreen, setCurrentScreen] = useState<AppScreen>('menu');
+  const [profile, setProfile] = useState(() => shinobiDbRepository.getProfile());
+
+  const activeArena = useMemo(
+    () => CANONICAL_ARENA_THEMES.find(a => a.key === profile.selectedArenaKey) || CANONICAL_ARENA_THEMES[0],
+    [profile.selectedArenaKey]
+  );
 
   const { state, dispatch, isMuted, toggleMute } = useShinobiDuel();
 
@@ -76,6 +87,20 @@ export default function App() {
             soundEngine.play('select');
             setCurrentScreen('codex');
           }}
+          onOpenGacha={() => {
+            soundEngine.play('select');
+            setCurrentScreen('gacha');
+          }}
+          onOpenForge={() => {
+            soundEngine.play('select');
+            setProfile(shinobiDbRepository.getProfile());
+            setCurrentScreen('forge');
+          }}
+          onOpenArenaSelector={() => {
+            soundEngine.play('select');
+            setProfile(shinobiDbRepository.getProfile());
+            setCurrentScreen('arena-select');
+          }}
           isMuted={isMuted}
           onToggleMute={toggleMute}
         />
@@ -113,11 +138,79 @@ export default function App() {
           soundEngine.play('select');
           setCurrentScreen('game');
         }}
+        onOpenForge={() => {
+          soundEngine.play('select');
+          setProfile(shinobiDbRepository.getProfile());
+          setCurrentScreen('forge');
+        }}
       />
     );
   }
 
-  // Screen 4: Tactical Arena Game
+  // Screen 4: Shinobi Gacha Summon (Kuchiyose no Jutsu)
+  if (currentScreen === 'gacha') {
+    return (
+      <ShinobiGacha
+        onBackToMenu={() => {
+          soundEngine.play('select');
+          setProfile(shinobiDbRepository.getProfile());
+          setCurrentScreen('menu');
+        }}
+        onOpenCodex={() => {
+          soundEngine.play('select');
+          setCurrentScreen('codex');
+        }}
+        onOpenForge={() => {
+          soundEngine.play('select');
+          setProfile(shinobiDbRepository.getProfile());
+          setCurrentScreen('forge');
+        }}
+      />
+    );
+  }
+
+  // Screen 5: Shinobi Forge & Chakra Dust
+  if (currentScreen === 'forge') {
+    return (
+      <ShinobiForge
+        state={state}
+        dispatch={dispatch}
+        onBackToMenu={() => {
+          soundEngine.play('select');
+          setProfile(shinobiDbRepository.getProfile());
+          setCurrentScreen('menu');
+        }}
+        onPlayGame={() => {
+          soundEngine.play('select');
+          setProfile(shinobiDbRepository.getProfile());
+          setCurrentScreen('game');
+        }}
+      />
+    );
+  }
+
+  // Screen 6: Arena Selector & Battlegrounds
+  if (currentScreen === 'arena-select') {
+    return (
+      <ShinobiArenaSelector
+        onBackToMenu={() => {
+          soundEngine.play('select');
+          setProfile(shinobiDbRepository.getProfile());
+          setCurrentScreen('menu');
+        }}
+        onPlayGame={() => {
+          soundEngine.play('select');
+          setProfile(shinobiDbRepository.getProfile());
+          setCurrentScreen('game');
+        }}
+        onArenaChanged={() => {
+          setProfile(shinobiDbRepository.getProfile());
+        }}
+      />
+    );
+  }
+
+  // Screen 7: Tactical Arena Game
   return (
     <div className="min-h-screen flex flex-col text-stone-900 select-none relative bg-transparent">
       <NarutoMangaBackground />
@@ -154,6 +247,7 @@ export default function App() {
 
           <ChuninArenaSVG
             state={state}
+            arenaTheme={activeArena}
             onSelectUnit={handleSelectUnit}
             onSelectNode={handleSelectNode}
             onEndPostMove={() => dispatch({ type: 'END_TURN' })}

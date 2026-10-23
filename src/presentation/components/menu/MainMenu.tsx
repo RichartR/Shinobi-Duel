@@ -13,7 +13,9 @@ import {
   Wind, 
   Compass, 
   Crosshair,
-  Clapperboard
+  Clapperboard,
+  Hammer,
+  MapPin
 } from 'lucide-react';
 import { useTranslation } from '../../context/I18nContext';
 import { LanguageSwitcher } from '../common/LanguageSwitcher';
@@ -26,6 +28,9 @@ interface MainMenuProps {
   onStartGame: (mode: 'ai' | 'local') => void;
   onOpenGuide: () => void;
   onOpenCodex: () => void;
+  onOpenGacha?: () => void;
+  onOpenForge?: () => void;
+  onOpenArenaSelector?: () => void;
   isMuted: boolean;
   onToggleMute: () => void;
 }
@@ -51,6 +56,9 @@ export const MainMenu: React.FC<MainMenuProps> = ({
   onStartGame,
   onOpenGuide,
   onOpenCodex,
+  onOpenGacha,
+  onOpenForge,
+  onOpenArenaSelector,
   isMuted,
   onToggleMute,
 }) => {
@@ -79,10 +87,10 @@ export const MainMenu: React.FC<MainMenuProps> = ({
   const featuredShinobi: ShinobiHighlight[] = [
     {
       id: 'naruto',
-      name: 'Naruto Uzumaki',
+      name: 'Naruto Uzumaki (Genin)',
       jpName: 'うずまきナルト',
-      title: 'Rasengan (螺旋丸)',
-      jutsuKey: 'rasengan',
+      title: 'Kage Bunshin no Jutsu (影分身)',
+      jutsuKey: 'kagebunshin',
       image: '/assets/naruto_hero.jpg',
       quote: '«¡Jamás retrocederé a mi palabra! ¡Ese es mi camino ninja!»',
       element: '風',
@@ -93,73 +101,59 @@ export const MainMenu: React.FC<MainMenuProps> = ({
     },
     {
       id: 'sasuke',
-      name: 'Sasuke Uchiha',
+      name: 'Sasuke Uchiha (Genin)',
       jpName: 'うちはサスケ',
-      title: 'Chidori (千鳥)',
+      title: 'Katon: Gōkakyū no Jutsu (豪火球)',
       jutsuKey: 'chidori',
       image: '/assets/sasuke_hero.jpg',
-      quote: '«Mis ojos ven la oscuridad con total claridad.»',
-      element: '雷',
-      elementName: 'Rayo',
+      quote: '«Soy un vengador del clan Uchiha, no me detendré ante nadie.»',
+      element: '火',
+      elementName: 'Fuego',
       elementColor: 'text-blue-500',
       badgeBg: 'bg-[#0284C7] text-white',
       mp: 3,
     },
     {
-      id: 'kakashi',
-      name: 'Kakashi Hatake',
-      jpName: 'はたけカカシ',
-      title: 'Raikiri (雷切)',
-      jutsuKey: 'chidori',
-      image: '/assets/kakashi_hero.jpg',
-      quote: '«Quienes rompen las reglas son escoria, pero quienes abandonan a sus amigos son peor que escoria.»',
-      element: '雷',
-      elementName: 'Rayo',
-      elementColor: 'text-cyan-500',
-      badgeBg: 'bg-[#06B6D4] text-black',
+      id: 'sakura',
+      name: 'Sakura Haruno (Genin)',
+      jpName: '春野サクラ',
+      title: '¡Shānnarō! (しゃーんなろー)',
+      jutsuKey: 'lotus',
+      image: 'https://cdn.myanimelist.net/images/characters/16/323862.jpg',
+      quote: '«¡Esta vez no me quedaré atrás mirando vuestras espaldas!»',
+      element: '心',
+      elementName: 'Chakra',
+      elementColor: 'text-pink-500',
+      badgeBg: 'bg-[#BE185D] text-white',
       mp: 2,
     },
     {
-      id: 'itachi',
-      name: 'Itachi Uchiha',
-      jpName: 'うちはイタチ',
-      title: 'Tsukuyomi (月読)',
+      id: 'shikamaru',
+      name: 'Shikamaru Nara (Genin)',
+      jpName: '奈良シカマル',
+      title: 'Kagemane no Jutsu (影真似)',
       jutsuKey: 'tsukuyomi',
-      image: '/assets/itachi_hero.jpg',
-      quote: '«La gente vive atada a lo que acepta como correcto y verdadero... eso es la realidad.»',
-      element: '火',
-      elementName: 'Fuego',
-      elementColor: 'text-red-600',
-      badgeBg: 'bg-[#DC2626] text-white',
+      image: 'https://cdn.myanimelist.net/images/characters/2/74737.jpg',
+      quote: '«Qué fastidio de nubes... sólo quiero vivir una vida tranquila.»',
+      element: '影',
+      elementName: 'Sombra',
+      elementColor: 'text-emerald-500',
+      badgeBg: 'bg-[#14532D] text-emerald-300',
       mp: 2,
     },
     {
-      id: 'minato',
-      name: 'Minato Namikaze',
-      jpName: '波風ミナト',
-      title: 'Hiraishin (飛雷神)',
-      jutsuKey: 'hiraishin',
-      image: '/assets/minato_hero.jpg',
-      quote: '«El Destello Amarillo de Konoha protegerá la aldea a la velocidad de la luz.»',
-      element: '光',
-      elementName: 'Velocidad',
-      elementColor: 'text-yellow-500',
-      badgeBg: 'bg-[#EAB308] text-black',
+      id: 'lee',
+      name: 'Rock Lee (Genin)',
+      jpName: 'ロック・リー',
+      title: 'Konoha Senpū (木ノ葉旋風)',
+      jutsuKey: 'lotus',
+      image: 'https://cdn.myanimelist.net/images/characters/14/433353.jpg',
+      quote: '«¡Un perdedor puede superar a un genio con puro esfuerzo y sudor!»',
+      element: '体',
+      elementName: 'Taijutsu',
+      elementColor: 'text-green-500',
+      badgeBg: 'bg-[#047857] text-white',
       mp: 3,
-    },
-    {
-      id: 'gaara',
-      name: 'Gaara del Desierto',
-      jpName: '我愛羅',
-      title: 'Sabaku Kyū (砂瀑送葬)',
-      jutsuKey: 'sabaku',
-      image: '/assets/gaara_hero.jpg',
-      quote: '«Lucho solo por mí mismo y defiendo mi propia existencia.»',
-      element: '土',
-      elementName: 'Arena / Tierra',
-      elementColor: 'text-amber-700',
-      badgeBg: 'bg-[#D97706] text-white',
-      mp: 2,
     },
   ];
 
@@ -347,9 +341,87 @@ export const MainMenu: React.FC<MainMenuProps> = ({
                   </div>
                 </button>
 
+                {/* Card 3: Kuchiyose Gacha Summon */}
+                {onOpenGacha && (
+                  <button
+                    onClick={onOpenGacha}
+                    className="w-full manga-btn-white p-2.5 sm:p-3 text-left flex items-center justify-between group cursor-pointer border-3 border-black shadow-[3px_3px_0px_#111111] hover:shadow-[4px_4px_0px_#111111] transition-all bg-gradient-to-r from-amber-50 to-orange-50"
+                  >
+                    <div className="min-w-0 pr-1">
+                      <div className="flex items-center gap-1.5 mb-0.5">
+                        <span className="bg-[#FA9427] text-black font-bold text-[10px] px-1.5 py-0.2 border border-black uppercase tracking-wider">
+                          口寄せ • INVOCACIÓN GACHA
+                        </span>
+                        <span className="text-[9px] font-bold text-amber-800 uppercase tracking-wider">
+                          NUEVAS FIGURAS & POLVOS
+                        </span>
+                      </div>
+                      <div className="text-base sm:text-lg font-impact tracking-wide text-black leading-tight">
+                        Sala de Invocaciones Shinobi
+                      </div>
+                      <div className="text-[11px] font-medium text-stone-700 mt-0.5 line-clamp-1">
+                        Desenrolla contratos para invocar ninjas y acumular Polvos de Chakra.
+                      </div>
+                    </div>
+
+                    <div className="w-8 h-8 bg-[#FA9427] text-black border-2 border-black flex items-center justify-center group-hover:scale-110 transition-transform flex-shrink-0 ml-2 shadow-[2px_2px_0px_#000]">
+                      <Sparkles className="w-4 h-4" />
+                    </div>
+                  </button>
+                )}
+
+                {/* Sub-grid: 2 Feature Hubs (Forge & Arena Selector) */}
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
+                  {/* Hub 1: Forge */}
+                  {onOpenForge && (
+                    <button
+                      onClick={onOpenForge}
+                      className="manga-btn-white p-2.5 sm:p-3 text-left flex items-center justify-between group cursor-pointer border-3 border-black shadow-[3px_3px_0px_#111111] hover:shadow-[4px_4px_0px_#111111] transition-all bg-gradient-to-r from-orange-50 to-amber-50"
+                    >
+                      <div className="min-w-0 pr-1">
+                        <span className="bg-[#D97706] text-white font-impact text-[10px] px-1.5 py-0.5 border border-black inline-block tracking-wider">
+                          鍛冶場 • FORJA & CHAKRA
+                        </span>
+                        <div className="text-sm sm:text-base font-impact tracking-wide text-black mt-0.5 leading-tight truncate">
+                          Forja Shinobi
+                        </div>
+                        <div className="text-[10px] font-medium text-stone-600 mt-0.5 line-clamp-1">
+                          Sube Nv.1-5, ChLv y desencanta rollos.
+                        </div>
+                      </div>
+                      <div className="w-8 h-8 bg-[#D97706] text-white border-2 border-black flex items-center justify-center group-hover:scale-110 transition-transform flex-shrink-0 shadow-[2px_2px_0px_#000]">
+                        <Hammer className="w-4 h-4" />
+                      </div>
+                    </button>
+                  )}
+
+                  {/* Hub 2: Arena Selector */}
+                  {onOpenArenaSelector && (
+                    <button
+                      onClick={onOpenArenaSelector}
+                      className="manga-btn-white p-2.5 sm:p-3 text-left flex items-center justify-between group cursor-pointer border-3 border-black shadow-[3px_3px_0px_#111111] hover:shadow-[4px_4px_0px_#111111] transition-all bg-gradient-to-r from-sky-50 to-blue-50"
+                    >
+                      <div className="min-w-0 pr-1">
+                        <span className="bg-[#0284C7] text-white font-impact text-[10px] px-1.5 py-0.5 border border-black inline-block tracking-wider">
+                          戦場選択 • 5 ARENAS
+                        </span>
+                        <div className="text-sm sm:text-base font-impact tracking-wide text-black mt-0.5 leading-tight truncate">
+                          Selector de Arenas
+                        </div>
+                        <div className="text-[10px] font-medium text-stone-600 mt-0.5 line-clamp-1">
+                          Personaliza el campo con climas y auras.
+                        </div>
+                      </div>
+                      <div className="w-8 h-8 bg-[#0284C7] text-white border-2 border-black flex items-center justify-center group-hover:scale-110 transition-transform flex-shrink-0 shadow-[2px_2px_0px_#000]">
+                        <MapPin className="w-4 h-4" />
+                      </div>
+                    </button>
+                  )}
+                </div>
+
                 {/* Sub-grid: 2 Companion Cards (Rules & Bingo Book) */}
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
-                  {/* Card 3: Rules Guide */}
+                  {/* Card: Rules Guide */}
                   <button
                     onClick={onOpenGuide}
                     className="manga-btn-white p-2.5 sm:p-3 text-left flex items-center justify-between group cursor-pointer border-3 border-black shadow-[3px_3px_0px_#111111] hover:shadow-[4px_4px_0px_#111111] transition-all"
@@ -358,10 +430,10 @@ export const MainMenu: React.FC<MainMenuProps> = ({
                       <span className="bg-[#C5221F] text-white font-impact text-[10px] px-1.5 py-0.5 border border-black inline-block tracking-wider">
                         指南 • REGLAS CANÓNICAS
                       </span>
-                      <div className="text-base sm:text-lg font-impact tracking-wide text-black mt-0.5 leading-tight truncate">
+                      <div className="text-sm sm:text-base font-impact tracking-wide text-black mt-0.5 leading-tight truncate">
                         {t('menu.guideTitle')}
                       </div>
-                      <div className="text-[10px] sm:text-[11px] font-medium text-stone-600 mt-0.5 line-clamp-1">
+                      <div className="text-[10px] font-medium text-stone-600 mt-0.5 line-clamp-1">
                         {t('menu.guideDesc')}
                       </div>
                     </div>
@@ -370,19 +442,19 @@ export const MainMenu: React.FC<MainMenuProps> = ({
                     </div>
                   </button>
 
-                  {/* Card 4: Bingo Book / Codex */}
+                  {/* Card: Bingo Book / Codex */}
                   <button
                     onClick={onOpenCodex}
                     className="manga-btn-white p-2.5 sm:p-3 text-left flex items-center justify-between group cursor-pointer border-3 border-black shadow-[3px_3px_0px_#111111] hover:shadow-[4px_4px_0px_#111111] transition-all"
                   >
                     <div className="min-w-0 pr-1">
                       <span className="bg-[#7C3AED] text-white font-impact text-[10px] px-1.5 py-0.5 border border-black inline-block tracking-wider">
-                        賞金首 • BINGO & FORJA
+                        賞金首 • LIBRO BINGO
                       </span>
-                      <div className="text-base sm:text-lg font-impact tracking-wide text-black mt-0.5 leading-tight truncate">
+                      <div className="text-sm sm:text-base font-impact tracking-wide text-black mt-0.5 leading-tight truncate">
                         {t('menu.codexTitle')}
                       </div>
-                      <div className="text-[10px] sm:text-[11px] font-medium text-stone-600 mt-0.5 line-clamp-1">
+                      <div className="text-[10px] font-medium text-stone-600 mt-0.5 line-clamp-1">
                         {t('menu.codexDesc')}
                       </div>
                     </div>

@@ -6,13 +6,65 @@ import { CHAR_SVG_FALLBACKS } from '../../../infrastructure/assets/animeAssets';
 import { FigureStatus } from '../../../domain/models/ShinobiFigure';
 import { useTranslation } from '../../context/I18nContext';
 import { getLocalizedFigure } from '../../../infrastructure/i18n/locales/figureI18n';
+import { ArenaThemeItem } from '../../../domain/models/CraftingEconomy';
 
 interface ChuninArenaSVGProps {
   state: GameState;
+  arenaTheme?: ArenaThemeItem;
   onSelectUnit: (figureId: string) => void;
   onSelectNode: (nodeId: number) => void;
   onEndPostMove: () => void;
 }
+
+const ARENA_CONFIGS: Record<string, {
+  sandGrad: [string, string, string];
+  innerGrad: [string, string];
+  innerStroke: string;
+  dashedStroke: string;
+  crestColor: string;
+  textColor: string;
+}> = {
+  konoha_chunin: {
+    sandGrad: ['#FAF2E4', '#F2E3C6', '#E2CBA6'],
+    innerGrad: ['#FFFBF3', '#F3E5CD'],
+    innerStroke: '#854D0E',
+    dashedStroke: '#D97706',
+    crestColor: '#B45309',
+    textColor: '#78350F',
+  },
+  valley_of_the_end: {
+    sandGrad: ['#1e293b', '#0f172a', '#020617'],
+    innerGrad: ['#334155', '#1e293b'],
+    innerStroke: '#0284c7',
+    dashedStroke: '#38bdf8',
+    crestColor: '#0284c7',
+    textColor: '#bae6fd',
+  },
+  forest_of_death: {
+    sandGrad: ['#14532d', '#052e16', '#022c22'],
+    innerGrad: ['#166534', '#14532d'],
+    innerStroke: '#16a34a',
+    dashedStroke: '#22c55e',
+    crestColor: '#16a34a',
+    textColor: '#bbf7d0',
+  },
+  suna_desert: {
+    sandGrad: ['#fef08a', '#fde047', '#eab308'],
+    innerGrad: ['#fef9c3', '#fef08a'],
+    innerStroke: '#a16207',
+    dashedStroke: '#ca8a04',
+    crestColor: '#ca8a04',
+    textColor: '#713f12',
+  },
+  rain_village: {
+    sandGrad: ['#2e1065', '#1e1b4b', '#0f0d2b'],
+    innerGrad: ['#3b0764', '#2e1065'],
+    innerStroke: '#7e22ce',
+    dashedStroke: '#9333ea',
+    crestColor: '#a855f7',
+    textColor: '#f3e8ff',
+  },
+};
 
 const STATUS_ICONS: Record<NonNullable<FigureStatus>, { kanji: string; color: string }> = {
   burned: { kanji: '炎', color: '#f97316' },
@@ -23,10 +75,12 @@ const STATUS_ICONS: Record<NonNullable<FigureStatus>, { kanji: string; color: st
 
 export const ChuninArenaSVG: React.FC<ChuninArenaSVGProps> = ({
   state,
+  arenaTheme,
   onSelectUnit,
   onSelectNode,
   onEndPostMove,
 }) => {
+  const arenaCfg = ARENA_CONFIGS[arenaTheme?.key || 'konoha_chunin'] || ARENA_CONFIGS.konoha_chunin;
   const { t, language } = useTranslation();
   const onBoardFigures = useMemo(
     () => state.figures.filter(f => f.location === 'board' && f.nodeId !== null),
@@ -43,13 +97,13 @@ export const ChuninArenaSVG: React.FC<ChuninArenaSVGProps> = ({
       >
         <defs>
           <radialGradient id="sandArenaGrad" cx="50%" cy="50%" r="65%">
-            <stop offset="0%" stopColor="#FAF2E4" />
-            <stop offset="60%" stopColor="#F2E3C6" />
-            <stop offset="100%" stopColor="#E2CBA6" />
+            <stop offset="0%" stopColor={arenaCfg.sandGrad[0]} />
+            <stop offset="60%" stopColor={arenaCfg.sandGrad[1]} />
+            <stop offset="100%" stopColor={arenaCfg.sandGrad[2]} />
           </radialGradient>
           <linearGradient id="innerSanctuaryGrad" x1="0%" y1="0%" x2="100%" y2="100%">
-            <stop offset="0%" stopColor="#FFFBF3" />
-            <stop offset="100%" stopColor="#F3E5CD" />
+            <stop offset="0%" stopColor={arenaCfg.innerGrad[0]} />
+            <stop offset="100%" stopColor={arenaCfg.innerGrad[1]} />
           </linearGradient>
           <linearGradient id="pedestalP1" x1="0%" y1="0%" x2="100%" y2="100%">
             <stop offset="0%" stopColor="#38bdf8" />
@@ -77,20 +131,20 @@ export const ChuninArenaSVG: React.FC<ChuninArenaSVGProps> = ({
 
         {/* Sunlit Sand Arena Base */}
         <rect x="8" y="8" width="664" height="534" rx="12" fill="url(#sandArenaGrad)" stroke="#111111" strokeWidth="4" />
-        <rect x="18" y="18" width="644" height="514" rx="8" fill="none" stroke="#D97706" strokeWidth="2" strokeDasharray="14 7" opacity="0.5" />
-        <circle cx="55" cy="275" r="28" fill="#E4D1B2" opacity="0.6" />
-        <circle cx="625" cy="220" r="35" fill="#E4D1B2" opacity="0.6" />
+        <rect x="18" y="18" width="644" height="514" rx="8" fill="none" stroke={arenaCfg.dashedStroke} strokeWidth="2" strokeDasharray="14 7" opacity="0.6" />
+        <circle cx="55" cy="275" r="28" fill="#E4D1B2" opacity="0.2" />
+        <circle cx="625" cy="220" r="35" fill="#E4D1B2" opacity="0.2" />
 
         {/* Inner Tactical Courtyard */}
-        <rect x="175" y="140" width="330" height="270" rx="8" fill="url(#innerSanctuaryGrad)" stroke="#854D0E" strokeWidth="3" />
+        <rect x="175" y="140" width="330" height="270" rx="8" fill="url(#innerSanctuaryGrad)" stroke={arenaCfg.innerStroke} strokeWidth="3" />
 
         {/* Central Seal Crest (Carved Terracotta Kanji) */}
-        <g transform="translate(340, 275)" opacity="0.75">
-          <circle r="78" fill="none" stroke="#B45309" strokeWidth="2.5" />
+        <g transform="translate(340, 275)" opacity="0.85">
+          <circle r="78" fill="none" stroke={arenaCfg.crestColor} strokeWidth="2.5" />
           <circle r="70" fill="none" stroke="#DC2626" strokeWidth="1.5" strokeDasharray="10 5" />
-          <text x="0" y="-52" textAnchor="middle" fill="#92400E" fontSize="12" fontWeight="900" fontFamily="Noto Serif JP">封 • 陣 • 忍 • 闘</text>
-          <text x="0" y="62" textAnchor="middle" fill="#92400E" fontSize="12" fontWeight="900" fontFamily="Noto Serif JP">火 • 影 • 暁 • 魂</text>
-          <text x="0" y="14" textAnchor="middle" fill="#78350F" fontSize="48" fontWeight="900" fontFamily="Noto Serif JP">忍</text>
+          <text x="0" y="-52" textAnchor="middle" fill={arenaCfg.textColor} fontSize="12" fontWeight="900" fontFamily="Noto Serif JP">封 • 陣 • 忍 • 闘</text>
+          <text x="0" y="62" textAnchor="middle" fill={arenaCfg.textColor} fontSize="12" fontWeight="900" fontFamily="Noto Serif JP">火 • 影 • 暁 • 魂</text>
+          <text x="0" y="14" textAnchor="middle" fill={arenaCfg.textColor} fontSize="48" fontWeight="900" fontFamily="Noto Serif JP">忍</text>
         </g>
 
         {/* Layer 1: Edges */}

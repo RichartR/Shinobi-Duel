@@ -606,7 +606,7 @@ export const ShinobiRulesGuide: React.FC<ShinobiRulesGuideProps> = ({
               </div>
             )}
 
-            {/* SECCIÓN 7: FORJA DE FIGURAS (NIVEL Y CARMÍN CLV) */}
+            {/* SECCIÓN 7: FORJA DE FIGURAS (NIVEL Y CHAKRA CHLV) */}
             {activeSection === 'forge' && (
               <div className="space-y-4">
                 <div className="flex items-center gap-2.5 pb-2.5 border-b-3 border-black">

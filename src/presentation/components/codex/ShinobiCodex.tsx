@@ -11,7 +11,7 @@ import { TACTICAL_SCROLLS_CATALOG, MAX_PLATE_CAPACITY } from '../../../domain/mo
 import { SHINOBI_FIGURES_CATALOG } from '../../../infrastructure/repositories/MockShinobiRepository';
 import { CHAR_SVG_FALLBACKS } from '../../../infrastructure/assets/animeAssets';
 import { ChakraDiskSVG } from '../wheel/ChakraDiskSVG';
-import { Play, BookOpen } from 'lucide-react';
+import { Play, BookOpen, Hammer } from 'lucide-react';
 import { useTranslation } from '../../context/I18nContext';
 import { LanguageSwitcher } from '../common/LanguageSwitcher';
 import { getLocalizedFigure, getLocalizedScroll } from '../../../infrastructure/i18n/locales/figureI18n';
@@ -23,6 +23,7 @@ interface ShinobiCodexProps {
   dispatch: React.Dispatch<any>;
   onBackToMenu: () => void;
   onPlayGame: () => void;
+  onOpenForge?: () => void;
 }
 
 export const ShinobiCodex: React.FC<ShinobiCodexProps> = ({
@@ -30,6 +31,7 @@ export const ShinobiCodex: React.FC<ShinobiCodexProps> = ({
   dispatch,
   onBackToMenu,
   onPlayGame,
+  onOpenForge,
 }) => {
   const { t, language } = useTranslation();
   const [selectedKey, setSelectedKey] = useState<string>('naruto');
@@ -250,12 +252,23 @@ export const ShinobiCodex: React.FC<ShinobiCodexProps> = ({
                     </div>
                   </div>
 
+                  {/* Link to Full Shinobi Forge */}
+                  {onOpenForge && (
+                    <button
+                      onClick={onOpenForge}
+                      className="w-full p-2.5 bg-gradient-to-r from-amber-400 to-[#FA9427] hover:brightness-105 text-black font-impact text-xs sm:text-sm uppercase tracking-wider border-2 border-black shadow-[3px_3px_0px_#000] flex items-center justify-center gap-2 cursor-pointer transition-transform active:scale-98"
+                    >
+                      <Hammer className="w-4 h-4" />
+                      Ir a la Forja Ninja (Mejorar Nivel y ChLv con Polvos de Chakra) →
+                    </button>
+                  )}
+
                   {/* Level and CLv Forge Controls */}
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 p-3.5 bg-white border-3 border-black text-xs shadow-[3px_3px_0px_#000]">
                     <div>
-                      <div className="flex items-center justify-between font-impact text-black uppercase tracking-wider mb-1.5">
+                      <div className="flex items-center justify-between font-bold text-xs sm:text-sm text-black uppercase tracking-wide mb-1.5">
                         <span>{t('codex.figureLevel', { level: custom.level })}</span>
-                        <span className="text-stone-600 font-mono text-[10px]">
+                        <span className="text-stone-700 font-mono text-xs font-bold">
                           {t('codex.segmentsGain', { count: custom.level - 1 })}
                         </span>
                       </div>
@@ -282,9 +295,9 @@ export const ShinobiCodex: React.FC<ShinobiCodexProps> = ({
                     </div>
 
                     <div>
-                      <div className="flex items-center justify-between font-impact text-black uppercase tracking-wider mb-1.5">
+                      <div className="flex items-center justify-between font-bold text-xs sm:text-sm text-black uppercase tracking-wide mb-1.5">
                         <span>{t('codex.chainLevel')}</span>
-                        <span className="text-emerald-700 font-mono font-black">+{custom.clv} DMG</span>
+                        <span className="text-emerald-700 font-mono font-black text-sm">+{custom.clv} DMG</span>
                       </div>
                       <div className="flex items-center gap-2">
                         <button

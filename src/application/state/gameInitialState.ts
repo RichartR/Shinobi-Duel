@@ -67,7 +67,7 @@ export interface GameState {
   logs: GameLogEntry[];
 }
 
-export const DEFAULT_TEAM_KEYS = ['minato', 'lee', 'itachi', 'gaara', 'naruto', 'sasuke'];
+export const DEFAULT_TEAM_KEYS = ['naruto', 'sasuke', 'sakura', 'shikamaru', 'choji', 'lee'];
 export const DEFAULT_PLATE_DECK = ['goal_block', 'max_revive', 'double_chance', 'x_attack'];
 
 export function createDefaultCustomizations(): Record<string, FigureCustomization> {
@@ -141,7 +141,7 @@ export function createInitialGameState(
 ): GameState {
   const figures = [
     ...instantiateTeamRoster(1, selectedTeamKeys, customizations),
-    ...instantiateTeamRoster(2, ['pain', 'itachi', 'sasuke', 'gaara', 'kakashi', 'minato'], customizations),
+    ...instantiateTeamRoster(2, ['kiba', 'shino', 'hinata', 'ino', 'sasuke', 'naruto'], customizations),
   ];
 
   const buildPlayerScrolls = (plateIds: string[]): EquippedScroll[] =>
