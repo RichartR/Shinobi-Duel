@@ -36,24 +36,22 @@ export const PlayerCommandBar: React.FC<PlayerCommandBarProps> = ({
 
   return (
     <div
-      className={`rounded-lg p-2 md:p-2.5 border-2 shadow-2xl transition-colors ${
-        isP1
-          ? 'border-sky-500/90 bg-gradient-to-b from-[#0e2238] via-[#091624] to-[#040b12]'
-          : 'border-red-600/90 bg-gradient-to-b from-[#2e0d0d] via-[#1a0707] to-[#0a0303]'
+      className={`p-1.5 md:p-2 border-3 border-black shadow-[4px_4px_0px_#000] transition-colors ${
+        isP1 ? 'bg-white' : 'bg-white'
       }`}
     >
-      <div className="flex flex-wrap items-center justify-between gap-2 mb-2 border-b border-stone-700/70 pb-1.5">
-        <div className="flex items-center gap-2">
+      <div className="flex flex-wrap items-center justify-between gap-1.5 mb-1.5 border-b-2 border-black pb-1">
+        <div className="flex items-center gap-1.5">
           <span
-            className={`px-2 py-0.5 text-xs font-black border-2 rounded-sm shadow ${
+            className={`px-2 py-0.5 text-xs font-impact tracking-wider border-2 border-black shadow-[1px_1px_0px_#000] uppercase ${
               isP1
-                ? 'bg-sky-600 text-white border-sky-300'
-                : 'bg-red-700 text-white border-red-400'
+                ? 'bg-[#0284c7] text-white'
+                : 'bg-[#dc2626] text-white'
             }`}
           >
-            {isP1 ? 'P1 • 木' : state.mode === 'ai' ? 'AI • 暁' : 'P2 • 暁'}
+            {isP1 ? 'P1 • 木ノ葉' : state.mode === 'ai' ? 'AI • 暁' : 'P2 • 暁'}
           </span>
-          <span className={`text-xs font-black tracking-wider ${isP1 ? 'text-sky-300' : 'text-red-300'}`}>
+          <span className="text-xs md:text-sm font-impact tracking-wide text-black uppercase">
             {isP1
               ? t('board.p1Faction')
               : state.mode === 'ai'
@@ -61,14 +59,14 @@ export const PlayerCommandBar: React.FC<PlayerCommandBarProps> = ({
               : t('board.p2FactionLocal')}
           </span>
           {activeBuffBadges.length > 0 && (
-            <span className="text-[10px] font-extrabold text-amber-300 bg-amber-950/90 px-2 py-0.5 rounded border border-amber-500/50">
+            <span className="text-[11px] md:text-xs font-bold text-amber-950 bg-amber-200 px-1.5 py-0.2 border border-black shadow-[1px_1px_0px_#000] uppercase">
               {activeBuffBadges.join(' • ')}
             </span>
           )}
         </div>
 
-        {/* Tactical Scrolls */}
-        <div className="flex items-center gap-1.5 flex-wrap">
+        {/* Tactical Scrolls - Sharp Manga Scroll Badges */}
+        <div className="flex items-center gap-1 flex-wrap">
           {playerScrolls.map(sc => {
             const canUse =
               state.turnPlayer === player &&
@@ -83,17 +81,17 @@ export const PlayerCommandBar: React.FC<PlayerCommandBarProps> = ({
                 title={`${sc.description} (${t('scrolls.cost')}: ${sc.cost})`}
                 disabled={!canUse}
                 onClick={() => onActivateScroll(player, sc.slotId || sc.id)}
-                className={`px-2 py-1 rounded text-[10px] font-bold border transition flex items-center gap-1 min-h-[30px] ${
+                className={`px-2 py-0.5 text-xs font-bold border-2 transition-all flex items-center gap-1 min-h-[26px] cursor-pointer ${
                   sc.used
-                    ? 'bg-stone-950 text-stone-600 border-stone-800 line-through cursor-not-allowed opacity-60'
+                    ? 'bg-stone-200 text-stone-500 border-2 border-stone-400 line-through cursor-not-allowed opacity-60'
                     : canUse
-                    ? 'bg-[#f4ebd9] hover:bg-amber-200 text-stone-900 border-amber-700 cursor-pointer shadow-sm active:scale-95'
-                    : 'bg-stone-900 text-stone-400 border-stone-700 cursor-default opacity-80'
+                    ? 'bg-[#fff9ee] hover:bg-[#ffe3b8] text-stone-950 border-2 border-black shadow-[2px_2px_0px_#000] active:translate-x-0.5 active:translate-y-0.5'
+                    : 'bg-stone-100 text-stone-500 border-2 border-stone-400 cursor-default opacity-80'
                 }`}
               >
-                <span className="font-black text-red-800">{sc.kanji}</span>
-                <span className="truncate max-w-[110px]">{sc.name}</span>
-                <span className="px-1 rounded-sm bg-stone-800 text-amber-300 text-[8px] font-mono">
+                <span className="font-kanji font-black text-red-700 text-xs">{sc.kanji}</span>
+                <span className="truncate max-w-[110px] text-stone-900 font-bold">{sc.name}</span>
+                <span className="px-1 py-0.2 bg-stone-900 text-amber-300 text-[10px] font-mono font-bold border border-black">
                   C{sc.cost}
                 </span>
               </button>
@@ -102,23 +100,23 @@ export const PlayerCommandBar: React.FC<PlayerCommandBarProps> = ({
         </div>
       </div>
 
-      {/* Bench (6 slots) & Fuinjutsu Infirmary (2 slots) */}
-      <div className="grid grid-cols-12 gap-2 items-center">
-        <div className={`col-span-8 border rounded p-1.5 ${isP1 ? 'bg-sky-950/40 border-sky-800/80' : 'bg-red-950/40 border-red-800/80'}`}>
-          <div className="text-[9px] uppercase font-bold mb-1 flex justify-between">
-            <span className={isP1 ? 'text-sky-300' : 'text-red-300'}>
+      {/* Bench (6 slots) & Fuinjutsu Infirmary (2 slots) - Sharp Manga Panels */}
+      <div className="grid grid-cols-12 gap-1.5 items-center">
+        <div className={`col-span-8 border-2 border-black p-1.5 shadow-[2px_2px_0px_#000] ${isP1 ? 'bg-[#f4f9fd]' : 'bg-[#fdf6f6]'}`}>
+          <div className="text-[11px] md:text-xs uppercase font-impact tracking-wider mb-1 flex justify-between">
+            <span className={isP1 ? 'text-sky-900 font-black' : 'text-red-900 font-black'}>
               {isP1 ? `陣 ${t('board.allyBench')}` : `陣 ${t('board.rivalBench')}`} ({benchFigures.length}/6)
             </span>
-            <span className="text-stone-400">{isP1 ? t('board.deployBottomDesc') : t('board.reinforcementsDesc')}</span>
+            <span className="text-stone-500 font-bold text-[10px] hidden sm:inline">{isP1 ? t('board.deployBottomDesc') : t('board.reinforcementsDesc')}</span>
           </div>
-          <div className="grid grid-cols-6 gap-1.5 min-h-[54px]">
+          <div className="grid grid-cols-6 gap-1 min-h-[50px] md:min-h-[54px]">
             {Array.from({ length: 6 }).map((_, idx) => {
               const fig = benchFigures[idx];
               if (!fig) {
                 return (
                   <div
                     key={`empty_bench_${idx}`}
-                    className="rounded border border-dashed border-stone-800 bg-stone-950/40 min-h-[52px]"
+                    className="border-2 border-dashed border-stone-400 bg-stone-100/70 min-h-[50px] md:min-h-[54px]"
                   />
                 );
               }
@@ -129,28 +127,27 @@ export const PlayerCommandBar: React.FC<PlayerCommandBarProps> = ({
                   key={fig.id}
                   onClick={() => onSelectUnit(fig.id)}
                   aria-label={`${t('common.confirm')}: ${fig.name}`}
-                  className={`relative flex flex-col items-center p-1 rounded bg-stone-900 border-2 transition shadow min-h-[50px] ${
+                  className={`relative flex flex-col items-center p-0.5 border-2 transition-all min-h-[50px] md:min-h-[54px] cursor-pointer ${
                     isSelected
-                      ? 'border-amber-400 ring-2 ring-amber-400 scale-105 z-10'
-                      : isP1
-                      ? 'border-sky-500/80 hover:border-sky-300'
-                      : 'border-red-600/80 hover:border-red-400'
+                      ? 'bg-[#FA9427] text-black border-2 border-black scale-105 z-10 shadow-[3px_3px_0px_#000]'
+                      : 'bg-white border-2 border-black shadow-[2px_2px_0px_#000] hover:-translate-y-0.5'
                   }`}
                 >
                   {/* Faction Tag Badge */}
                   <span
-                    className={`absolute -top-1.5 -left-1.5 px-1 py-0.2 rounded-sm text-[8px] font-black border shadow ${
+                    className={`absolute -top-1.5 -left-1.5 px-1 py-0.2 text-[9px] font-black border border-black shadow-[1px_1px_0px_#000] ${
                       isP1
-                        ? 'bg-sky-600 text-white border-sky-300'
-                        : 'bg-red-700 text-white border-red-300'
+                        ? 'bg-[#0284c7] text-white'
+                        : 'bg-[#dc2626] text-white'
                     }`}
                   >
                     {ownerBadgeText}
                   </span>
 
-                  <div className={`w-9 h-9 rounded-full overflow-hidden border-2 bg-stone-800 ${isP1 ? 'border-sky-400' : 'border-red-500'}`}>
+                  {/* Sharp Authentic Anime Face Portrait */}
+                  <div className="w-8 h-8 md:w-9 md:h-9 border-2 border-black overflow-hidden bg-stone-900 shadow-[1px_1px_0px_#000]">
                     <img
-                      src={fig.portraitUrl}
+                      src={fig.portraitUrl || CHAR_SVG_FALLBACKS[fig.key]}
                       alt={fig.shortName}
                       className="w-full h-full object-cover object-top"
                       onError={e => {
@@ -158,18 +155,14 @@ export const PlayerCommandBar: React.FC<PlayerCommandBarProps> = ({
                       }}
                     />
                   </div>
-                  <span className={`text-[9px] font-extrabold truncate max-w-full mt-0.5 ${isP1 ? 'text-sky-100' : 'text-red-100'}`}>
+                  <span className="text-[11px] md:text-xs font-black tracking-tight truncate max-w-full mt-0.5 text-stone-900 uppercase">
                     {fig.shortName}
                   </span>
-                  <span className={`absolute -top-1.5 -right-1.5 w-4 h-4 rounded-sm text-[9px] font-black flex items-center justify-center border shadow ${
-                    isP1
-                      ? 'bg-sky-400 text-stone-950 border-sky-100'
-                      : 'bg-red-500 text-white border-red-200'
-                  }`}>
+                  <span className="absolute -top-1.5 -right-1.5 w-4 h-4 text-[10px] font-mono font-black flex items-center justify-center border border-black bg-[#FA9427] text-black shadow-[1px_1px_0px_#000]">
                     {effMp}
                   </span>
                   {fig.wait > 0 && (
-                    <span className="absolute bottom-4 left-0 px-1 rounded-sm bg-red-900 text-amber-200 text-[8px] font-bold border border-amber-400">
+                    <span className="absolute bottom-3 left-0 px-1 bg-red-700 text-white text-[9px] font-black border border-black">
                       封{fig.wait}
                     </span>
                   )}
@@ -179,12 +172,13 @@ export const PlayerCommandBar: React.FC<PlayerCommandBarProps> = ({
           </div>
         </div>
 
-        <div className="col-span-4 bg-red-950/35 border border-red-800/70 rounded p-1.5">
-          <div className="text-[9px] text-red-300 uppercase font-bold mb-1 flex justify-between">
-            <span>封 {t('board.prison')}</span>
-            <span>{t('board.prisonMax')}</span>
+        {/* Fuinjutsu Prison - Sharp Manga Chamber */}
+        <div className="col-span-4 bg-[#fff5f5] border-2 border-black p-1.5 shadow-[2px_2px_0px_#000]">
+          <div className="text-[11px] md:text-xs text-red-900 uppercase font-impact tracking-wider mb-1 flex justify-between">
+            <span className="font-black">封 {t('board.prison')}</span>
+            <span className="text-stone-500 font-bold text-[10px]">{t('board.prisonMax')}</span>
           </div>
-          <div className="grid grid-cols-2 gap-1.5 min-h-[54px]">
+          <div className="grid grid-cols-2 gap-1 min-h-[50px] md:min-h-[54px]">
             {Array.from({ length: 2 }).map((_, idx) => {
               const koId = koIds[idx];
               const rawFig = koId ? state.figures.find(f => f.id === koId) : null;
@@ -193,7 +187,7 @@ export const PlayerCommandBar: React.FC<PlayerCommandBarProps> = ({
                 return (
                   <div
                     key={`empty_ko_${idx}`}
-                    className="rounded border border-dashed border-red-900/40 bg-stone-950/30 min-h-[52px]"
+                    className="border-2 border-dashed border-stone-400 bg-stone-100/60 min-h-[50px] md:min-h-[54px]"
                   />
                 );
               }
@@ -202,11 +196,11 @@ export const PlayerCommandBar: React.FC<PlayerCommandBarProps> = ({
                   key={fig.id}
                   onClick={() => onSelectUnit(fig.id)}
                   aria-label={`${t('board.prison')}: ${fig.name}`}
-                  className="relative flex flex-col items-center p-1 rounded bg-red-950/60 border border-red-800 opacity-85 hover:opacity-100 transition min-h-[50px]"
+                  className="relative flex flex-col items-center p-0.5 bg-white border-2 border-black opacity-90 hover:opacity-100 transition-all shadow-[2px_2px_0px_#000] min-h-[50px] md:min-h-[54px] cursor-pointer"
                 >
-                  <div className="w-8 h-8 rounded-full overflow-hidden border border-red-500 grayscale">
+                  <div className="w-8 h-8 md:w-9 md:h-9 border-2 border-black grayscale overflow-hidden bg-stone-900">
                     <img
-                      src={fig.portraitUrl}
+                      src={fig.portraitUrl || CHAR_SVG_FALLBACKS[fig.key]}
                       alt={fig.shortName}
                       className="w-full h-full object-cover object-top"
                       onError={e => {
@@ -214,10 +208,10 @@ export const PlayerCommandBar: React.FC<PlayerCommandBarProps> = ({
                       }}
                     />
                   </div>
-                  <span className="text-[8px] font-bold text-red-200 truncate max-w-full mt-0.5">
+                  <span className="text-[11px] md:text-xs font-black uppercase text-red-900 truncate max-w-full mt-0.5">
                     {fig.shortName}
                   </span>
-                  <span className="absolute top-0 right-0 px-1 bg-red-800 text-amber-100 text-[8px] font-black">
+                  <span className="absolute top-0 right-0 px-1 bg-red-700 text-white text-[9px] font-black border border-black">
                     封
                   </span>
                 </button>

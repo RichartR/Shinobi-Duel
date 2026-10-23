@@ -11,10 +11,11 @@ import { TACTICAL_SCROLLS_CATALOG, MAX_PLATE_CAPACITY } from '../../../domain/mo
 import { SHINOBI_FIGURES_CATALOG } from '../../../infrastructure/repositories/MockShinobiRepository';
 import { CHAR_SVG_FALLBACKS } from '../../../infrastructure/assets/animeAssets';
 import { ChakraDiskSVG } from '../wheel/ChakraDiskSVG';
-import { Play } from 'lucide-react';
+import { Play, BookOpen } from 'lucide-react';
 import { useTranslation } from '../../context/I18nContext';
 import { LanguageSwitcher } from '../common/LanguageSwitcher';
 import { getLocalizedFigure, getLocalizedScroll } from '../../../infrastructure/i18n/locales/figureI18n';
+import { NarutoMangaBackground } from '../common/NarutoMangaBackground';
 
 interface ShinobiCodexProps {
   state: GameState;
@@ -66,73 +67,118 @@ export const ShinobiCodex: React.FC<ShinobiCodexProps> = ({
   }, 0);
 
   return (
-    <div className="min-h-screen bg-[#140e0a] text-stone-100 flex flex-col p-3 md:p-6">
-      {/* Header */}
-      <header className="max-w-6xl w-full mx-auto flex items-center justify-between pb-3 border-b border-stone-800 flex-wrap gap-2">
-        <div className="flex items-center gap-2.5">
+    <div className="min-h-screen text-stone-900 flex flex-col justify-between p-3 sm:p-5 md:p-6 select-none relative bg-transparent overflow-x-hidden">
+      <NarutoMangaBackground />
+
+      {/* 1. TOP OFFICIAL TOURNAMENT BAR - STANDARDIZED WITH MAIN MENU */}
+      <header className="max-w-6xl w-full mx-auto flex items-center justify-between p-3 md:px-5 md:py-2.5 border-3 border-black bg-[#111111] shadow-[4px_4px_0px_#000] flex-wrap gap-3 text-white relative z-20">
+        <div className="flex items-center gap-3">
           <button
             onClick={onBackToMenu}
-            className="px-3 py-1.5 rounded bg-stone-900 hover:bg-stone-800 text-amber-300 text-xs font-bold border border-stone-700 transition"
+            className="manga-btn-white px-3.5 py-2 text-xs md:text-sm font-bold uppercase tracking-wide border-2 border-black shadow-[2px_2px_0px_#000] cursor-pointer focus-visible:ring-2 focus-visible:ring-[#fa9427]"
           >
-            {t('common.backToMenu')}
+            ← {t('common.backToMenu')}
           </button>
-          <div className="flex items-center gap-2">
-            <span className="w-6 h-6 rounded-sm bg-amber-600 border border-amber-300 flex items-center justify-center text-stone-950 font-kanji font-black text-xs">
+          <div className="flex items-center gap-2.5">
+            <span className="w-9 h-9 bg-[#FA9427] border-2 border-black flex items-center justify-center text-black font-kanji font-black text-lg shadow-[2px_2px_0px_#000]">
               書
             </span>
-            <h1 className="text-sm md:text-base font-black text-amber-400 uppercase tracking-wide">
-              {t('codex.title')}
-            </h1>
+            <div>
+              <h1 className="text-lg md:text-xl font-impact text-[#FA9427] tracking-wider uppercase leading-none drop-shadow-[1px_1px_0px_#000]">
+                {t('codex.title')}
+              </h1>
+              <p className="text-[10px] text-stone-300 font-bold uppercase tracking-wider mt-0.5">
+                BINGO BOOK • NIKKI SHINOBI
+              </p>
+            </div>
           </div>
         </div>
         <div className="flex items-center gap-2">
           <LanguageSwitcher compact />
           <button
             onClick={onPlayGame}
-            className="px-4 py-1.5 rounded bg-red-800 hover:bg-red-700 text-amber-100 text-xs font-black uppercase tracking-wider border border-amber-500 shadow transition flex items-center gap-1.5"
+            className="manga-btn-orange px-4 py-2 text-xs md:text-sm font-bold uppercase tracking-wide flex items-center gap-2 border-2 border-black shadow-[2px_2px_0px_#000] cursor-pointer focus-visible:ring-2 focus-visible:ring-white"
           >
-            <Play className="w-3.5 h-3.5" /> {t('common.playNow')}
+            <Play className="w-4 h-4 fill-current" /> {t('common.playNow')}
           </button>
         </div>
       </header>
 
-      {/* Main Container */}
-      <main className="max-w-6xl w-full mx-auto my-4 flex-1 flex flex-col">
-        {/* Navigation Tabs */}
-        <div className="flex gap-2 mb-4 bg-stone-900/90 p-2 rounded-lg border border-stone-800">
-          <button
-            onClick={() => setActiveTab('catalog')}
-            className={`px-4 py-2 rounded text-xs font-bold transition ${
-              activeTab === 'catalog'
-                ? 'bg-amber-600 text-stone-950 shadow'
-                : 'bg-stone-950 text-stone-400 hover:text-stone-200'
-            }`}
-          >
-            {t('codex.tabCatalog')}
-          </button>
-          <button
-            onClick={() => setActiveTab('deck')}
-            className={`px-4 py-2 rounded text-xs font-bold transition ${
-              activeTab === 'deck'
-                ? 'bg-amber-600 text-stone-950 shadow'
-                : 'bg-stone-950 text-stone-400 hover:text-stone-200'
-            }`}
-          >
-            {t('codex.tabDeck')}
-          </button>
-        </div>
+      {/* 2. MAIN CENTER CARD - STANDARDIZED BORDER-4 BORDER-BLACK SHADOW-[8px_8px_0px_#000] */}
+      <main className="max-w-6xl w-full mx-auto my-auto py-2 md:py-3 relative z-20 flex-1 flex flex-col">
+        <div className="bg-white border-4 border-black overflow-hidden shadow-[8px_8px_0px_#000] flex-1 flex flex-col p-4 sm:p-5 md:p-6 relative">
+          {/* Authentic Leaf Village Headband Metal Plate */}
+          <div className="flex items-center justify-center mb-2">
+            <div className="ninja-headband-plate px-7 py-1.5 flex items-center gap-3 border-2 border-black shadow-[2px_2px_0px_#111111]">
+              <span className="w-2.5 h-2.5 bg-slate-800 shadow-inner" />
+              <svg 
+                className="w-8 h-8 text-slate-900 filter drop-shadow-[0_1px_1px_rgba(255,255,255,0.8)]" 
+                viewBox="0 0 36 36" 
+                fill="none" 
+                stroke="currentColor" 
+                strokeWidth="2.8"
+                aria-label="Emblema oficial de Konoha"
+              >
+                <path d="M21 19c0-2.8-2.2-5-5-5s-5 2.2-5 5 2.2 5 5 5 5-2.2 5-5z" />
+                <path d="M21 19c0 5-4 9-9 9s-9-4-9-9 4-9 9-9c3.8 0 7.2 1.8 11 1.5l8-4.5-3.5 9.5C26 22 21 26 15 27" />
+                <path d="M4 28l6-4" strokeLinecap="round" />
+              </svg>
+              <span className="w-2.5 h-2.5 bg-slate-800 shadow-inner" />
+            </div>
+          </div>
 
-        {/* Content Box */}
-        <div className="shadow-2xl flex-1 flex flex-col">
-          <div className="h-2.5 bg-gradient-to-r from-amber-700 via-[#281b12] to-amber-700 rounded-t border-b-2 border-stone-950" />
-          <div className="bg-[#f4ebd9] text-stone-900 p-5 md:p-8 border-x-4 border-[#281b12] flex-1 overflow-y-auto">
+          {/* Title Header with Japanese Manga Typography */}
+          <div className="text-center space-y-1 mb-3">
+            <div className="inline-flex items-center gap-2 px-2.5 py-0.5 bg-black text-[#FA9427] font-kanji font-bold text-[11px] uppercase tracking-widest border border-black shadow-[2px_2px_0px_#FA9427]">
+              <span>木ノ葉隠れの里 • 忍録鍛冶場</span>
+            </div>
+            <h2 className="text-2xl sm:text-3xl md:text-4xl font-impact tracking-wider uppercase text-black drop-shadow-[2px_2px_0px_#FA9427] leading-none">
+              SHINOBI CODEX & FORGE
+            </h2>
+          </div>
+
+          {/* Navigation Tabs Bar */}
+          <nav className="flex gap-2 mb-4 bg-stone-100 p-2.5 border-3 border-black shadow-[3px_3px_0px_#000]" role="tablist">
+            <button
+              role="tab"
+              aria-selected={activeTab === 'catalog'}
+              onClick={() => setActiveTab('catalog')}
+              className={`px-4 py-2.5 min-h-[44px] text-xs sm:text-sm font-bold uppercase tracking-wide transition border-2 cursor-pointer focus-visible:ring-2 focus-visible:ring-[#fa9427] ${
+                activeTab === 'catalog'
+                  ? 'bg-[#FA9427] text-black border-2 border-black shadow-[2px_2px_0px_#000]'
+                  : 'bg-white text-stone-900 hover:text-black hover:bg-[#FA9427]/30 border-2 border-black shadow-[1px_1px_0px_#000]'
+              }`}
+            >
+              {t('codex.tabCatalog')}
+            </button>
+            <button
+              role="tab"
+              aria-selected={activeTab === 'deck'}
+              onClick={() => setActiveTab('deck')}
+              className={`px-4 py-2.5 min-h-[44px] text-xs sm:text-sm font-bold uppercase tracking-wide transition border-2 cursor-pointer focus-visible:ring-2 focus-visible:ring-[#fa9427] ${
+                activeTab === 'deck'
+                  ? 'bg-[#FA9427] text-black border-2 border-black shadow-[2px_2px_0px_#000]'
+                  : 'bg-white text-stone-900 hover:text-black hover:bg-[#FA9427]/30 border-2 border-black shadow-[1px_1px_0px_#000]'
+              }`}
+            >
+              {t('codex.tabDeck')}
+            </button>
+          </nav>
+
+          {/* Content Box */}
+          <div className="bg-white text-stone-900 flex-1 overflow-y-auto pr-1">
             {activeTab === 'catalog' ? (
-              <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
+              <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
                 {/* Shinobi List Selector (4 Cols) */}
                 <div className="lg:col-span-4 space-y-2">
-                  <h2 className="text-xs font-black text-red-900 uppercase tracking-widest border-b border-stone-800/20 pb-1">
-                    {t('codex.officialFigures')} ({SHINOBI_FIGURES_CATALOG.length})
-                  </h2>
+                  <div className="flex items-center gap-2 pb-1.5 border-b-3 border-black">
+                    <span className="px-2 py-0.5 bg-black text-[#FA9427] font-impact text-xs uppercase tracking-wider border border-black shadow-[1px_1px_0px_#000]">
+                      忍者
+                    </span>
+                    <h3 className="text-xs font-impact text-black uppercase tracking-widest">
+                      {t('codex.officialFigures')} ({SHINOBI_FIGURES_CATALOG.length})
+                    </h3>
+                  </div>
                   <div className="space-y-1.5 max-h-[500px] overflow-y-auto pr-1">
                     {SHINOBI_FIGURES_CATALOG.map(figRaw => {
                       const fig = getLocalizedFigure(figRaw, language);
@@ -142,30 +188,30 @@ export const ShinobiCodex: React.FC<ShinobiCodexProps> = ({
                         <button
                           key={fig.key}
                           onClick={() => setSelectedKey(fig.key)}
-                          className={`w-full p-2.5 rounded-lg border text-left flex items-center justify-between transition ${
+                          className={`w-full p-2.5 border-2 text-left flex items-center justify-between transition cursor-pointer ${
                             isSelected
-                              ? 'bg-stone-900 text-amber-300 border-amber-500 shadow-md ring-2 ring-amber-500/50'
-                              : 'bg-stone-950/70 text-stone-100 border-stone-700 hover:bg-stone-900'
+                              ? 'bg-[#FA9427] text-black border-2 border-black shadow-[3px_3px_0px_#000]'
+                              : 'bg-white text-stone-900 border-2 border-black hover:bg-stone-50 shadow-[2px_2px_0px_#000]'
                           }`}
                         >
                           <div className="flex items-center gap-2.5 min-w-0">
                             <img
                               src={fig.portraitUrl}
                               alt={fig.name}
-                              className="w-10 h-10 rounded object-cover object-top border border-amber-500 shrink-0 bg-stone-800"
+                              className="w-10 h-10 object-cover object-top border-2 border-black shrink-0 bg-stone-900 shadow-[1px_1px_0px_#000]"
                               onError={e => {
                                 e.currentTarget.src = CHAR_SVG_FALLBACKS[fig.key] || '';
                               }}
                             />
                             <div className="truncate">
-                              <div className="text-xs font-black truncate">{fig.name}</div>
-                              <div className="text-[10px] text-amber-400 font-mono">
+                              <div className="text-sm font-bold uppercase tracking-wide truncate text-black">{fig.name}</div>
+                              <div className="text-xs font-mono font-bold text-stone-800">
                                 [{fig.rarity}] • {fig.mp} MP
                               </div>
                             </div>
                           </div>
                           {isInTeam && (
-                            <span className="px-1.5 py-0.5 rounded text-[9px] font-black bg-amber-600 text-stone-950 shrink-0">
+                            <span className="px-2 py-0.5 text-[10px] font-bold uppercase bg-black text-[#FA9427] border border-black shrink-0 shadow-[1px_1px_0px_#000]">
                               {t('codex.inDeck')}
                             </span>
                           )}
@@ -176,38 +222,40 @@ export const ShinobiCodex: React.FC<ShinobiCodexProps> = ({
                 </div>
 
                 {/* Shinobi Details & Forge (8 Cols) */}
-                <div className="lg:col-span-8 bg-stone-900 text-stone-100 p-4 md:p-6 rounded-xl border-2 border-amber-600 space-y-4">
-                  <div className="flex flex-wrap items-center justify-between gap-3 border-b border-stone-700 pb-3">
+                <div className="lg:col-span-8 bg-[#fff8ee] text-stone-900 p-4 md:p-6 border-3 border-black shadow-[4px_4px_0px_#000] space-y-4">
+                  <div className="flex flex-wrap items-center justify-between gap-3 border-b-3 border-black pb-3">
                     <div className="flex items-center gap-3">
                       <img
                         src={selectedFigTemplate.portraitUrl}
                         alt={selectedFigTemplate.name}
-                        className="w-14 h-14 rounded-lg object-cover object-top border-2 border-amber-500 bg-stone-800 shadow"
+                        className="w-16 h-16 object-cover object-top border-3 border-black bg-stone-900 shadow-[3px_3px_0px_#000]"
                         onError={e => {
                           e.currentTarget.src = CHAR_SVG_FALLBACKS[selectedFigTemplate.key] || '';
                         }}
                       />
                       <div>
                         <div className="flex items-center gap-2">
-                          <span className="px-2 py-0.5 text-xs font-black bg-amber-500 text-stone-950 rounded">
+                          <span className="px-2 py-0.5 text-xs font-impact uppercase bg-[#fa9427] text-stone-950 border-2 border-black shadow-[2px_2px_0px_#000]">
                             {selectedFigTemplate.rarity}
                           </span>
-                          <span className="text-xs font-bold text-amber-400">
+                          <span className="text-xs font-impact uppercase text-stone-800">
                             {selectedFigTemplate.mp} {t('codex.movementPoints')}
                           </span>
                         </div>
-                        <h3 className="text-xl font-black text-white">{selectedFigTemplate.name}</h3>
-                        <p className="text-xs text-amber-200/90 font-bold">{selectedFigTemplate.archetype}</p>
+                        <h3 className="text-xl sm:text-2xl font-impact tracking-wide text-black uppercase mt-0.5">
+                          {selectedFigTemplate.name}
+                        </h3>
+                        <p className="text-xs text-[#e77100] font-black">{selectedFigTemplate.archetype}</p>
                       </div>
                     </div>
                   </div>
 
                   {/* Level and CLv Forge Controls */}
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 p-3 rounded-lg bg-stone-950 border border-stone-800 text-xs">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 p-3.5 bg-white border-3 border-black text-xs shadow-[3px_3px_0px_#000]">
                     <div>
-                      <div className="flex items-center justify-between font-bold text-amber-300 mb-1.5">
+                      <div className="flex items-center justify-between font-impact text-black uppercase tracking-wider mb-1.5">
                         <span>{t('codex.figureLevel', { level: custom.level })}</span>
-                        <span className="text-stone-400 font-normal">
+                        <span className="text-stone-600 font-mono text-[10px]">
                           {t('codex.segmentsGain', { count: custom.level - 1 })}
                         </span>
                       </div>
@@ -221,10 +269,10 @@ export const ShinobiCodex: React.FC<ShinobiCodexProps> = ({
                                 payload: { ...custom, figKey: selectedFigTemplate.key, level: lv },
                               })
                             }
-                            className={`flex-1 py-1 rounded font-black text-xs transition ${
+                            className={`flex-1 py-1 font-impact text-xs transition border-2 border-black shadow-[2px_2px_0px_#000] cursor-pointer ${
                               custom.level === lv
-                                ? 'bg-amber-500 text-stone-950 shadow'
-                                : 'bg-stone-800 text-stone-400 hover:text-white'
+                                ? 'bg-[#fa9427] text-stone-950'
+                                : 'bg-stone-100 text-stone-700 hover:bg-stone-200'
                             }`}
                           >
                             Lv.{lv}
@@ -234,9 +282,9 @@ export const ShinobiCodex: React.FC<ShinobiCodexProps> = ({
                     </div>
 
                     <div>
-                      <div className="flex items-center justify-between font-bold text-emerald-300 mb-1.5">
+                      <div className="flex items-center justify-between font-impact text-black uppercase tracking-wider mb-1.5">
                         <span>{t('codex.chainLevel')}</span>
-                        <span className="text-white font-mono font-black">+{custom.clv} DMG</span>
+                        <span className="text-emerald-700 font-mono font-black">+{custom.clv} DMG</span>
                       </div>
                       <div className="flex items-center gap-2">
                         <button
@@ -250,11 +298,11 @@ export const ShinobiCodex: React.FC<ShinobiCodexProps> = ({
                               },
                             })
                           }
-                          className="px-3 py-1 rounded bg-stone-800 hover:bg-stone-700 font-bold text-sm"
+                          className="px-3 py-1 bg-stone-100 hover:bg-stone-200 border-2 border-black font-impact text-sm shadow-[2px_2px_0px_#000] cursor-pointer"
                         >
                           -
                         </button>
-                        <div className="flex-1 text-center font-mono font-black text-amber-300 bg-stone-900 py-1 rounded border border-stone-700">
+                        <div className="flex-1 text-center font-mono font-black text-stone-950 bg-stone-100 py-1 border-2 border-black shadow-[2px_2px_0px_#000]">
                           {t('codex.extraDamage', { count: custom.clv })}
                         </div>
                         <button
@@ -268,7 +316,7 @@ export const ShinobiCodex: React.FC<ShinobiCodexProps> = ({
                               },
                             })
                           }
-                          className="px-3 py-1 rounded bg-stone-800 hover:bg-stone-700 font-bold text-sm"
+                          className="px-3 py-1 bg-stone-100 hover:bg-stone-200 border-2 border-black font-impact text-sm shadow-[2px_2px_0px_#000] cursor-pointer"
                         >
                           +
                         </button>
@@ -278,16 +326,16 @@ export const ShinobiCodex: React.FC<ShinobiCodexProps> = ({
 
                   {/* Visual 96-segment Bar and Circular Wheel */}
                   <div className="grid grid-cols-1 md:grid-cols-12 gap-4 items-center">
-                    <div className="md:col-span-5 flex justify-center bg-stone-950/70 p-3 rounded-lg border border-stone-800">
+                    <div className="md:col-span-5 flex justify-center bg-white p-3 border-3 border-black shadow-[3px_3px_0px_#000]">
                       <ChakraDiskSVG figure={previewFig} size={160} />
                     </div>
 
                     <div className="md:col-span-7 space-y-2">
-                      <div className="text-xs font-bold text-amber-300 flex justify-between">
+                      <div className="text-xs font-impact text-black uppercase tracking-wider flex justify-between">
                         <span>{t('codex.wheelDistribution')}</span>
-                        <span className="font-mono text-stone-400">{t('codex.totalLabel')}: 96/96</span>
+                        <span className="font-mono text-stone-600 font-bold">{t('codex.totalLabel')}: 96/96</span>
                       </div>
-                      <div className="w-full h-3 rounded overflow-hidden flex border border-stone-700">
+                      <div className="w-full h-3 flex border-2 border-black shadow-[2px_2px_0px_#000]">
                         {(['white', 'gold', 'purple', 'blue', 'red'] as WheelColor[]).map(cKey => {
                           const val = totals[cKey] || 0;
                           if (val === 0) return null;
@@ -304,7 +352,7 @@ export const ShinobiCodex: React.FC<ShinobiCodexProps> = ({
                         })}
                       </div>
 
-                      <div className="space-y-1 text-xs">
+                      <div className="space-y-1 text-xs max-h-[160px] overflow-y-auto pr-1">
                         {computedSegs.map((seg, idx) => {
                           const col = WHEEL_COLORS[seg.color];
                           return (
@@ -325,20 +373,20 @@ export const ShinobiCodex: React.FC<ShinobiCodexProps> = ({
                                   },
                                 });
                               }}
-                              className={`w-full flex items-center justify-between p-1.5 rounded text-left border transition ${
+                              className={`w-full flex items-center justify-between p-1.5 border-2 text-left transition cursor-pointer ${
                                 custom.lvTargetIndex === idx
-                                  ? 'bg-amber-950/80 border-amber-500'
-                                  : 'bg-stone-950/70 border-stone-800 hover:border-stone-700'
+                                  ? 'bg-[#fff8ee] border-2 border-black font-black shadow-[2px_2px_0px_#000]'
+                                  : 'bg-white border-2 border-black hover:bg-stone-50 shadow-[1px_1px_0px_#000]'
                               }`}
                             >
-                              <span className="font-bold flex items-center gap-1.5 truncate">
+                              <span className="font-bold flex items-center gap-1.5 truncate text-stone-900">
                                 <span
-                                  className="w-2.5 h-2.5 rounded-full"
+                                  className="w-3.5 h-3.5 border border-black shadow-[1px_1px_0px_#000]"
                                   style={{ background: col.fill }}
                                 />
                                 {seg.name}
                               </span>
-                              <span className="font-mono font-black text-amber-400 shrink-0 text-[11px]">
+                              <span className="font-mono font-black text-stone-950 shrink-0 text-[11px]">
                                 {seg.color === 'white' || seg.color === 'gold'
                                   ? `${seg.power} DMG`
                                   : seg.color === 'purple'
@@ -353,31 +401,31 @@ export const ShinobiCodex: React.FC<ShinobiCodexProps> = ({
                     </div>
                   </div>
 
-                  <p className="text-xs text-stone-300 bg-stone-950 p-2.5 rounded border border-stone-800 leading-relaxed">
-                    <strong>{t('codex.doctrine')}:</strong> {selectedFigTemplate.ability}
+                  <p className="text-xs text-stone-900 bg-white p-3 border-2 border-black leading-relaxed shadow-[3px_3px_0px_#000]">
+                    <strong className="text-red-700 font-impact uppercase tracking-wider text-sm">【 {t('codex.doctrine')} 】</strong> {selectedFigTemplate.ability}
                   </p>
                 </div>
               </div>
             ) : (
               /* Deck Builder Tab */
               <div className="space-y-6">
-                <div className="border-b-2 border-stone-800/30 pb-3">
-                  <span className="text-xs font-black text-red-900 uppercase tracking-widest">
+                <div className="flex items-center gap-2 pb-2 border-b-3 border-black">
+                  <span className="px-2.5 py-0.5 bg-black text-[#FA9427] font-impact text-xs uppercase tracking-wider border border-black shadow-[2px_2px_0px_#000]">
                     {t('codex.deckConfigBadge')}
                   </span>
-                  <h2 className="text-xl md:text-2xl font-black text-stone-900">
+                  <h3 className="text-xl md:text-2xl font-impact text-black uppercase tracking-wide">
                     {t('codex.deckConfigTitle')}
-                  </h2>
+                  </h3>
                 </div>
 
                 {/* Team Selection */}
-                <div className="p-4 rounded-lg bg-stone-900 text-stone-100 border-2 border-amber-600 space-y-3">
-                  <div className="flex flex-wrap items-center justify-between gap-2 border-b border-stone-700 pb-2">
+                <div className="p-4 bg-[#fff8ee] text-stone-900 border-3 border-black shadow-[4px_4px_0px_#000] space-y-3">
+                  <div className="flex flex-wrap items-center justify-between gap-2 border-b-3 border-black pb-2">
                     <div>
-                      <h3 className="text-xs font-black text-amber-400 uppercase tracking-wider">
+                      <h4 className="text-sm font-impact text-black uppercase tracking-wider">
                         {t('codex.squadTitle', { count: state.selectedTeamKeys.length })}
-                      </h3>
-                      <p className="text-[11px] text-stone-300">
+                      </h4>
+                      <p className="text-[11px] text-stone-700 font-medium">
                         {t('codex.squadDesc')}
                       </p>
                     </div>
@@ -407,23 +455,23 @@ export const ShinobiCodex: React.FC<ShinobiCodexProps> = ({
                               },
                             });
                           }}
-                          className={`p-2.5 rounded-lg border text-left flex items-center gap-2.5 transition ${
+                          className={`p-2.5 border-2 text-left flex items-center gap-2.5 transition cursor-pointer ${
                             inTeam
-                              ? 'bg-amber-600 text-stone-950 border-amber-300 font-bold shadow'
-                              : 'bg-stone-950 text-stone-400 border-stone-800 hover:text-white'
+                              ? 'bg-[#fa9427] text-stone-950 border-2 border-black font-black shadow-[2px_2px_0px_#000]'
+                              : 'bg-white text-stone-900 border-2 border-black hover:bg-stone-50 font-bold shadow-[2px_2px_0px_#000]'
                           }`}
                         >
                           <img
                             src={fig.portraitUrl}
                             alt={fig.shortName}
-                            className="w-8 h-8 rounded object-cover object-top border border-stone-800 shrink-0"
+                            className="w-9 h-9 object-cover object-top border-2 border-black shrink-0 bg-stone-900 shadow-[2px_2px_0px_#000]"
                             onError={e => {
                               e.currentTarget.src = CHAR_SVG_FALLBACKS[fig.key] || '';
                             }}
                           />
                           <div className="truncate">
-                            <div className="text-xs truncate font-black">{fig.shortName}</div>
-                            <div className="text-[10px] font-mono">{fig.mp} MP</div>
+                            <div className="text-xs truncate font-impact uppercase tracking-wide">{fig.shortName}</div>
+                            <div className="text-[10px] font-mono font-bold text-stone-700">{fig.mp} MP</div>
                           </div>
                         </button>
                       );
@@ -432,13 +480,13 @@ export const ShinobiCodex: React.FC<ShinobiCodexProps> = ({
                 </div>
 
                 {/* Plates Selection */}
-                <div className="p-4 rounded-lg bg-stone-900 text-stone-100 border-2 border-amber-600 space-y-3">
-                  <div className="flex flex-wrap items-center justify-between gap-2 border-b border-stone-700 pb-2">
+                <div className="p-4 bg-[#fff8ee] text-stone-900 border-3 border-black shadow-[4px_4px_0px_#000] space-y-3">
+                  <div className="flex flex-wrap items-center justify-between gap-2 border-b-3 border-black pb-2">
                     <div>
-                      <h3 className="text-xs font-black text-amber-400 uppercase tracking-wider">
+                      <h4 className="text-sm font-impact text-black uppercase tracking-wider">
                         {t('codex.platesTitle', { cost: currentPlateCost, max: MAX_PLATE_CAPACITY })}
-                      </h3>
-                      <p className="text-[11px] text-stone-300">
+                      </h4>
+                      <p className="text-[11px] text-stone-700 font-medium">
                         {t('codex.platesDesc')}
                       </p>
                     </div>
@@ -466,21 +514,21 @@ export const ShinobiCodex: React.FC<ShinobiCodexProps> = ({
                               },
                             });
                           }}
-                          className={`p-3 rounded-lg border text-left flex flex-col justify-between transition ${
+                          className={`p-3 border-2 text-left flex flex-col justify-between transition cursor-pointer ${
                             isEquipped
-                              ? 'bg-emerald-950/80 text-emerald-200 border-emerald-400 shadow'
-                              : 'bg-stone-950 text-stone-400 border-stone-800 hover:text-white'
+                              ? 'bg-emerald-100 text-emerald-950 border-2 border-black font-black shadow-[3px_3px_0px_#000]'
+                              : 'bg-white text-stone-900 border-2 border-black hover:bg-stone-50 font-bold shadow-[2px_2px_0px_#000]'
                           }`}
                         >
                           <div className="flex items-center justify-between mb-1">
-                            <span className="font-black text-xs text-white">
+                            <span className="font-impact uppercase tracking-wide text-xs text-stone-950">
                               {sc.kanji} {sc.name}
                             </span>
-                            <span className="px-1.5 py-0.5 rounded bg-stone-900 text-amber-300 text-[10px] font-mono">
+                            <span className="px-1.5 py-0.5 bg-stone-100 text-stone-900 text-[10px] font-mono font-bold border border-black shadow-[1px_1px_0px_#000]">
                               {t('codex.costLabel', { cost: sc.cost })}
                             </span>
                           </div>
-                          <p className="text-[11px] text-stone-300 leading-snug">{sc.description}</p>
+                          <p className="text-[11px] text-stone-700 leading-snug font-medium">{sc.description}</p>
                         </button>
                       );
                     })}
@@ -489,9 +537,21 @@ export const ShinobiCodex: React.FC<ShinobiCodexProps> = ({
               </div>
             )}
           </div>
-          <div className="h-2.5 bg-gradient-to-r from-amber-700 via-[#281b12] to-amber-700 rounded-b border-t-2 border-stone-950" />
         </div>
       </main>
+
+      {/* 3. BOTTOM OFFICIAL TOURNAMENT BAR - STANDARDIZED WITH MAIN MENU */}
+      <footer className="max-w-6xl w-full mx-auto bg-[#111111] text-white p-2 md:px-4 border-3 border-black shadow-[4px_4px_0px_#000] flex items-center justify-between text-[11px] font-bold tracking-wider relative z-20 flex-wrap gap-2 mt-2">
+        <div className="flex items-center gap-2">
+          <BookOpen className="w-3.5 h-3.5 text-[#FA9427]" />
+          <span className="text-stone-300 uppercase">
+            REGISTRO OFICIAL SHINOBI • CATÁLOGO & FORJA
+          </span>
+        </div>
+        <div className="text-amber-400 font-mono text-[10px]">
+          SISTEMA SHINOBI DUEL • V1.0 CANONICAL
+        </div>
+      </footer>
     </div>
   );
 };

@@ -12,10 +12,14 @@ import {
   Info,
   AlertTriangle,
   Award,
+  Type,
+  Minus,
+  Plus,
 } from 'lucide-react';
 import { useTranslation } from '../../context/I18nContext';
 import { LanguageSwitcher } from '../common/LanguageSwitcher';
 import { GUIDE_TRANSLATIONS, GuideSectionKey } from '../../../infrastructure/i18n/locales/guideI18n';
+import { NarutoMangaBackground } from '../common/NarutoMangaBackground';
 
 interface ShinobiRulesGuideProps {
   onBackToMenu: () => void;
@@ -28,141 +32,271 @@ export const ShinobiRulesGuide: React.FC<ShinobiRulesGuideProps> = ({
 }) => {
   const { language, t } = useTranslation();
   const [activeSection, setActiveSection] = useState<GuideSectionKey>('objective');
+  
+  // Accessibility Text Scaling: 0 = Compact, 1 = Comfortable (Default), 2 = Large
+  const [textSize, setTextSize] = useState<number>(1);
 
   const g = GUIDE_TRANSLATIONS[language] || GUIDE_TRANSLATIONS.es;
 
+  // Accessible font scaling helpers based on user preference
+  const bodySizeClass = textSize === 0 
+    ? 'text-sm leading-relaxed' 
+    : textSize === 1 
+    ? 'text-base leading-relaxed' 
+    : 'text-lg sm:text-xl leading-loose';
+
+  const subTextSizeClass = textSize === 0 
+    ? 'text-xs sm:text-sm leading-normal' 
+    : textSize === 1 
+    ? 'text-sm sm:text-base leading-relaxed' 
+    : 'text-base sm:text-lg leading-relaxed';
+
+  const cardHeadingClass = textSize === 0 
+    ? 'text-sm sm:text-base font-extrabold' 
+    : textSize === 1 
+    ? 'text-base sm:text-lg font-extrabold' 
+    : 'text-lg sm:text-xl font-extrabold';
+
   const navItems: Array<{ id: GuideSectionKey; label: string; icon: React.ReactNode }> = [
-    { id: 'objective', label: g.nav.objective, icon: <Shield className="w-3.5 h-3.5" /> },
-    { id: 'movement', label: g.nav.movement, icon: <Footprints className="w-3.5 h-3.5" /> },
-    { id: 'turnflow', label: g.nav.turnflow, icon: <ArrowRight className="w-3.5 h-3.5" /> },
-    { id: 'combat', label: g.nav.combat, icon: <Sword className="w-3.5 h-3.5" /> },
-    { id: 'surround', label: g.nav.surround, icon: <CheckCircle2 className="w-3.5 h-3.5" /> },
-    { id: 'status', label: g.nav.status, icon: <Flame className="w-3.5 h-3.5" /> },
-    { id: 'forge', label: g.nav.forge, icon: <Award className="w-3.5 h-3.5" /> },
-    { id: 'plates', label: g.nav.plates, icon: <BookOpen className="w-3.5 h-3.5" /> },
+    { id: 'objective', label: g.nav.objective, icon: <Shield className="w-4 h-4 shrink-0" /> },
+    { id: 'movement', label: g.nav.movement, icon: <Footprints className="w-4 h-4 shrink-0" /> },
+    { id: 'turnflow', label: g.nav.turnflow, icon: <ArrowRight className="w-4 h-4 shrink-0" /> },
+    { id: 'combat', label: g.nav.combat, icon: <Sword className="w-4 h-4 shrink-0" /> },
+    { id: 'surround', label: g.nav.surround, icon: <CheckCircle2 className="w-4 h-4 shrink-0" /> },
+    { id: 'status', label: g.nav.status, icon: <Flame className="w-4 h-4 shrink-0" /> },
+    { id: 'forge', label: g.nav.forge, icon: <Award className="w-4 h-4 shrink-0" /> },
+    { id: 'plates', label: g.nav.plates, icon: <BookOpen className="w-4 h-4 shrink-0" /> },
   ];
 
   return (
-    <div className="min-h-screen bg-[#140e0a] text-stone-100 flex flex-col p-3 md:p-6">
-      {/* Top Header */}
-      <header className="max-w-5xl w-full mx-auto flex items-center justify-between pb-3 border-b border-stone-800 flex-wrap gap-2">
-        <div className="flex items-center gap-2.5">
+    <div className="min-h-screen text-black flex flex-col justify-between p-3 sm:p-5 md:p-6 select-none relative bg-transparent overflow-x-hidden font-sans">
+      <NarutoMangaBackground />
+
+      {/* 1. TOP OFFICIAL TOURNAMENT BAR - ACCESSIBLE HIGH CONTRAST */}
+      <header className="max-w-6xl w-full mx-auto flex items-center justify-between p-3 md:px-5 md:py-2.5 border-3 border-black bg-[#111111] shadow-[4px_4px_0px_#000] flex-wrap gap-3 text-white relative z-20">
+        <div className="flex items-center gap-3">
           <button
             onClick={onBackToMenu}
-            className="px-3 py-1.5 rounded bg-stone-900 hover:bg-stone-800 text-amber-300 text-xs font-bold border border-stone-700 transition flex items-center gap-1.5"
+            className="manga-btn-white px-3.5 py-2 text-xs md:text-sm font-bold uppercase tracking-wide border-2 border-black shadow-[2px_2px_0px_#000] flex items-center gap-1.5 cursor-pointer focus-visible:ring-2 focus-visible:ring-[#fa9427]"
+            aria-label={t('common.backToMenu')}
           >
-            {t('common.backToMenu')}
+            ← {t('common.backToMenu')}
           </button>
-          <div className="flex items-center gap-2">
-            <span className="w-7 h-7 rounded-sm bg-red-900 border border-amber-500/60 flex items-center justify-center text-amber-300 font-kanji font-black text-sm shadow">
+          <div className="flex items-center gap-2.5">
+            <span className="w-9 h-9 bg-[#FA9427] border-2 border-black flex items-center justify-center text-black font-kanji font-black text-lg shadow-[2px_2px_0px_#000]" aria-hidden="true">
               巻
             </span>
             <div>
-              <h1 className="text-sm md:text-base font-black text-amber-400 uppercase tracking-wide">
+              <h1 className="text-base sm:text-lg md:text-xl font-black text-[#FA9427] tracking-wide uppercase leading-tight drop-shadow-[1px_1px_0px_#000]">
                 {g.headerTitle}
               </h1>
-              <p className="text-[10px] text-stone-400">
+              <p className="text-xs sm:text-sm text-stone-200 font-medium tracking-wide mt-0.5">
                 {g.headerSubtitle}
               </p>
             </div>
           </div>
         </div>
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-2.5">
           <LanguageSwitcher compact />
           <button
             onClick={onPlayGame}
-            className="px-4 py-1.5 rounded bg-red-800 hover:bg-red-700 text-amber-100 text-xs font-black uppercase tracking-wider border border-amber-500 shadow transition flex items-center gap-1.5"
+            className="manga-btn-orange px-4 py-2 text-xs md:text-sm font-bold uppercase tracking-wide flex items-center gap-2 border-2 border-black shadow-[2px_2px_0px_#000] cursor-pointer focus-visible:ring-2 focus-visible:ring-white"
           >
-            <Play className="w-3.5 h-3.5" /> {t('common.playNow')}
+            <Play className="w-4 h-4 fill-current" /> {t('common.playNow')}
           </button>
         </div>
       </header>
 
-      {/* Main Container */}
-      <main className="max-w-5xl w-full mx-auto my-4 flex-1 flex flex-col">
-        {/* Navigation Tabs (8 sections) */}
-        <nav className="grid grid-cols-2 sm:grid-cols-4 md:grid-cols-8 gap-1.5 mb-3 bg-stone-900/90 p-2 rounded-lg border border-stone-800" aria-label="Secciones del manual">
-          {navItems.map(item => (
-            <button
-              key={item.id}
-              onClick={() => setActiveSection(item.id)}
-              className={`px-2 py-2 rounded text-[11px] font-bold transition flex items-center justify-center gap-1 text-center truncate ${
-                activeSection === item.id
-                  ? 'bg-amber-600 text-stone-950 shadow-md font-black scale-102'
-                  : 'bg-stone-950 text-stone-400 hover:text-stone-200 hover:bg-stone-800'
-              }`}
-            >
-              {item.icon}
-              <span className="truncate">{item.label}</span>
-            </button>
-          ))}
-        </nav>
+      {/* 2. MAIN CENTER CARD - HIGH READABILITY & NEUTRAL ACCESSIBILITY */}
+      <main className="max-w-6xl w-full mx-auto my-2 md:my-3 relative z-20 flex-1 flex flex-col">
+        <div className="bg-white border-4 border-black shadow-[8px_8px_0px_#000] flex-1 flex flex-col p-4 sm:p-6 md:p-7 relative overflow-hidden">
+          
+          {/* Streamlined Header Banner with Konoha Emblem and Accessibility Text-Size Controls */}
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b-3 border-black pb-3 mb-4">
+            <div className="flex items-center gap-3">
+              <div className="ninja-headband-plate px-3 py-1.5 flex items-center gap-2 border-2 border-black shadow-[2px_2px_0px_#111111] shrink-0" aria-hidden="true">
+                <span className="w-1.5 h-1.5 bg-slate-800" />
+                <svg 
+                  className="w-6 h-6 text-slate-900 filter drop-shadow-[0_1px_0px_rgba(255,255,255,0.8)]" 
+                  viewBox="0 0 36 36" 
+                  fill="none" 
+                  stroke="currentColor" 
+                  strokeWidth="2.8"
+                >
+                  <path d="M21 19c0-2.8-2.2-5-5-5s-5 2.2-5 5 2.2 5 5 5 5-2.2 5-5z" />
+                  <path d="M21 19c0 5-4 9-9 9s-9-4-9-9 4-9 9-9c3.8 0 7.2 1.8 11 1.5l8-4.5-3.5 9.5C26 22 21 26 15 27" />
+                  <path d="M4 28l6-4" strokeLinecap="round" />
+                </svg>
+                <span className="w-1.5 h-1.5 bg-slate-800" />
+              </div>
+              <div>
+                <div className="flex items-center gap-2">
+                  <span className="px-2 py-0.5 bg-black text-[#FA9427] font-bold text-xs uppercase tracking-wider border border-black shadow-[1px_1px_0px_#FA9427]">
+                    木ノ葉隠れの里 • 忍道指南録
+                  </span>
+                </div>
+                <h2 className="text-xl sm:text-2xl md:text-3xl font-black text-black tracking-tight leading-tight mt-0.5">
+                  {g.headerTitle}
+                </h2>
+              </div>
+            </div>
 
-        {/* Content Box with Washi Parchment styling */}
-        <div className="shadow-2xl flex-1 flex flex-col">
-          <div className="h-2.5 bg-gradient-to-r from-amber-700 via-[#281b12] to-amber-700 rounded-t border-b-2 border-stone-950" />
-          <div className="bg-[#f4ebd9] text-stone-900 p-5 md:p-8 border-x-4 border-[#281b12] flex-1 overflow-y-auto">
+            {/* Accessibility Font Size Controls: A- / A / A+ (WCAG 1.4.4 Resize Text) */}
+            <div 
+              className="flex items-center gap-1.5 bg-stone-100 p-1.5 border-2 border-black shadow-[2px_2px_0px_#000] shrink-0 self-start sm:self-center" 
+              role="group" 
+              aria-label="Tamaño del texto"
+            >
+              <span className="text-xs font-bold text-black px-1.5 uppercase tracking-wider flex items-center gap-1">
+                <Type className="w-3.5 h-3.5 text-[#fa9427]" />
+                {language === 'es' ? 'Letra:' : language === 'ja' ? '文字:' : 'Font:'}
+              </span>
+              <button
+                type="button"
+                onClick={() => setTextSize(prev => Math.max(0, prev - 1))}
+                disabled={textSize === 0}
+                className="px-2.5 py-1 text-xs font-black border-2 border-black bg-white hover:bg-stone-200 disabled:opacity-40 transition-colors shadow-[1px_1px_0px_#000] cursor-pointer flex items-center gap-0.5 focus-visible:ring-2 focus-visible:ring-[#fa9427]"
+                aria-label="Disminuir tamaño de letra"
+                title="Texto compacto"
+              >
+                <Minus className="w-3 h-3" /> A
+              </button>
+              <button
+                type="button"
+                onClick={() => setTextSize(1)}
+                className={`px-2.5 py-1 text-xs font-black border-2 border-black transition-colors shadow-[1px_1px_0px_#000] cursor-pointer focus-visible:ring-2 focus-visible:ring-[#fa9427] ${
+                  textSize === 1 
+                    ? 'bg-[#FA9427] text-black shadow-[2px_2px_0px_#000]' 
+                    : 'bg-white hover:bg-stone-200 text-black'
+                }`}
+                aria-label="Tamaño de letra estándar"
+                title="Texto estándar"
+              >
+                A
+              </button>
+              <button
+                type="button"
+                onClick={() => setTextSize(prev => Math.min(2, prev + 1))}
+                disabled={textSize === 2}
+                className="px-2.5 py-1 text-xs font-black border-2 border-black bg-white hover:bg-stone-200 disabled:opacity-40 transition-colors shadow-[1px_1px_0px_#000] cursor-pointer flex items-center gap-0.5 focus-visible:ring-2 focus-visible:ring-[#fa9427]"
+                aria-label="Aumentar tamaño de letra"
+                title="Texto grande"
+              >
+                A <Plus className="w-3 h-3" />
+              </button>
+            </div>
+          </div>
+
+          {/* Integrated Navigation Tabs Bar - 2 rows of 4 tabs with 44px tap targets */}
+          <nav 
+            className="grid grid-cols-2 sm:grid-cols-4 gap-2 mb-4 bg-stone-100 p-2.5 border-3 border-black shadow-[3px_3px_0px_#000]" 
+            role="tablist" 
+            aria-label="Secciones del manual de reglas"
+          >
+            {navItems.map(item => {
+              const isSelected = activeSection === item.id;
+              return (
+                <button
+                  key={item.id}
+                  role="tab"
+                  id={`tab-${item.id}`}
+                  aria-selected={isSelected}
+                  aria-controls={`panel-${item.id}`}
+                  onClick={() => setActiveSection(item.id)}
+                  className={`px-3 py-2.5 min-h-[46px] text-xs sm:text-sm font-bold transition-all flex items-center justify-center gap-2 text-center cursor-pointer border-2 border-black focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#fa9427] ${
+                    isSelected
+                      ? 'bg-[#FA9427] text-black shadow-[3px_3px_0px_#000] font-black scale-[1.01]'
+                      : 'bg-white text-black hover:bg-amber-100/70 shadow-[1px_1px_0px_#000]'
+                  }`}
+                >
+                  {item.icon}
+                  <span className="leading-snug text-left truncate">{item.label}</span>
+                </button>
+              );
+            })}
+          </nav>
+
+          {/* Scrollable Content Container - Ultra-Readable, Accessible Typography */}
+          <div 
+            id={`panel-${activeSection}`}
+            role="tabpanel"
+            aria-labelledby={`tab-${activeSection}`}
+            className="bg-white text-black flex-1 overflow-y-auto pr-2 pb-4"
+          >
 
             {/* SECCIÓN 1: OBJETIVO Y CONDICIONES DE VICTORIA */}
             {activeSection === 'objective' && (
               <div className="space-y-4">
-                <div className="border-b-2 border-stone-800/30 pb-3">
-                  <span className="text-xs font-black text-red-900 uppercase tracking-widest">
+                <div className="flex items-center gap-2.5 pb-2.5 border-b-3 border-black">
+                  <span className="px-3 py-1 bg-black text-[#FA9427] font-extrabold text-xs sm:text-sm uppercase tracking-wider border border-black shadow-[2px_2px_0px_#000]">
                     {g.objective.badge}
                   </span>
-                  <h2 className="text-xl md:text-2xl font-black text-stone-900">
+                  <h3 className="text-xl sm:text-2xl md:text-3xl font-black text-black tracking-tight leading-snug">
                     {g.objective.title}
-                  </h2>
+                  </h3>
                 </div>
 
-                <div className="p-4 rounded-lg bg-stone-900 text-stone-100 border border-amber-600/70 space-y-2">
-                  <div className="flex items-center gap-2">
-                    <span className="px-2 py-0.5 rounded bg-amber-500 text-stone-950 text-xs font-black">
+                {/* Golden Rule Card */}
+                <div className="p-4 sm:p-6 bg-[#FEF3C7] text-black border-3 border-black space-y-3.5 shadow-[4px_4px_0px_#000]">
+                  <div className="flex items-center gap-2.5 flex-wrap">
+                    <span className="px-3 py-1 bg-[#FA9427] text-black text-xs sm:text-sm font-black uppercase border-2 border-black shadow-[2px_2px_0px_#000]">
                       {g.objective.goldenRuleBadge}
                     </span>
-                    <h3 className="font-black text-amber-300 text-sm">
+                    <h4 className="font-black text-black text-base sm:text-lg md:text-xl tracking-tight">
                       {g.objective.goldenRuleTitle}
-                    </h3>
+                    </h4>
                   </div>
-                  <p className="text-xs text-stone-300 leading-relaxed">
+                  <p className={`${bodySizeClass} text-black font-medium`}>
                     {g.objective.goldenRuleDesc}
                   </p>
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-2">
-                    <div className="p-3 rounded bg-sky-950/80 border border-sky-600 text-sky-100">
-                      <div className="font-black text-sky-300 text-xs flex items-center gap-1.5">
-                        <span className="w-4 h-4 rounded-full bg-sky-500 text-stone-950 flex items-center justify-center text-[10px] font-black">P1</span>
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5 pt-1">
+                    <div className="p-4 sm:p-5 bg-white border-2 border-black text-black shadow-[3px_3px_0px_#000]">
+                      <div className={`${cardHeadingClass} text-black flex items-center gap-2 uppercase tracking-wide`}>
+                        <span className="w-6 h-6 bg-[#0284c7] text-white flex items-center justify-center text-xs font-black border border-black shadow-[1px_1px_0px_#000]">P1</span>
                         {g.objective.p1Title}
                       </div>
-                      <p className="text-[11px] mt-1 text-stone-300">
+                      <p className={`${subTextSizeClass} text-black font-normal mt-2`}>
                         {g.objective.p1Desc}
                       </p>
                     </div>
-                    <div className="p-3 rounded bg-red-950/80 border border-red-600 text-red-100">
-                      <div className="font-black text-red-300 text-xs flex items-center gap-1.5">
-                        <span className="w-4 h-4 rounded-full bg-red-500 text-white flex items-center justify-center text-[10px] font-black">P2</span>
+                    <div className="p-4 sm:p-5 bg-white border-2 border-black text-black shadow-[3px_3px_0px_#000]">
+                      <div className={`${cardHeadingClass} text-black flex items-center gap-2 uppercase tracking-wide`}>
+                        <span className="w-6 h-6 bg-[#dc2626] text-white flex items-center justify-center text-xs font-black border border-black shadow-[1px_1px_0px_#000]">P2</span>
                         {g.objective.p2Title}
                       </div>
-                      <p className="text-[11px] mt-1 text-stone-300">
+                      <p className={`${subTextSizeClass} text-black font-normal mt-2`}>
                         {g.objective.p2Desc}
                       </p>
                     </div>
                   </div>
                 </div>
 
+                {/* Secondary Victory and Base Defense */}
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <div className="p-3.5 rounded-lg bg-stone-900 text-stone-100 border border-stone-700">
-                    <h4 className="font-black text-xs text-amber-400 mb-1 flex items-center gap-1.5">
-                      <Award className="w-3.5 h-3.5 text-amber-400" /> {g.objective.secondaryWinTitle}
-                    </h4>
-                    <p className="text-xs text-stone-300 leading-relaxed">
+                  <div className="p-4 sm:p-5 bg-white text-black border-3 border-black shadow-[4px_4px_0px_#000]">
+                    <div className="flex items-center gap-2.5 mb-2.5">
+                      <span className="w-8 h-8 bg-[#FA9427] border-2 border-black text-black flex items-center justify-center text-sm font-black shadow-[1px_1px_0px_#000]">
+                        <Award className="w-5 h-5 text-black" />
+                      </span>
+                      <h4 className={`${cardHeadingClass} text-black tracking-tight`}>
+                        {g.objective.secondaryWinTitle}
+                      </h4>
+                    </div>
+                    <p className={`${subTextSizeClass} text-black font-normal`}>
                       {g.objective.secondaryWinDesc}
                     </p>
                   </div>
-                  <div className="p-3.5 rounded-lg bg-stone-900 text-stone-100 border border-stone-700">
-                    <h4 className="font-black text-xs text-red-400 mb-1 flex items-center gap-1.5">
-                      <AlertTriangle className="w-3.5 h-3.5 text-red-400" /> {g.objective.defenseTitle}
-                    </h4>
-                    <p className="text-xs text-stone-300 leading-relaxed">
+
+                  <div className="p-4 sm:p-5 bg-white text-black border-3 border-black shadow-[4px_4px_0px_#000]">
+                    <div className="flex items-center gap-2.5 mb-2.5">
+                      <span className="w-8 h-8 bg-[#dc2626] border-2 border-black text-white flex items-center justify-center text-sm font-black shadow-[1px_1px_0px_#000]">
+                        <AlertTriangle className="w-5 h-5 text-white" />
+                      </span>
+                      <h4 className={`${cardHeadingClass} text-black tracking-tight`}>
+                        {g.objective.defenseTitle}
+                      </h4>
+                    </div>
+                    <p className={`${subTextSizeClass} text-black font-normal`}>
                       {g.objective.defenseDesc}
                     </p>
                   </div>
@@ -173,67 +307,67 @@ export const ShinobiRulesGuide: React.FC<ShinobiRulesGuideProps> = ({
             {/* SECCIÓN 2: MOVIMIENTO, PUNTOS MP Y DESPLIEGUE */}
             {activeSection === 'movement' && (
               <div className="space-y-4">
-                <div className="border-b-2 border-stone-800/30 pb-3">
-                  <span className="text-xs font-black text-red-900 uppercase tracking-widest">
+                <div className="flex items-center gap-2.5 pb-2.5 border-b-3 border-black">
+                  <span className="px-3 py-1 bg-black text-[#FA9427] font-extrabold text-xs sm:text-sm uppercase tracking-wider border border-black shadow-[2px_2px_0px_#000]">
                     {g.movement.badge}
                   </span>
-                  <h2 className="text-xl md:text-2xl font-black text-stone-900">
+                  <h3 className="text-xl sm:text-2xl md:text-3xl font-black text-black tracking-tight leading-snug">
                     {g.movement.title}
-                  </h2>
+                  </h3>
                 </div>
 
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
-                  <div className="p-3.5 rounded-lg bg-stone-900 text-stone-100 border border-amber-500/50">
-                    <div className="flex items-center justify-between">
-                      <span className="font-black text-amber-400 text-xs">{g.movement.mp3Title}</span>
-                      <span className="px-1.5 py-0.5 rounded bg-amber-500 text-stone-950 font-black text-xs">3 MP</span>
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-3.5">
+                  <div className="p-4 sm:p-5 bg-white text-black border-3 border-black shadow-[4px_4px_0px_#000]">
+                    <div className="flex items-center justify-between pb-2 border-b-2 border-black mb-2.5">
+                      <span className={`${cardHeadingClass} text-black`}>{g.movement.mp3Title}</span>
+                      <span className="px-2.5 py-1 bg-[#fa9427] text-black font-black text-xs border border-black shadow-[1px_1px_0px_#000]">3 MP</span>
                     </div>
-                    <p className="text-xs text-stone-300 mt-1.5 leading-relaxed">
+                    <p className={`${subTextSizeClass} text-black font-normal`}>
                       {g.movement.mp3Desc}
                     </p>
                   </div>
 
-                  <div className="p-3.5 rounded-lg bg-stone-900 text-stone-100 border border-stone-700">
-                    <div className="flex items-center justify-between">
-                      <span className="font-black text-stone-200 text-xs">{g.movement.mp2Title}</span>
-                      <span className="px-1.5 py-0.5 rounded bg-stone-700 text-stone-100 font-black text-xs">2 MP</span>
+                  <div className="p-4 sm:p-5 bg-white text-black border-3 border-black shadow-[4px_4px_0px_#000]">
+                    <div className="flex items-center justify-between pb-2 border-b-2 border-black mb-2.5">
+                      <span className={`${cardHeadingClass} text-black`}>{g.movement.mp2Title}</span>
+                      <span className="px-2.5 py-1 bg-stone-200 text-black font-black text-xs border border-black shadow-[1px_1px_0px_#000]">2 MP</span>
                     </div>
-                    <p className="text-xs text-stone-300 mt-1.5 leading-relaxed">
+                    <p className={`${subTextSizeClass} text-black font-normal`}>
                       {g.movement.mp2Desc}
                     </p>
                   </div>
 
-                  <div className="p-3.5 rounded-lg bg-stone-900 text-stone-100 border border-stone-700">
-                    <div className="flex items-center justify-between">
-                      <span className="font-black text-stone-200 text-xs">{g.movement.mp1Title}</span>
-                      <span className="px-1.5 py-0.5 rounded bg-stone-800 text-amber-300 font-black text-xs">1 MP</span>
+                  <div className="p-4 sm:p-5 bg-white text-black border-3 border-black shadow-[4px_4px_0px_#000]">
+                    <div className="flex items-center justify-between pb-2 border-b-2 border-black mb-2.5">
+                      <span className={`${cardHeadingClass} text-black`}>{g.movement.mp1Title}</span>
+                      <span className="px-2.5 py-1 bg-stone-100 text-black font-black text-xs border border-black shadow-[1px_1px_0px_#000]">1 MP</span>
                     </div>
-                    <p className="text-xs text-stone-300 mt-1.5 leading-relaxed">
+                    <p className={`${subTextSizeClass} text-black font-normal`}>
                       {g.movement.mp1Desc}
                     </p>
                   </div>
                 </div>
 
-                <div className="p-4 rounded-lg bg-stone-900 text-stone-100 border border-stone-700 space-y-3">
-                  <h3 className="font-black text-amber-400 text-sm flex items-center gap-1.5">
-                    <Info className="w-4 h-4" /> {g.movement.rulesTitle}
-                  </h3>
-                  <ul className="text-xs text-stone-300 space-y-2">
-                    <li className="flex items-start gap-2">
-                      <span className="px-1.5 py-0.5 rounded bg-amber-600 text-stone-950 font-bold shrink-0">{g.movement.deployTitle}</span>
-                      <span>{g.movement.deployDesc}</span>
+                <div className="p-4 sm:p-6 bg-[#FEF3C7] text-black border-3 border-black space-y-3.5 shadow-[4px_4px_0px_#000]">
+                  <h4 className="font-black text-black text-base sm:text-lg md:text-xl flex items-center gap-2">
+                    <Info className="w-5 h-5 text-[#FA9427]" /> {g.movement.rulesTitle}
+                  </h4>
+                  <ul className="space-y-3 text-black">
+                    <li className="flex items-start gap-3 bg-white p-3.5 sm:p-4 border-2 border-black shadow-[2px_2px_0px_#000]">
+                      <span className="px-2.5 py-1 bg-[#fa9427] text-black font-black text-xs sm:text-sm shrink-0 border border-black shadow-[1px_1px_0px_#000]">{g.movement.deployTitle}</span>
+                      <span className={`${subTextSizeClass} font-normal text-black`}>{g.movement.deployDesc}</span>
                     </li>
-                    <li className="flex items-start gap-2">
-                      <span className="px-1.5 py-0.5 rounded bg-amber-600 text-stone-950 font-bold shrink-0">{g.movement.collisionTitle}</span>
-                      <span>{g.movement.collisionDesc}</span>
+                    <li className="flex items-start gap-3 bg-white p-3.5 sm:p-4 border-2 border-black shadow-[2px_2px_0px_#000]">
+                      <span className="px-2.5 py-1 bg-[#fa9427] text-black font-black text-xs sm:text-sm shrink-0 border border-black shadow-[1px_1px_0px_#000]">{g.movement.collisionTitle}</span>
+                      <span className={`${subTextSizeClass} font-normal text-black`}>{g.movement.collisionDesc}</span>
                     </li>
-                    <li className="flex items-start gap-2">
-                      <span className="px-1.5 py-0.5 rounded bg-amber-600 text-stone-950 font-bold shrink-0">{g.movement.turn1Title}</span>
-                      <span>{g.movement.turn1Desc}</span>
+                    <li className="flex items-start gap-3 bg-white p-3.5 sm:p-4 border-2 border-black shadow-[2px_2px_0px_#000]">
+                      <span className="px-2.5 py-1 bg-[#fa9427] text-black font-black text-xs sm:text-sm shrink-0 border border-black shadow-[1px_1px_0px_#000]">{g.movement.turn1Title}</span>
+                      <span className={`${subTextSizeClass} font-normal text-black`}>{g.movement.turn1Desc}</span>
                     </li>
-                    <li className="flex items-start gap-2">
-                      <span className="px-1.5 py-0.5 rounded bg-red-900 text-white font-bold shrink-0">{g.movement.spawnLockTitle}</span>
-                      <span>{g.movement.spawnLockDesc}</span>
+                    <li className="flex items-start gap-3 bg-white p-3.5 sm:p-4 border-2 border-black shadow-[2px_2px_0px_#000]">
+                      <span className="px-2.5 py-1 bg-[#dc2626] text-white font-black text-xs sm:text-sm shrink-0 border border-black shadow-[1px_1px_0px_#000]">{g.movement.spawnLockTitle}</span>
+                      <span className={`${subTextSizeClass} font-normal text-black`}>{g.movement.spawnLockDesc}</span>
                     </li>
                   </ul>
                 </div>
@@ -243,55 +377,33 @@ export const ShinobiRulesGuide: React.FC<ShinobiRulesGuideProps> = ({
             {/* SECCIÓN 3: FLUJO DEL TURNO PASO A PASO */}
             {activeSection === 'turnflow' && (
               <div className="space-y-4">
-                <div className="border-b-2 border-stone-800/30 pb-3">
-                  <span className="text-xs font-black text-red-900 uppercase tracking-widest">
+                <div className="flex items-center gap-2.5 pb-2.5 border-b-3 border-black">
+                  <span className="px-3 py-1 bg-black text-[#FA9427] font-extrabold text-xs sm:text-sm uppercase tracking-wider border border-black shadow-[2px_2px_0px_#000]">
                     {g.turnflow.badge}
                   </span>
-                  <h2 className="text-xl md:text-2xl font-black text-stone-900">
+                  <h3 className="text-xl sm:text-2xl md:text-3xl font-black text-black tracking-tight leading-snug">
                     {g.turnflow.title}
-                  </h2>
+                  </h3>
                 </div>
 
                 <div className="space-y-3">
-                  <div className="p-3.5 rounded-lg bg-stone-900 text-stone-100 border-l-4 border-amber-500 flex items-start gap-3">
-                    <span className="w-6 h-6 rounded-full bg-amber-500 text-stone-950 font-black text-xs flex items-center justify-center shrink-0">1</span>
-                    <div>
-                      <h4 className="font-black text-amber-300 text-xs uppercase">{g.turnflow.step1Title}</h4>
-                      <p className="text-xs text-stone-300 mt-0.5">{g.turnflow.step1Desc}</p>
+                  {[
+                    { num: '1', title: g.turnflow.step1Title, desc: g.turnflow.step1Desc },
+                    { num: '2', title: g.turnflow.step2Title, desc: g.turnflow.step2Desc },
+                    { num: '3', title: g.turnflow.step3Title, desc: g.turnflow.step3Desc },
+                    { num: '4', title: g.turnflow.step4Title, desc: g.turnflow.step4Desc },
+                    { num: '5', title: g.turnflow.step5Title, desc: g.turnflow.step5Desc },
+                  ].map(step => (
+                    <div key={step.num} className="p-4 sm:p-5 bg-white text-black border-3 border-black shadow-[3px_3px_0px_#000] flex items-start gap-4">
+                      <span className="w-10 h-10 sm:w-12 sm:h-12 bg-[#fa9427] text-black font-impact text-lg sm:text-2xl flex items-center justify-center shrink-0 border-2 border-black shadow-[2px_2px_0px_#000]">
+                        {step.num}
+                      </span>
+                      <div className="flex-1">
+                        <h4 className={`${cardHeadingClass} text-black uppercase tracking-wide`}>{step.title}</h4>
+                        <p className={`${subTextSizeClass} text-black mt-1 font-normal`}>{step.desc}</p>
+                      </div>
                     </div>
-                  </div>
-
-                  <div className="p-3.5 rounded-lg bg-stone-900 text-stone-100 border-l-4 border-amber-500 flex items-start gap-3">
-                    <span className="w-6 h-6 rounded-full bg-amber-500 text-stone-950 font-black text-xs flex items-center justify-center shrink-0">2</span>
-                    <div>
-                      <h4 className="font-black text-amber-300 text-xs uppercase">{g.turnflow.step2Title}</h4>
-                      <p className="text-xs text-stone-300 mt-0.5">{g.turnflow.step2Desc}</p>
-                    </div>
-                  </div>
-
-                  <div className="p-3.5 rounded-lg bg-stone-900 text-stone-100 border-l-4 border-amber-500 flex items-start gap-3">
-                    <span className="w-6 h-6 rounded-full bg-amber-500 text-stone-950 font-black text-xs flex items-center justify-center shrink-0">3</span>
-                    <div>
-                      <h4 className="font-black text-amber-300 text-xs uppercase">{g.turnflow.step3Title}</h4>
-                      <p className="text-xs text-stone-300 mt-0.5">{g.turnflow.step3Desc}</p>
-                    </div>
-                  </div>
-
-                  <div className="p-3.5 rounded-lg bg-stone-900 text-stone-100 border-l-4 border-amber-500 flex items-start gap-3">
-                    <span className="w-6 h-6 rounded-full bg-amber-500 text-stone-950 font-black text-xs flex items-center justify-center shrink-0">4</span>
-                    <div>
-                      <h4 className="font-black text-amber-300 text-xs uppercase">{g.turnflow.step4Title}</h4>
-                      <p className="text-xs text-stone-300 mt-0.5">{g.turnflow.step4Desc}</p>
-                    </div>
-                  </div>
-
-                  <div className="p-3.5 rounded-lg bg-stone-900 text-stone-100 border-l-4 border-amber-500 flex items-start gap-3">
-                    <span className="w-6 h-6 rounded-full bg-amber-500 text-stone-950 font-black text-xs flex items-center justify-center shrink-0">5</span>
-                    <div>
-                      <h4 className="font-black text-amber-300 text-xs uppercase">{g.turnflow.step5Title}</h4>
-                      <p className="text-xs text-stone-300 mt-0.5">{g.turnflow.step5Desc}</p>
-                    </div>
-                  </div>
+                  ))}
                 </div>
               </div>
             )}
@@ -299,76 +411,76 @@ export const ShinobiRulesGuide: React.FC<ShinobiRulesGuideProps> = ({
             {/* SECCIÓN 4: COMBATE Y RULETA DE 96 SEGMENTOS */}
             {activeSection === 'combat' && (
               <div className="space-y-4">
-                <div className="border-b-2 border-stone-800/30 pb-3">
-                  <span className="text-xs font-black text-red-900 uppercase tracking-widest">
+                <div className="flex items-center gap-2.5 pb-2.5 border-b-3 border-black">
+                  <span className="px-3 py-1 bg-black text-[#FA9427] font-extrabold text-xs sm:text-sm uppercase tracking-wider border border-black shadow-[2px_2px_0px_#000]">
                     {g.combat.badge}
                   </span>
-                  <h2 className="text-xl md:text-2xl font-black text-stone-900">
+                  <h3 className="text-xl sm:text-2xl md:text-3xl font-black text-black tracking-tight leading-snug">
                     {g.combat.title}
-                  </h2>
+                  </h3>
                 </div>
 
-                <p className="text-xs md:text-sm text-stone-800 leading-relaxed">
+                <p className={`${bodySizeClass} text-black font-medium bg-[#FEF3C7] p-4 border-2 border-black shadow-[2px_2px_0px_#000]`}>
                   {g.combat.intro}
                 </p>
 
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-                  <div className="p-3.5 rounded bg-sky-950/20 border-2 border-sky-800 text-stone-900 flex items-start gap-2.5">
-                    <span className="w-6 h-6 rounded bg-sky-600 border border-stone-900 shrink-0 text-white font-bold text-xs flex items-center justify-center shadow">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-3.5">
+                  <div className="p-4 sm:p-5 bg-white border-3 border-black text-black flex items-start gap-3.5 shadow-[3px_3px_0px_#000]">
+                    <span className="w-11 h-11 bg-[#0284c7] border-2 border-black shrink-0 text-white font-kanji font-black text-lg flex items-center justify-center shadow-[1px_1px_0px_#000]">
                       避
                     </span>
                     <div>
-                      <h4 className="font-black text-xs text-sky-900 uppercase">{g.combat.blueTitle}</h4>
-                      <p className="text-xs text-stone-800 mt-0.5">{g.combat.blueDesc}</p>
+                      <h4 className={`${cardHeadingClass} text-black uppercase tracking-wide`}>{g.combat.blueTitle}</h4>
+                      <p className={`${subTextSizeClass} text-black mt-1.5 font-normal`}>{g.combat.blueDesc}</p>
                     </div>
                   </div>
 
-                  <div className="p-3.5 rounded bg-amber-950/20 border-2 border-amber-800 text-stone-900 flex items-start gap-2.5">
-                    <span className="w-6 h-6 rounded bg-amber-500 border border-stone-900 shrink-0 text-stone-950 font-bold text-xs flex items-center justify-center shadow">
+                  <div className="p-4 sm:p-5 bg-white border-3 border-black text-black flex items-start gap-3.5 shadow-[3px_3px_0px_#000]">
+                    <span className="w-11 h-11 bg-[#fa9427] border-2 border-black shrink-0 text-black font-kanji font-black text-lg flex items-center justify-center shadow-[1px_1px_0px_#000]">
                       速
                     </span>
                     <div>
-                      <h4 className="font-black text-xs text-amber-950 uppercase">{g.combat.goldTitle}</h4>
-                      <p className="text-xs text-stone-800 mt-0.5">{g.combat.goldDesc}</p>
+                      <h4 className={`${cardHeadingClass} text-black uppercase tracking-wide`}>{g.combat.goldTitle}</h4>
+                      <p className={`${subTextSizeClass} text-black mt-1.5 font-normal`}>{g.combat.goldDesc}</p>
                     </div>
                   </div>
 
-                  <div className="p-3.5 rounded bg-purple-950/20 border-2 border-purple-800 text-stone-900 flex items-start gap-2.5">
-                    <span className="w-6 h-6 rounded bg-purple-700 border border-stone-900 shrink-0 text-white font-bold text-xs flex items-center justify-center shadow">
+                  <div className="p-4 sm:p-5 bg-white border-3 border-black text-black flex items-start gap-3.5 shadow-[3px_3px_0px_#000]">
+                    <span className="w-11 h-11 bg-[#9333ea] border-2 border-black shrink-0 text-white font-kanji font-black text-lg flex items-center justify-center shadow-[1px_1px_0px_#000]">
                       術
                     </span>
                     <div>
-                      <h4 className="font-black text-xs text-purple-950 uppercase">{g.combat.purpleTitle}</h4>
-                      <p className="text-xs text-stone-800 mt-0.5">{g.combat.purpleDesc}</p>
+                      <h4 className={`${cardHeadingClass} text-black uppercase tracking-wide`}>{g.combat.purpleTitle}</h4>
+                      <p className={`${subTextSizeClass} text-black mt-1.5 font-normal`}>{g.combat.purpleDesc}</p>
                     </div>
                   </div>
 
-                  <div className="p-3.5 rounded bg-stone-900/10 border-2 border-stone-800 text-stone-900 flex items-start gap-2.5">
-                    <span className="w-6 h-6 rounded bg-white border border-stone-900 shrink-0 text-stone-950 font-bold text-xs flex items-center justify-center shadow">
+                  <div className="p-4 sm:p-5 bg-white border-3 border-black text-black flex items-start gap-3.5 shadow-[3px_3px_0px_#000]">
+                    <span className="w-11 h-11 bg-stone-100 border-2 border-black shrink-0 text-black font-kanji font-black text-lg flex items-center justify-center shadow-[1px_1px_0px_#000]">
                       撃
                     </span>
                     <div>
-                      <h4 className="font-black text-xs text-stone-900 uppercase">{g.combat.whiteTitle}</h4>
-                      <p className="text-xs text-stone-800 mt-0.5">{g.combat.whiteDesc}</p>
+                      <h4 className={`${cardHeadingClass} text-black uppercase tracking-wide`}>{g.combat.whiteTitle}</h4>
+                      <p className={`${subTextSizeClass} text-black mt-1.5 font-normal`}>{g.combat.whiteDesc}</p>
                     </div>
                   </div>
 
-                  <div className="p-3.5 rounded bg-red-950/20 border-2 border-red-800 text-stone-900 flex items-start gap-2.5 md:col-span-2">
-                    <span className="w-6 h-6 rounded bg-red-700 border border-stone-900 shrink-0 text-white font-bold text-xs flex items-center justify-center shadow">
+                  <div className="p-4 sm:p-5 bg-white border-3 border-black text-black flex items-start gap-3.5 md:col-span-2 shadow-[3px_3px_0px_#000]">
+                    <span className="w-11 h-11 bg-[#dc2626] border-2 border-black shrink-0 text-white font-kanji font-black text-lg flex items-center justify-center shadow-[1px_1px_0px_#000]">
                       失
                     </span>
                     <div>
-                      <h4 className="font-black text-xs text-red-900 uppercase">{g.combat.redTitle}</h4>
-                      <p className="text-xs text-stone-800 mt-0.5">{g.combat.redDesc}</p>
+                      <h4 className={`${cardHeadingClass} text-black uppercase tracking-wide`}>{g.combat.redTitle}</h4>
+                      <p className={`${subTextSizeClass} text-black mt-1.5 font-normal`}>{g.combat.redDesc}</p>
                     </div>
                   </div>
                 </div>
 
-                <div className="p-3.5 rounded bg-stone-900 text-stone-100 border border-amber-500 text-xs space-y-1">
-                  <div className="font-bold text-amber-300 flex items-center gap-1.5">
-                    <Sparkles className="w-4 h-4 text-amber-400" /> {g.combat.sRankTitle}
+                <div className="p-4 sm:p-5 bg-[#FEF3C7] text-black border-3 border-black space-y-2 shadow-[3px_3px_0px_#000]">
+                  <div className={`${cardHeadingClass} text-black flex items-center gap-2`}>
+                    <Sparkles className="w-5 h-5 text-[#fa9427]" /> {g.combat.sRankTitle}
                   </div>
-                  <p className="text-stone-300 leading-relaxed">
+                  <p className={`${subTextSizeClass} text-black font-normal`}>
                     {g.combat.sRankDesc}
                   </p>
                 </div>
@@ -378,43 +490,47 @@ export const ShinobiRulesGuide: React.FC<ShinobiRulesGuideProps> = ({
             {/* SECCIÓN 5: RODEO FUINJUTSU Y PRISIÓN FIFO */}
             {activeSection === 'surround' && (
               <div className="space-y-4">
-                <div className="border-b-2 border-stone-800/30 pb-3">
-                  <span className="text-xs font-black text-red-900 uppercase tracking-widest">
+                <div className="flex items-center gap-2.5 pb-2.5 border-b-3 border-black">
+                  <span className="px-3 py-1 bg-black text-[#FA9427] font-extrabold text-xs sm:text-sm uppercase tracking-wider border border-black shadow-[2px_2px_0px_#000]">
                     {g.surround.badge}
                   </span>
-                  <h2 className="text-xl md:text-2xl font-black text-stone-900">
+                  <h3 className="text-xl sm:text-2xl md:text-3xl font-black text-black tracking-tight leading-snug">
                     {g.surround.title}
-                  </h2>
+                  </h3>
                 </div>
 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <div className="p-4 rounded-lg bg-stone-900 text-stone-100 border border-stone-700 space-y-2">
-                    <h3 className="font-black text-red-400 text-sm flex items-center gap-1.5">
-                      <CheckCircle2 className="w-4 h-4 text-red-400" /> {g.surround.surroundTitle}
-                    </h3>
-                    <p className="text-xs text-stone-300 leading-relaxed">
+                  <div className="p-4 sm:p-6 bg-white text-black border-3 border-black space-y-3.5 shadow-[4px_4px_0px_#000]">
+                    <h4 className="font-black text-black text-base sm:text-lg md:text-xl flex items-center gap-2">
+                      <CheckCircle2 className="w-5 h-5 text-[#dc2626]" /> {g.surround.surroundTitle}
+                    </h4>
+                    <p className={`${subTextSizeClass} text-black font-normal`}>
                       {g.surround.surroundDesc}
                     </p>
-                    <p className="text-[11px] text-amber-300">
-                      {g.surround.surroundTip}
+                    <p className={`${subTextSizeClass} text-amber-950 bg-amber-100 p-2.5 border-2 border-black font-bold shadow-[1px_1px_0px_#000]`}>
+                      💡 {g.surround.surroundTip}
                     </p>
-                    <div className="p-2 rounded bg-stone-950 text-[11px] text-stone-300 border border-stone-800">
-                      <strong>{g.surround.immunityTitle}:</strong> {g.surround.immunityDesc}
+                    <div className="p-3.5 bg-stone-100 text-black border-2 border-black shadow-[2px_2px_0px_#000]">
+                      <p className={`${subTextSizeClass}`}>
+                        <strong className="text-black uppercase">{g.surround.immunityTitle}:</strong> {g.surround.immunityDesc}
+                      </p>
                     </div>
                   </div>
 
-                  <div className="p-4 rounded-lg bg-stone-900 text-stone-100 border border-stone-700 space-y-2">
-                    <h3 className="font-black text-amber-400 text-sm flex items-center gap-1.5">
-                      <Shield className="w-4 h-4 text-amber-400" /> {g.surround.prisonTitle}
-                    </h3>
-                    <p className="text-xs text-stone-300 leading-relaxed">
+                  <div className="p-4 sm:p-6 bg-white text-black border-3 border-black space-y-3.5 shadow-[4px_4px_0px_#000]">
+                    <h4 className="font-black text-black text-base sm:text-lg md:text-xl flex items-center gap-2">
+                      <Shield className="w-5 h-5 text-[#fa9427]" /> {g.surround.prisonTitle}
+                    </h4>
+                    <p className={`${subTextSizeClass} text-black font-normal`}>
                       {g.surround.prisonDesc1}
                     </p>
-                    <p className="text-xs text-stone-300 leading-relaxed">
+                    <p className={`${subTextSizeClass} text-black font-normal`}>
                       {g.surround.prisonDesc2}
                     </p>
-                    <div className="p-2 rounded bg-stone-950 text-[11px] text-amber-300 border border-stone-800">
-                      <strong>{g.surround.waitNoteTitle}:</strong> {g.surround.waitNoteDesc}
+                    <div className="p-3.5 bg-[#FEF3C7] text-black border-2 border-black shadow-[2px_2px_0px_#000]">
+                      <p className={`${subTextSizeClass}`}>
+                        <strong className="text-black uppercase">{g.surround.waitNoteTitle}:</strong> {g.surround.waitNoteDesc}
+                      </p>
                     </div>
                   </div>
                 </div>
@@ -424,66 +540,66 @@ export const ShinobiRulesGuide: React.FC<ShinobiRulesGuideProps> = ({
             {/* SECCIÓN 6: ESTADOS ALTERADOS Y ASISTENCIA */}
             {activeSection === 'status' && (
               <div className="space-y-4">
-                <div className="border-b-2 border-stone-800/30 pb-3">
-                  <span className="text-xs font-black text-red-900 uppercase tracking-widest">
+                <div className="flex items-center gap-2.5 pb-2.5 border-b-3 border-black">
+                  <span className="px-3 py-1 bg-black text-[#FA9427] font-extrabold text-xs sm:text-sm uppercase tracking-wider border border-black shadow-[2px_2px_0px_#000]">
                     {g.status.badge}
                   </span>
-                  <h2 className="text-xl md:text-2xl font-black text-stone-900">
+                  <h3 className="text-xl sm:text-2xl md:text-3xl font-black text-black tracking-tight leading-snug">
                     {g.status.title}
-                  </h2>
+                  </h3>
                 </div>
 
-                <p className="text-xs md:text-sm text-stone-800 leading-relaxed">
+                <p className={`${bodySizeClass} text-black font-medium bg-[#FEF3C7] p-4 border-2 border-black shadow-[2px_2px_0px_#000]`}>
                   {g.status.intro}
                 </p>
 
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-3 text-xs">
-                  <div className="p-3 rounded bg-orange-950/20 border-2 border-orange-700 text-stone-900">
-                    <div className="flex items-center gap-2 font-black text-orange-950">
-                      <span className="w-5 h-5 rounded-full bg-orange-600 text-white flex items-center justify-center font-black">炎</span>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-3.5">
+                  <div className="p-4 sm:p-5 bg-white border-3 border-black text-black shadow-[3px_3px_0px_#000]">
+                    <div className="flex items-center gap-2.5 font-black text-black text-base sm:text-lg mb-2">
+                      <span className="w-8 h-8 bg-orange-600 border border-black text-white flex items-center justify-center font-kanji font-black text-sm shadow-[1px_1px_0px_#000]">炎</span>
                       {g.status.burnTitle}
                     </div>
-                    <p className="mt-1 text-stone-800">
+                    <p className={`${subTextSizeClass} text-black font-normal`}>
                       {g.status.burnDesc}
                     </p>
                   </div>
 
-                  <div className="p-3 rounded bg-amber-950/20 border-2 border-amber-700 text-stone-900">
-                    <div className="flex items-center gap-2 font-black text-amber-950">
-                      <span className="w-5 h-5 rounded-full bg-yellow-500 text-stone-950 flex items-center justify-center font-black">痺</span>
+                  <div className="p-4 sm:p-5 bg-white border-3 border-black text-black shadow-[3px_3px_0px_#000]">
+                    <div className="flex items-center gap-2.5 font-black text-black text-base sm:text-lg mb-2">
+                      <span className="w-8 h-8 bg-yellow-500 border border-black text-black flex items-center justify-center font-kanji font-black text-sm shadow-[1px_1px_0px_#000]">痺</span>
                       {g.status.paraTitle}
                     </div>
-                    <p className="mt-1 text-stone-800">
+                    <p className={`${subTextSizeClass} text-black font-normal`}>
                       {g.status.paraDesc}
                     </p>
                   </div>
 
-                  <div className="p-3 rounded bg-purple-950/20 border-2 border-purple-700 text-stone-900">
-                    <div className="flex items-center gap-2 font-black text-purple-950">
-                      <span className="w-5 h-5 rounded-full bg-purple-600 text-white flex items-center justify-center font-black">幻</span>
+                  <div className="p-4 sm:p-5 bg-white border-3 border-black text-black shadow-[3px_3px_0px_#000]">
+                    <div className="flex items-center gap-2.5 font-black text-black text-base sm:text-lg mb-2">
+                      <span className="w-8 h-8 bg-purple-600 border border-black text-white flex items-center justify-center font-kanji font-black text-sm shadow-[1px_1px_0px_#000]">幻</span>
                       {g.status.confTitle}
                     </div>
-                    <p className="mt-1 text-stone-800">
+                    <p className={`${subTextSizeClass} text-black font-normal`}>
                       {g.status.confDesc}
                     </p>
                   </div>
 
-                  <div className="p-3 rounded bg-sky-950/20 border-2 border-sky-700 text-stone-900">
-                    <div className="flex items-center gap-2 font-black text-sky-950">
-                      <span className="w-5 h-5 rounded-full bg-sky-600 text-white flex items-center justify-center font-black">砂</span>
+                  <div className="p-4 sm:p-5 bg-white border-3 border-black text-black shadow-[3px_3px_0px_#000]">
+                    <div className="flex items-center gap-2.5 font-black text-black text-base sm:text-lg mb-2">
+                      <span className="w-8 h-8 bg-sky-600 border border-black text-white flex items-center justify-center font-kanji font-black text-sm shadow-[1px_1px_0px_#000]">砂</span>
                       {g.status.freezeTitle}
                     </div>
-                    <p className="mt-1 text-stone-800">
+                    <p className={`${subTextSizeClass} text-black font-normal`}>
                       {g.status.freezeDesc}
                     </p>
                   </div>
                 </div>
 
-                <div className="p-3.5 rounded-lg bg-stone-900 text-stone-100 border border-sky-500 text-xs space-y-1">
-                  <div className="font-bold text-sky-300 flex items-center gap-1.5">
-                    <Sparkles className="w-4 h-4 text-sky-400" /> {g.status.assistTitle}
+                <div className="p-4 sm:p-5 bg-[#FEF3C7] text-black border-3 border-black space-y-2 shadow-[3px_3px_0px_#000]">
+                  <div className={`${cardHeadingClass} text-black flex items-center gap-2`}>
+                    <Sparkles className="w-5 h-5 text-[#fa9427]" /> {g.status.assistTitle}
                   </div>
-                  <p className="text-stone-300 leading-relaxed">
+                  <p className={`${subTextSizeClass} text-black font-normal`}>
                     {g.status.assistDesc}
                   </p>
                 </div>
@@ -493,43 +609,47 @@ export const ShinobiRulesGuide: React.FC<ShinobiRulesGuideProps> = ({
             {/* SECCIÓN 7: FORJA DE FIGURAS (NIVEL Y CARMÍN CLV) */}
             {activeSection === 'forge' && (
               <div className="space-y-4">
-                <div className="border-b-2 border-stone-800/30 pb-3">
-                  <span className="text-xs font-black text-red-900 uppercase tracking-widest">
+                <div className="flex items-center gap-2.5 pb-2.5 border-b-3 border-black">
+                  <span className="px-3 py-1 bg-black text-[#FA9427] font-extrabold text-xs sm:text-sm uppercase tracking-wider border border-black shadow-[2px_2px_0px_#000]">
                     {g.forge.badge}
                   </span>
-                  <h2 className="text-xl md:text-2xl font-black text-stone-900">
+                  <h3 className="text-xl sm:text-2xl md:text-3xl font-black text-black tracking-tight leading-snug">
                     {g.forge.title}
-                  </h2>
+                  </h3>
                 </div>
 
-                <p className="text-xs md:text-sm text-stone-800 leading-relaxed">
+                <p className={`${bodySizeClass} text-black font-medium bg-[#FEF3C7] p-4 border-2 border-black shadow-[2px_2px_0px_#000]`}>
                   {g.forge.intro}
                 </p>
 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <div className="p-4 rounded-lg bg-stone-900 text-stone-100 border border-stone-700 space-y-2">
-                    <div className="flex items-center justify-between">
-                      <h3 className="font-black text-amber-400 text-sm">{g.forge.levelTitle}</h3>
-                      <span className="px-1.5 py-0.5 rounded bg-amber-500 text-stone-950 font-black text-xs">{g.forge.levelBadge}</span>
+                  <div className="p-4 sm:p-6 bg-white text-black border-3 border-black space-y-3 shadow-[4px_4px_0px_#000]">
+                    <div className="flex items-center justify-between pb-2 border-b-2 border-black">
+                      <h4 className={`${cardHeadingClass} text-black`}>{g.forge.levelTitle}</h4>
+                      <span className="px-2.5 py-1 bg-[#fa9427] text-black font-black text-xs border border-black shadow-[1px_1px_0px_#000]">{g.forge.levelBadge}</span>
                     </div>
-                    <p className="text-xs text-stone-300 leading-relaxed">
+                    <p className={`${subTextSizeClass} text-black font-normal`}>
                       {g.forge.levelDesc}
                     </p>
-                    <div className="p-2 rounded bg-stone-950 text-[11px] font-mono text-amber-300 border border-stone-800">
-                      {g.forge.levelInvariant}
+                    <div className="p-3 bg-stone-100 text-black border-2 border-black shadow-[2px_2px_0px_#000]">
+                      <p className={`${subTextSizeClass} font-mono font-bold text-black`}>
+                        {g.forge.levelInvariant}
+                      </p>
                     </div>
                   </div>
 
-                  <div className="p-4 rounded-lg bg-stone-900 text-stone-100 border border-stone-700 space-y-2">
-                    <div className="flex items-center justify-between">
-                      <h3 className="font-black text-emerald-400 text-sm">{g.forge.clvTitle}</h3>
-                      <span className="px-1.5 py-0.5 rounded bg-emerald-600 text-white font-black text-xs">{g.forge.clvBadge}</span>
+                  <div className="p-4 sm:p-6 bg-white text-black border-3 border-black space-y-3 shadow-[4px_4px_0px_#000]">
+                    <div className="flex items-center justify-between pb-2 border-b-2 border-black">
+                      <h4 className={`${cardHeadingClass} text-black`}>{g.forge.clvTitle}</h4>
+                      <span className="px-2.5 py-1 bg-emerald-600 text-white font-black text-xs border border-black shadow-[1px_1px_0px_#000]">{g.forge.clvBadge}</span>
                     </div>
-                    <p className="text-xs text-stone-300 leading-relaxed">
+                    <p className={`${subTextSizeClass} text-black font-normal`}>
                       {g.forge.clvDesc}
                     </p>
-                    <div className="p-2 rounded bg-stone-950 text-[11px] font-mono text-emerald-300 border border-stone-800">
-                      {g.forge.clvPurpose}
+                    <div className="p-3 bg-stone-100 text-black border-2 border-black shadow-[2px_2px_0px_#000]">
+                      <p className={`${subTextSizeClass} font-mono font-bold text-black`}>
+                        {g.forge.clvPurpose}
+                      </p>
                     </div>
                   </div>
                 </div>
@@ -539,59 +659,71 @@ export const ShinobiRulesGuide: React.FC<ShinobiRulesGuideProps> = ({
             {/* SECCIÓN 8: PERGAMINOS TÁCTICOS */}
             {activeSection === 'plates' && (
               <div className="space-y-4">
-                <div className="border-b-2 border-stone-800/30 pb-3">
-                  <span className="text-xs font-black text-red-900 uppercase tracking-widest">
+                <div className="flex items-center gap-2.5 pb-2.5 border-b-3 border-black">
+                  <span className="px-3 py-1 bg-black text-[#FA9427] font-extrabold text-xs sm:text-sm uppercase tracking-wider border border-black shadow-[2px_2px_0px_#000]">
                     {g.plates.badge}
                   </span>
-                  <h2 className="text-xl md:text-2xl font-black text-stone-900">
+                  <h3 className="text-xl sm:text-2xl md:text-3xl font-black text-black tracking-tight leading-snug">
                     {g.plates.title}
-                  </h2>
+                  </h3>
                 </div>
 
-                <p className="text-xs md:text-sm text-stone-800 leading-relaxed">
+                <p className={`${bodySizeClass} text-black font-medium bg-[#FEF3C7] p-4 border-2 border-black shadow-[2px_2px_0px_#000]`}>
                   {g.plates.intro}
                 </p>
 
-                <div className="space-y-2.5 text-xs">
-                  <div className="p-3 rounded-lg bg-stone-900 text-stone-100 border border-stone-700 flex items-center justify-between">
-                    <div>
-                      <span className="font-black text-amber-400 text-sm">{g.plates.goalBlockTitle}</span>
-                      <p className="text-stone-300 text-xs mt-0.5">{g.plates.goalBlockDesc}</p>
+                <div className="space-y-3.5">
+                  <div className="p-4 sm:p-5 bg-white text-black border-3 border-black shadow-[3px_3px_0px_#000] flex items-center justify-between gap-4">
+                    <div className="flex-1">
+                      <h4 className={`${cardHeadingClass} text-black`}>{g.plates.goalBlockTitle}</h4>
+                      <p className={`${subTextSizeClass} text-black mt-1.5 font-normal`}>{g.plates.goalBlockDesc}</p>
                     </div>
-                    <span className="px-2.5 py-1 rounded bg-amber-600 text-stone-950 font-black text-xs shrink-0 shadow">{g.plates.costBadge} 2</span>
+                    <span className="px-3 py-1.5 bg-[#fa9427] text-black font-black text-xs sm:text-sm shrink-0 border-2 border-black shadow-[2px_2px_0px_#000]">{g.plates.costBadge} 2</span>
                   </div>
 
-                  <div className="p-3 rounded-lg bg-stone-900 text-stone-100 border border-stone-700 flex items-center justify-between">
-                    <div>
-                      <span className="font-black text-emerald-400 text-sm">{g.plates.maxReviveTitle}</span>
-                      <p className="text-stone-300 text-xs mt-0.5">{g.plates.maxReviveDesc}</p>
+                  <div className="p-4 sm:p-5 bg-white text-black border-3 border-black shadow-[3px_3px_0px_#000] flex items-center justify-between gap-4">
+                    <div className="flex-1">
+                      <h4 className={`${cardHeadingClass} text-black`}>{g.plates.maxReviveTitle}</h4>
+                      <p className={`${subTextSizeClass} text-black mt-1.5 font-normal`}>{g.plates.maxReviveDesc}</p>
                     </div>
-                    <span className="px-2.5 py-1 rounded bg-amber-600 text-stone-950 font-black text-xs shrink-0 shadow">{g.plates.costBadge} 2</span>
+                    <span className="px-3 py-1.5 bg-[#fa9427] text-black font-black text-xs sm:text-sm shrink-0 border-2 border-black shadow-[2px_2px_0px_#000]">{g.plates.costBadge} 2</span>
                   </div>
 
-                  <div className="p-3 rounded-lg bg-stone-900 text-stone-100 border border-stone-700 flex items-center justify-between">
-                    <div>
-                      <span className="font-black text-sky-400 text-sm">{g.plates.doubleChanceTitle}</span>
-                      <p className="text-stone-300 text-xs mt-0.5">{g.plates.doubleChanceDesc}</p>
+                  <div className="p-4 sm:p-5 bg-white text-black border-3 border-black shadow-[3px_3px_0px_#000] flex items-center justify-between gap-4">
+                    <div className="flex-1">
+                      <h4 className={`${cardHeadingClass} text-black`}>{g.plates.doubleChanceTitle}</h4>
+                      <p className={`${subTextSizeClass} text-black mt-1.5 font-normal`}>{g.plates.doubleChanceDesc}</p>
                     </div>
-                    <span className="px-2.5 py-1 rounded bg-stone-800 text-amber-300 border border-stone-700 font-black text-xs shrink-0 shadow">{g.plates.costBadge} 1</span>
+                    <span className="px-3 py-1.5 bg-stone-100 text-black border-2 border-black font-black text-xs sm:text-sm shrink-0 shadow-[2px_2px_0px_#000]">{g.plates.costBadge} 1</span>
                   </div>
 
-                  <div className="p-3 rounded-lg bg-stone-900 text-stone-100 border border-stone-700 flex items-center justify-between">
-                    <div>
-                      <span className="font-black text-orange-400 text-sm">{g.plates.xAttackTitle}</span>
-                      <p className="text-stone-300 text-xs mt-0.5">{g.plates.xAttackDesc}</p>
+                  <div className="p-4 sm:p-5 bg-white text-black border-3 border-black shadow-[3px_3px_0px_#000] flex items-center justify-between gap-4">
+                    <div className="flex-1">
+                      <h4 className={`${cardHeadingClass} text-black`}>{g.plates.xAttackTitle}</h4>
+                      <p className={`${subTextSizeClass} text-black mt-1.5 font-normal`}>{g.plates.xAttackDesc}</p>
                     </div>
-                    <span className="px-2.5 py-1 rounded bg-stone-800 text-amber-300 border border-stone-700 font-black text-xs shrink-0 shadow">{g.plates.costBadge} 1</span>
+                    <span className="px-3 py-1.5 bg-stone-100 text-black border-2 border-black font-black text-xs sm:text-sm shrink-0 shadow-[2px_2px_0px_#000]">{g.plates.costBadge} 1</span>
                   </div>
                 </div>
               </div>
             )}
 
           </div>
-          <div className="h-2.5 bg-gradient-to-r from-amber-700 via-[#281b12] to-amber-700 rounded-b border-t-2 border-stone-950" />
         </div>
       </main>
+
+      {/* 3. BOTTOM OFFICIAL TOURNAMENT BAR */}
+      <footer className="max-w-6xl w-full mx-auto bg-[#111111] text-white p-2.5 md:px-4 border-3 border-black shadow-[4px_4px_0px_#000] flex items-center justify-between text-xs font-bold tracking-wider relative z-20 flex-wrap gap-2 mt-2">
+        <div className="flex items-center gap-2">
+          <BookOpen className="w-4 h-4 text-[#FA9427]" />
+          <span className="text-stone-200 uppercase">
+            {language === 'es' ? 'DOCUMENTO OFICIAL DE KONOHA • REGLAMENTO DE COMBATE' : language === 'ja' ? '木ノ葉隠れの里 公式規則 • 戦闘規定' : 'KONOHA OFFICIAL DOCUMENT • COMBAT REGULATIONS'}
+          </span>
+        </div>
+        <div className="text-amber-400 font-mono text-xs">
+          SISTEMA SHINOBI DUEL • V1.0 CANONICAL
+        </div>
+      </footer>
     </div>
   );
 };

@@ -1,5 +1,80 @@
-# Logs
-logs
+# ==============================================================================
+# 🥷 SHINOBI DUEL - GITIGNORE
+# ==============================================================================
+
+# ------------------------------------------------------------------------------
+# 🧠 AI Agents, Skills & Assistant Configurations
+# ------------------------------------------------------------------------------
+.agents/
+skills/
+.gemini/
+.cursor/
+.claude/
+.windsurf/
+.cline/
+.roo/
+
+# ------------------------------------------------------------------------------
+# 📐 Design Specifications, Design Systems & Prompts
+# ------------------------------------------------------------------------------
+DESIGN.md
+design.md
+DESIGN_*.md
+*.design.md
+design/
+designs/
+
+# Technical Specifications & Architecture Documents
+SPEC.md
+spec.md
+SPECS.md
+specs/
+specifications/
+*.spec.md
+*.specification.md
+especificaci*.md
+
+# AI Prompts & Scratchpads
+prompts/
+PROMPT.md
+prompt.md
+*.prompt.md
+scratch/
+scratchpad*
+*.scratchpad.md
+*.backup.*
+*.bak
+
+# ------------------------------------------------------------------------------
+# 📦 Dependencies & Package Managers
+# ------------------------------------------------------------------------------
+node_modules/
+.pnp
+.pnp.js
+
+# ------------------------------------------------------------------------------
+# 🏗️ Production Builds & Output
+# ------------------------------------------------------------------------------
+dist/
+dist-ssr/
+build/
+*.tsbuildinfo
+
+# ------------------------------------------------------------------------------
+# 🔐 Environment Variables & Secrets
+# ------------------------------------------------------------------------------
+.env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+.env.*.local
+!.env.example
+
+# ------------------------------------------------------------------------------
+# 📝 Logs & Diagnostics
+# ------------------------------------------------------------------------------
+logs/
 *.log
 npm-debug.log*
 yarn-debug.log*
@@ -7,20 +82,32 @@ yarn-error.log*
 pnpm-debug.log*
 lerna-debug.log*
 
-# Dependencies
-node_modules/
-dist/
-dist-ssr/
+# ------------------------------------------------------------------------------
+# 🧪 Testing & Coverage
+# ------------------------------------------------------------------------------
+coverage/
+.nyc_output/
+playwright-report/
+test-results/
 
-# Local env files
-.env
-.env.local
-.env.*.local
-
-# Editor & OS files
+# ------------------------------------------------------------------------------
+# 💻 Operating System & Editor Files
+# ------------------------------------------------------------------------------
 .DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
 Thumbs.db
-.vscode/
+
+# IDEs
+.vscode/*
+!.vscode/extensions.json
+!.vscode/settings.json
 .idea/
 *.suo
+*.ntvs*
+*.njsproj
+*.sln
 *.sw?

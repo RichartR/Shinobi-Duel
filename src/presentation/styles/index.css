@@ -4,7 +4,7 @@
 
 @layer base {
   html {
-    font-family: 'Noto Sans JP', system-ui, -apple-system, sans-serif;
+    font-family: 'Plus Jakarta Sans', 'Noto Sans JP', system-ui, -apple-system, sans-serif;
     color-scheme: dark;
   }
 
@@ -12,19 +12,19 @@
     margin: 0;
     padding: 0;
     min-height: 100vh;
-    background-color: #140e0a;
-    color: #f5f5f4;
+    background-color: #f7f2ea;
+    color: #111111;
   }
 
   /* Accessible focus indicators */
   :focus-visible {
-    outline: 2px solid #f59e0b;
+    outline: 2px solid #fa9427;
     outline-offset: 2px;
   }
 
   button:focus-visible,
   a:focus-visible {
-    outline: 2px solid #f59e0b;
+    outline: 2px solid #fa9427;
     outline-offset: 2px;
   }
 
@@ -34,14 +34,15 @@
     height: 6px;
   }
   ::-webkit-scrollbar-track {
-    background: #1c140e;
+    background: #e8ded0;
   }
   ::-webkit-scrollbar-thumb {
-    background: #57412d;
+    background: #fa9427;
     border-radius: 3px;
+    border: 1px solid #111111;
   }
   ::-webkit-scrollbar-thumb:hover {
-    background: #856548;
+    background: #e77100;
   }
 
   /* Wheel spin decelerating physics */
@@ -59,6 +60,221 @@
 
   .animate-needle-vibe {
     animation: needle-vibe 0.08s infinite ease-in-out;
+  }
+
+  /* Official Naruto High-Energy Manga Card & Button Styles (Sharp, Non-Rounded) */
+  .manga-white-card {
+    background-color: #ffffff;
+    color: #111111;
+    border: 3px solid #111111;
+    box-shadow: 5px 5px 0px #111111;
+  }
+
+  .manga-orange-card {
+    background: linear-gradient(135deg, #fa9427 0%, #e77100 100%);
+    color: #ffffff;
+    border: 3px solid #111111;
+    box-shadow: 5px 5px 0px #111111;
+  }
+
+  .manga-btn-white {
+    background-color: #ffffff;
+    color: #111111;
+    border: 2.5px solid #111111;
+    box-shadow: 4px 4px 0px #111111;
+    font-weight: 900;
+    transition: all 0.12s ease-in-out;
+  }
+  .manga-btn-white:hover {
+    background-color: #fa9427;
+    color: #000000;
+    transform: translate(-2px, -2px);
+    box-shadow: 6px 6px 0px #111111;
+  }
+
+  .manga-btn-orange {
+    background-color: #fa9427;
+    color: #000000;
+    border: 2.5px solid #111111;
+    box-shadow: 4px 4px 0px #111111;
+    font-weight: 900;
+    transition: all 0.12s ease-in-out;
+  }
+  .manga-btn-orange:hover {
+    background-color: #ffaa42;
+    color: #000000;
+    transform: translate(-2px, -2px);
+    box-shadow: 6px 6px 0px #111111;
+  }
+
+  .manga-btn-dark {
+    background-color: #111111;
+    color: #ffffff;
+    border: 2.5px solid #111111;
+    box-shadow: 4px 4px 0px #fa9427;
+    font-weight: 900;
+    transition: all 0.12s ease-in-out;
+  }
+  .manga-btn-dark:hover {
+    background-color: #222222;
+    color: #ffe69f;
+    transform: translate(-2px, -2px);
+    box-shadow: 6px 6px 0px #fa9427;
+  }
+
+  /* Shonen Manga Dynamic Cut (Angular Clipped Corners - 45-degree ninja chamfer) */
+  .ninja-chamfer-8 {
+    clip-path: polygon(
+      8px 0%, 
+      calc(100% - 8px) 0%, 
+      100% 8px, 
+      100% calc(100% - 8px), 
+      calc(100% - 8px) 100%, 
+      8px 100%, 
+      0% calc(100% - 8px), 
+      0% 8px
+    );
+  }
+
+  .ninja-chamfer-14 {
+    clip-path: polygon(
+      14px 0%, 
+      calc(100% - 14px) 0%, 
+      100% 14px, 
+      100% calc(100% - 14px), 
+      calc(100% - 14px) 100%, 
+      14px 100%, 
+      0% calc(100% - 14px), 
+      0% 14px
+    );
+  }
+
+  /* Authentic Naruto Scroll / Makimono Styling */
+  .makimono-scroll {
+    background: #ffffff;
+    color: #111111;
+    border: 3px solid #111111;
+    position: relative;
+    box-shadow: 5px 5px 0px #111111;
+  }
+
+  /* Ninja Metal Headband Plate Effect - Authentic Sharp Rectangle with Beveled Corners */
+  .ninja-headband-plate {
+    background: linear-gradient(135deg, #f1f5f9 0%, #cbd5e1 50%, #94a3b8 100%);
+    border: 2.5px solid #0f172a;
+    box-shadow: 3px 3px 0px #0f172a;
+  }
+
+  /* Cinnabar Kanji Seal (Inkan / Hanko) */
+  .cinnabar-seal {
+    border: 2px solid #c5221f;
+    color: #c5221f;
+    background-color: rgba(197, 34, 31, 0.08);
+    font-family: 'Noto Serif JP', serif;
+    font-weight: 900;
+  }
+
+  /* Vibrant Naruto Orange Radial Sunburst Ambient */
+  .naruto-bg-sunburst {
+    background-color: #fa9427;
+    background-image: 
+      radial-gradient(circle at 50% 20%, rgba(255, 255, 255, 0.45) 0%, transparent 60%),
+      repeating-conic-gradient(from 0deg, rgba(231, 113, 0, 0.25) 0deg 10deg, transparent 10deg 20deg);
+  }
+
+  /* Proposal 1: Antique Japanese Washi Parchment & Fuinjutsu Scroll Texture */
+  .naruto-bg-washi-scroll {
+    background-color: #f5eee2;
+    background-image: 
+      radial-gradient(circle at 50% 40%, rgba(255, 255, 255, 0.7) 0%, transparent 65%),
+      radial-gradient(circle at 10% 15%, rgba(235, 218, 192, 0.6) 0%, transparent 45%),
+      radial-gradient(circle at 90% 85%, rgba(225, 205, 175, 0.6) 0%, transparent 50%),
+      radial-gradient(#cfbeaa 1.2px, transparent 1.2px);
+    background-size: 100% 100%, 100% 100%, 100% 100%, 24px 24px;
+  }
+
+  /* Proposal 3: Shonen Manga Print Screentone & Dynamic Speedlines */
+  .naruto-bg-manga-shonen {
+    background-color: #0c0a09;
+    background-image: 
+      radial-gradient(circle at 50% 50%, rgba(28, 25, 23, 0.6) 0%, #09090b 100%),
+      radial-gradient(rgba(255, 255, 255, 0.1) 1.5px, transparent 1.5px);
+    background-size: 100% 100%, 16px 16px;
+  }
+
+  /* Arena Mat Warm Sand / Manga Halftone Ambient */
+  .naruto-arena-canvas {
+    background-color: #f7f2ea;
+    background-image: 
+      radial-gradient(circle at 50% 0%, rgba(250, 148, 39, 0.15) 0%, transparent 60%),
+      radial-gradient(#dfd4c2 1.5px, transparent 1.5px);
+    background-size: 100% 100%, 20px 20px;
+  }
+
+  /* Chakra Aura Animations & Shonen FX */
+  @keyframes chakra-pulse {
+    0%, 100% {
+      filter: drop-shadow(0 0 8px rgba(250, 148, 39, 0.6)) drop-shadow(0 0 18px rgba(245, 158, 11, 0.35));
+    }
+    50% {
+      filter: drop-shadow(0 0 16px rgba(250, 148, 39, 0.95)) drop-shadow(0 0 28px rgba(231, 113, 0, 0.6));
+    }
+  }
+
+  @keyframes chakra-blue-pulse {
+    0%, 100% {
+      filter: drop-shadow(0 0 8px rgba(2, 132, 199, 0.6)) drop-shadow(0 0 18px rgba(56, 189, 248, 0.35));
+    }
+    50% {
+      filter: drop-shadow(0 0 16px rgba(2, 132, 199, 0.95)) drop-shadow(0 0 28px rgba(14, 165, 233, 0.6));
+    }
+  }
+
+  .animate-chakra-pulse {
+    animation: chakra-pulse 2.2s infinite ease-in-out;
+  }
+
+  .animate-chakra-blue {
+    animation: chakra-blue-pulse 2.2s infinite ease-in-out;
+  }
+
+  /* Authentic Ninja Scroll (Makimono) Ribbons & Wax Seals */
+  .ninja-scroll-roll {
+    position: relative;
+    background: #FFFDF5;
+    border: 3px solid #111111;
+    box-shadow: 5px 5px 0px #111111;
+  }
+
+  .ninja-scroll-roll::before,
+  .ninja-scroll-roll::after {
+    content: '';
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 14px;
+    height: calc(100% + 12px);
+    background: linear-gradient(180deg, #991b1b 0%, #b91c1c 45%, #7f1d1d 100%);
+    border: 2px solid #111111;
+    border-radius: 4px;
+    box-shadow: 2px 2px 0px #000;
+  }
+
+  .ninja-scroll-roll::before {
+    left: -10px;
+  }
+
+  .ninja-scroll-roll::after {
+    right: -10px;
+  }
+
+  /* Shonen Angle Badge */
+  .shonen-angle-badge {
+    clip-path: polygon(0 0, 100% 0, calc(100% - 10px) 100%, 0 100%);
+  }
+
+  .shonen-angle-badge-reverse {
+    clip-path: polygon(10px 0, 100% 0, 100% 100%, 0 100%);
   }
 }
 

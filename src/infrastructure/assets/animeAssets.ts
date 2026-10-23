@@ -119,13 +119,24 @@ export const JUTSU_ANIME_CUTINS: Record<string, string> = {
   `)
 };
 
-export const CHAR_SVG_FALLBACKS: Record<string, string> = {
-  naruto: svgToDataUri(`<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 120"><rect width="120" height="120" fill="#ea580c"/><polygon points="10,45 25,10 45,32 60,5 75,32 95,10 110,45" fill="#facc15"/><circle cx="60" cy="68" r="34" fill="#fed7aa"/><rect x="24" y="34" width="72" height="16" rx="3" fill="#1e293b"/><rect x="38" y="37" width="44" height="10" rx="2" fill="#cbd5e1"/><circle cx="48" cy="64" r="4.5" fill="#0284c7"/><circle cx="72" cy="64" r="4.5" fill="#0284c7"/><path d="M32,74 L42,72 M32,80 L42,78 M88,74 L78,72 M88,80 L78,78" stroke="#7c2d12" stroke-width="2"/></svg>`),
-  sasuke: svgToDataUri(`<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 120"><rect width="120" height="120" fill="#1e1b4b"/><polygon points="10,20 35,55 15,85 50,30 70,30 105,85 85,55 110,20 60,10" fill="#09090b"/><circle cx="60" cy="68" r="32" fill="#ffedd5"/><circle cx="48" cy="64" r="5" fill="#dc2626"/><circle cx="72" cy="64" r="5" fill="#dc2626"/></svg>`),
-  minato: svgToDataUri(`<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 120"><rect width="120" height="120" fill="#0284c7"/><polygon points="15,85 25,25 45,15 60,5 75,15 95,25 105,85 85,45 35,45" fill="#fde047"/><circle cx="60" cy="68" r="31" fill="#ffedd5"/><circle cx="48" cy="64" r="4.5" fill="#0284c7"/><circle cx="72" cy="64" r="4.5" fill="#0284c7"/></svg>`),
-  gaara:  svgToDataUri(`<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 120"><rect width="120" height="120" fill="#78350f"/><polygon points="20,45 35,15 60,22 85,15 100,45" fill="#991b1b"/><circle cx="60" cy="68" r="32" fill="#fde68a"/><circle cx="48" cy="65" r="6" fill="#000"/><circle cx="72" cy="65" r="6" fill="#000"/><circle cx="48" cy="65" r="3.5" fill="#2dd4bf"/><circle cx="72" cy="65" r="3.5" fill="#2dd4bf"/><text x="74" y="54" fill="#dc2626" font-size="12" font-weight="900">愛</text></svg>`),
-  itachi: svgToDataUri(`<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 120"><rect width="120" height="120" fill="#450a0a"/><circle cx="60" cy="68" r="32" fill="#fed7aa"/><rect x="26" y="34" width="68" height="15" fill="#1e293b"/><line x1="42" y1="41" x2="78" y2="41" stroke="#dc2626" stroke-width="2.5"/><circle cx="48" cy="64" r="5" fill="#dc2626"/><circle cx="72" cy="64" r="5" fill="#dc2626"/><path d="M44,70 L40,84 M76,70 L80,84" stroke="#475569" stroke-width="1.5"/></svg>`),
-  lee:    svgToDataUri(`<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 120"><rect width="120" height="120" fill="#15803d"/><circle cx="60" cy="68" r="33" fill="#fed7aa"/><path d="M25,58 C25,22 95,22 95,58 Z" fill="#09090b"/><rect x="38" y="54" width="16" height="5" fill="#09090b"/><rect x="66" y="54" width="16" height="5" fill="#09090b"/><circle cx="46" cy="66" r="6.5" fill="#09090b"/><circle cx="74" cy="66" r="6.5" fill="#09090b"/></svg>`),
-  kakashi: svgToDataUri(`<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 120"><rect width="120" height="120" fill="#334155"/><polygon points="20,48 35,8 65,12 95,5 105,48" fill="#e2e8f0"/><circle cx="60" cy="68" r="32" fill="#fed7aa"/><rect x="28" y="64" width="64" height="32" rx="6" fill="#1e293b"/><rect x="24" y="36" width="72" height="15" fill="#0f172a"/><circle cx="48" cy="58" r="4.5" fill="#dc2626"/><circle cx="72" cy="58" r="4.5" fill="#0f172a"/></svg>`),
-  pain:    svgToDataUri(`<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 120"><rect width="120" height="120" fill="#3b0764"/><polygon points="15,48 30,12 60,6 90,12 105,48" fill="#f97316"/><circle cx="60" cy="68" r="32" fill="#fed7aa"/><circle cx="48" cy="64" r="6" fill="#a855f7" stroke="#1e1b4b" stroke-width="1.5"/><circle cx="72" cy="64" r="6" fill="#a855f7" stroke="#1e1b4b" stroke-width="1.5"/></svg>`)
+export const CHAR_REAL_ARTWORK: Record<string, string> = {
+  naruto: '/assets/naruto_hero.jpg',
+  sasuke: '/assets/sasuke_hero.jpg',
+  kakashi: '/assets/kakashi_hero.jpg',
+  gaara: '/assets/gaara_hero.jpg',
+  itachi: '/assets/itachi_hero.jpg',
+  minato: '/assets/minato_hero.jpg',
 };
+
+export const CHAR_SVG_FALLBACKS: Record<string, string> = {
+  naruto: '/assets/naruto_hero.jpg',
+  sasuke: '/assets/sasuke_hero.jpg',
+  kakashi: '/assets/kakashi_hero.jpg',
+  gaara: '/assets/gaara_hero.jpg',
+  itachi: '/assets/itachi_hero.jpg',
+  minato: '/assets/minato_hero.jpg',
+  lee: '/assets/naruto_hero.jpg',
+  pain: '/assets/itachi_hero.jpg',
+};
+
+

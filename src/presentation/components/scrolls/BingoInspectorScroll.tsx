@@ -59,100 +59,107 @@ export const BingoInspectorScroll: React.FC<BingoInspectorScrollProps> = ({
   const effMp = calculateEffectiveMp(figure, state.turnCount, state.activeBuffs[figure.owner]);
   const colorTotals = getFigureColorBreakdown(figure.segments);
   const statusObj = figure.status ? STATUS_INFO[figure.status] : null;
-
   return (
-    <div className="shadow-2xl">
-      <div className="h-2.5 bg-gradient-to-r from-amber-700 via-[#281b12] to-amber-700 rounded-t border-b-2 border-stone-950" />
-      <div className="bg-[#f4ebd9] text-stone-900 p-3.5 border-x-4 border-[#281b12] shadow-inner">
-        <div className="flex items-start justify-between border-b-2 border-stone-800/30 pb-2.5 mb-2">
-          <div className="flex items-center gap-2.5">
-            <div className="relative w-16 h-16 rounded border-2 border-stone-900 bg-stone-800 overflow-hidden shrink-0 shadow-md">
+    <div className="bg-white border-3 border-black overflow-hidden shadow-[4px_4px_0px_#111111] max-h-[calc(100vh-90px)] flex flex-col">
+      {/* Top Manga Header Banner */}
+      <div className="h-8 bg-[#111111] border-b-3 border-black flex items-center justify-between px-3 text-[#FA9427] shrink-0">
+        <span className="w-4 h-1.5 bg-[#FA9427]" />
+        <span className="text-xs md:text-sm font-impact tracking-widest text-[#FA9427] uppercase">
+          忍録 • BINGO BOOK INSPECTOR
+        </span>
+        <span className="w-4 h-1.5 bg-[#FA9427]" />
+      </div>
+
+      <div className="bg-white text-stone-900 p-3 md:p-3.5 overflow-y-auto space-y-2.5 flex-1 pr-1.5">
+        <div className="flex items-start justify-between border-b-2 border-black pb-2">
+          <div className="flex items-center gap-3">
+            <div className="relative w-16 h-16 border-2 border-black bg-stone-900 overflow-hidden shrink-0 shadow-[2px_2px_0px_#000]">
               <img
-                src={figure.portraitUrl}
+                src={figure.portraitUrl || CHAR_SVG_FALLBACKS[figure.key]}
                 alt={figure.name}
                 className="w-full h-full object-cover object-top"
                 onError={e => {
                   e.currentTarget.src = CHAR_SVG_FALLBACKS[figure.key] || '';
                 }}
               />
-              <span className="absolute bottom-0 right-0 px-1 bg-red-800 text-amber-100 text-[9px] font-black">
+              <span className="absolute bottom-0 right-0 px-1 bg-red-700 text-white text-[10px] font-black border-t border-l border-black">
                 {figure.key.slice(0, 2).toUpperCase()}
               </span>
             </div>
             <div>
-              <div className="flex items-center gap-1 flex-wrap">
+              <div className="flex items-center gap-1.5 flex-wrap">
                 <span
-                  className={`px-2 py-0.5 text-[10px] font-black uppercase text-white rounded shadow-sm border ${
+                  className={`px-2 py-0.5 text-xs font-impact uppercase tracking-wider text-white border border-black shadow-[1px_1px_0px_#000] ${
                     figure.owner === 1
-                      ? 'bg-sky-600 border-sky-300'
-                      : 'bg-red-700 border-red-300'
+                      ? 'bg-[#0284c7]'
+                      : 'bg-[#dc2626]'
                   }`}
                 >
                   {figure.owner === 1
                     ? `🔵 ${t('common.ally')} (${t('common.player1')})`
                     : `🔴 ${t('common.opponent')} (${state.mode === 'ai' ? t('common.ai') : t('common.player2')})`}
                 </span>
-                <span className="px-1.5 py-0.5 text-[9px] font-black bg-stone-900 text-amber-400 rounded-sm border border-amber-500">
+                <span className="px-2 py-0.5 text-xs font-bold bg-stone-100 text-stone-900 border border-black">
                   {t('common.level')}.{figure.level || 1} • {t('common.clv')}+{figure.clv || 0}
                 </span>
                 {figure.evolved && (
-                  <span className="px-1.5 py-0.5 text-[9px] font-black bg-purple-800 text-amber-200 rounded-sm">
+                  <span className="px-2 py-0.5 text-xs font-black bg-purple-700 text-white border border-black uppercase">
                     {t('inspector.awakeningUx')}
                   </span>
                 )}
               </div>
-              <h2 className="text-base font-black text-stone-900 leading-tight mt-0.5">{figure.name}</h2>
-              <p className="text-[10px] font-extrabold text-amber-900">{figure.archetype}</p>
+              <h2 className="text-lg md:text-xl font-impact text-black leading-tight uppercase tracking-wide mt-1">{figure.name}</h2>
+              <p className="text-xs font-bold text-[#E77100] uppercase tracking-wider">{figure.archetype}</p>
             </div>
           </div>
 
-          <div className="flex flex-col items-center justify-center bg-stone-900 text-amber-400 border-2 border-amber-600 rounded px-2.5 py-1 shrink-0 shadow">
-            <span className="text-[9px] font-bold uppercase tracking-tighter text-amber-200/80">{t('common.mp')}</span>
-            <span className="text-xl font-black leading-none">{effMp}</span>
+          <div className="flex flex-col items-center justify-center bg-[#FA9427] text-black border-2 border-black px-3 py-1 shrink-0 shadow-[2px_2px_0px_#000]">
+            <span className="text-[10px] font-black uppercase tracking-wider text-black">{t('common.mp')}</span>
+            <span className="text-2xl font-impact leading-none">{effMp}</span>
           </div>
         </div>
 
         {/* Active Status Condition */}
         {statusObj && (
           <div
-            className="mb-2 p-2 rounded bg-stone-950 text-white border-l-4 flex items-center justify-between text-[10px]"
-            style={{ borderColor: statusObj.color }}
+            className="p-2 bg-[#fff8f0] text-stone-950 border-2 border-black border-l-6 flex items-center justify-between text-xs shadow-[2px_2px_0px_#000]"
+            style={{ borderLeftColor: statusObj.color }}
           >
             <div>
-              <div className="font-black uppercase" style={{ color: statusObj.color }}>
+              <div className="font-impact uppercase text-xs" style={{ color: statusObj.color }}>
                 {statusObj.kanji} {statusObj.label}
               </div>
-              <div className="text-stone-300">{statusObj.desc}</div>
+              <div className="text-stone-700 font-medium text-xs">{statusObj.desc}</div>
             </div>
           </div>
         )}
 
         {/* Active Fuinjutsu Wait Condition */}
         {figure.wait > 0 && (
-          <div className="mb-2 p-2 rounded bg-stone-950 text-white border-l-4 border-amber-500 flex items-center justify-between text-[10px]">
+          <div className="p-2 bg-[#fff5f5] text-stone-950 border-2 border-black border-l-6 border-l-red-600 flex items-center justify-between text-xs shadow-[2px_2px_0px_#000]">
             <div>
-              <div className="font-black uppercase text-amber-400">
+              <div className="font-impact uppercase text-xs text-red-700">
                 ⏳ {t('hierarchy.waitTitle')} ({figure.wait})
               </div>
-              <div className="text-stone-300">{t('hierarchy.waitDetail')}</div>
+              <div className="text-stone-700 font-medium text-xs">{t('hierarchy.waitDetail')}</div>
             </div>
           </div>
         )}
 
         {/* Color Distribution Bar */}
-        <div className="mb-2.5 bg-stone-900/95 p-2 rounded border border-stone-700 text-stone-100">
-          <div className="flex items-center justify-between text-[9px] font-bold uppercase text-amber-300 mb-1">
+        <div className="bg-[#fbf9f5] p-2 border-2 border-black shadow-[2px_2px_0px_#000] text-stone-900">
+          <div className="flex items-center justify-between text-xs font-impact uppercase tracking-wider text-black mb-1.5">
             <span>{t('inspector.diskLevel', { level: figure.level || 1 })}</span>
             {onOpenWorkshop && (
               <button
                 onClick={onOpenWorkshop}
-                className="px-2 py-0.5 rounded bg-amber-600 hover:bg-amber-500 text-stone-950 font-black text-[9px] transition"
+                className="px-2.5 py-0.5 bg-[#FA9427] hover:bg-[#ffaa42] text-black font-impact text-xs uppercase border border-black shadow-[1px_1px_0px_#000] cursor-pointer"
               >
                 {t('inspector.forgeLevelBtn')}
               </button>
             )}
           </div>
-          <div className="w-full h-2.5 rounded-sm overflow-hidden flex border border-stone-600">
+          <div className="w-full h-3.5 overflow-hidden flex border-2 border-black">
             {(['white', 'gold', 'purple', 'blue', 'red'] as WheelColor[]).map(cKey => {
               const val = colorTotals[cKey] || 0;
               if (val === 0) return null;
@@ -168,50 +175,35 @@ export const BingoInspectorScroll: React.FC<BingoInspectorScrollProps> = ({
               );
             })}
           </div>
-          <div className="flex flex-wrap gap-1 mt-1.5 justify-between text-[9px] font-mono">
-            <span className={colorTotals.white ? 'text-white font-bold' : 'text-stone-600'}>
+          <div className="flex flex-wrap gap-1.5 mt-1.5 justify-between text-xs font-mono font-bold">
+            <span className={colorTotals.white ? 'text-black' : 'text-stone-400'}>
               {t('inspector.whiteAbbr')}:{colorTotals.white}
             </span>
-            <span className={colorTotals.gold ? 'text-amber-400 font-bold' : 'text-stone-600'}>
+            <span className={colorTotals.gold ? 'text-amber-700' : 'text-stone-400'}>
               {t('inspector.goldAbbr')}:{colorTotals.gold}
             </span>
-            <span className={colorTotals.purple ? 'text-purple-300 font-bold' : 'text-stone-600'}>
+            <span className={colorTotals.purple ? 'text-purple-700' : 'text-stone-400'}>
               {t('inspector.purpleAbbr')}:{colorTotals.purple}
             </span>
-            <span className={colorTotals.blue ? 'text-sky-300 font-bold' : 'text-stone-600'}>
+            <span className={colorTotals.blue ? 'text-sky-700' : 'text-stone-400'}>
               {t('inspector.blueAbbr')}:{colorTotals.blue}
             </span>
-            <span className={colorTotals.red ? 'text-red-400 font-bold' : 'text-stone-600'}>
+            <span className={colorTotals.red ? 'text-red-700' : 'text-stone-400'}>
               {t('inspector.redAbbr')}:{colorTotals.red}
             </span>
           </div>
         </div>
 
-        {/* Anime Cut-In Art */}
-        <div className="mb-2 rounded border-2 border-stone-800 bg-stone-900 overflow-hidden shadow relative h-20">
-          <img
-            src={JUTSU_ANIME_CUTINS[figure.key] || JUTSU_ANIME_CUTINS.rasengan}
-            alt="Jutsu Cut-in"
-            className="w-full h-full object-cover opacity-90"
-          />
-          <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/30 to-transparent flex flex-col justify-end p-2">
-            <span className="text-[10px] uppercase font-bold text-amber-300">
-              {t('inspector.supremeTechnique')}
-            </span>
-            <div className="text-xs font-black text-white tracking-wide">{figure.name}</div>
-          </div>
-        </div>
-
         {/* Circular Wheel Preview */}
-        <div className="flex items-center justify-center my-1.5 bg-stone-900/10 rounded-xl py-1.5 border border-stone-800/20">
-          <ChakraDiskSVG figure={figure} size={148} />
+        <div className="flex items-center justify-center py-2 bg-[#fdfbf7] border-2 border-black shadow-[2px_2px_0px_#000]">
+          <ChakraDiskSVG figure={figure} size={135} />
         </div>
 
         {/* Doctrine Description */}
-        <div className="mt-2 p-2 rounded bg-amber-950/10 border-l-4 border-red-800 text-xs space-y-1">
-          <div className="font-black text-red-900 text-[10px] flex items-center justify-between">
-            <span>{t('inspector.title')}</span>
-            <span>
+        <div className="p-2.5 bg-[#fff8ee] border-2 border-black text-xs space-y-1 shadow-[2px_2px_0px_#000]">
+          <div className="font-impact text-black text-xs uppercase flex items-center justify-between">
+            <span className="text-red-700">【 {t('inspector.title')} 】</span>
+            <span className="font-bold">
               {figure.status === 'burned'
                 ? t('inspector.burnedTag')
                 : figure.status === 'paralyzed'
@@ -225,16 +217,16 @@ export const BingoInspectorScroll: React.FC<BingoInspectorScrollProps> = ({
                 : '印'}
             </span>
           </div>
-          <p className="text-[10px] text-stone-800 font-medium leading-snug">{figure.ability}</p>
+          <p className="text-xs text-stone-900 font-medium leading-relaxed">{figure.ability}</p>
         </div>
 
         {/* Segments Breakdown */}
-        <div className="mt-2.5">
-          <div className="text-[10px] font-extrabold text-stone-700 uppercase tracking-wider mb-1 flex justify-between">
+        <div>
+          <div className="text-xs font-impact text-black uppercase tracking-wider mb-1.5 flex justify-between">
             <span>{t('inspector.wheelSectors')}</span>
             <span>{t('inspector.powerSize')}</span>
           </div>
-          <div className="space-y-1 text-xs">
+          <div className="space-y-1.5 text-xs">
             {figure.segments.map((seg, idx) => {
               const col = WHEEL_COLORS[seg.color];
               const pct = Math.round((seg.size / WHEEL_TOTAL_SEGMENTS) * 100);
@@ -247,20 +239,20 @@ export const BingoInspectorScroll: React.FC<BingoInspectorScrollProps> = ({
               return (
                 <div
                   key={idx}
-                  className="flex items-center justify-between p-1.5 rounded bg-stone-900 text-stone-100 border border-stone-700"
+                  className="flex items-center justify-between p-2 bg-[#faf8f5] text-stone-900 border border-black shadow-[1px_1px_0px_#000] hover:bg-[#fff9ee] transition-all"
                 >
                   <div className="flex items-center gap-2 min-w-0">
                     <span
-                      className="w-3 h-3 rounded-sm shrink-0 border border-white/40"
+                      className="w-4 h-4 shrink-0 border border-black shadow-xs"
                       style={{ background: col.fill }}
                     />
                     <div className="truncate">
-                      <div className="font-bold text-[11px] leading-tight truncate">{seg.name}</div>
+                      <div className="font-bold text-xs leading-tight truncate text-stone-950">{seg.name}</div>
                     </div>
                   </div>
                   <div className="flex items-center gap-2 shrink-0">
-                    <span className="font-extrabold text-amber-400 text-[10px]">{valLabel}</span>
-                    <span className="text-[10px] font-mono text-stone-300 bg-stone-950 px-1.5 py-0.5 rounded border border-stone-700">
+                    <span className="font-impact uppercase tracking-wide text-black text-xs">{valLabel}</span>
+                    <span className="text-xs font-mono text-black bg-stone-200 px-2 py-0.5 border border-black font-bold">
                       {seg.size}/96 ({pct}%)
                     </span>
                   </div>
@@ -270,7 +262,6 @@ export const BingoInspectorScroll: React.FC<BingoInspectorScrollProps> = ({
           </div>
         </div>
       </div>
-      <div className="h-2.5 bg-gradient-to-r from-amber-700 via-[#281b12] to-amber-700 rounded-b border-t-2 border-stone-950" />
     </div>
   );
 };

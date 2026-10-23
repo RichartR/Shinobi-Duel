@@ -1,4 +1,4 @@
-export type SoundEffectType = 'select' | 'move' | 'scroll' | 'spin' | 'ko' | 'win';
+export type SoundEffectType = 'select' | 'move' | 'scroll' | 'spin' | 'ko' | 'win' | 'jutsu';
 
 export class ShinobiAudioEngine {
   private ctx: AudioContext | null = null;
@@ -33,6 +33,19 @@ export class ShinobiAudioEngine {
         gain.connect(this.ctx.destination);
         osc.start(now);
         osc.stop(now + 0.07);
+      } else if (effect === 'jutsu') {
+        // Dramatic spinning rasengan / anime surge
+        const osc = this.ctx.createOscillator();
+        const gain = this.ctx.createGain();
+        osc.type = 'sawtooth';
+        osc.frequency.setValueAtTime(180, now);
+        osc.frequency.exponentialRampToValueAtTime(880, now + 0.35);
+        gain.gain.setValueAtTime(0.2, now);
+        gain.gain.exponentialRampToValueAtTime(0.001, now + 0.5);
+        osc.connect(gain);
+        gain.connect(this.ctx.destination);
+        osc.start(now);
+        osc.stop(now + 0.5);
       } else if (effect === 'move') {
         const osc = this.ctx.createOscillator();
         const gain = this.ctx.createGain();

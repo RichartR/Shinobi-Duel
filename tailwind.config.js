@@ -7,22 +7,37 @@ export default {
   theme: {
     extend: {
       colors: {
+        naruto: {
+          DEFAULT: '#FA9427',
+          dark: '#E77100',
+          light: '#FFB057',
+        },
+        oro: {
+          DEFAULT: '#FFE69F',
+          dark: '#F59E0B',
+          deep: '#D97706',
+        },
         shinobi: {
-          bg: '#140e0a',
+          bg: '#FA9427',
+          orange: '#FA9427',
+          darkOrange: '#E77100',
           wood: '#261911',
           darkWood: '#18110c',
-          parchment: '#f4ebd9',
-          parchmentBorder: '#281b12',
-          cinnabar: '#991b1b',
+          parchment: '#FFFDF5',
+          parchmentBorder: '#111111',
+          cinnabar: '#c5221f',
           crimson: '#dc2626',
-          chakra: '#f59e0b',
+          chakra: '#00A3FF',
           leaf: '#16a34a',
-          stone: '#292524',
-          sand: '#b48a5a'
+          stone: '#111111',
+          sand: '#E5D3B3'
         }
       },
       fontFamily: {
-        sans: ['Cinzel', 'Noto Sans JP', 'system-ui', '-apple-system', 'sans-serif'],
+        sans: ['"Plus Jakarta Sans"', '"Noto Sans JP"', 'system-ui', '-apple-system', 'sans-serif'],
+        impact: ['Bebas Neue', 'Oswald', 'sans-serif'],
+        oswald: ['Oswald', 'sans-serif'],
+        cinzel: ['Cinzel', 'serif'],
         kanji: ['Noto Serif JP', 'serif']
       }
     },

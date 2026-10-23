@@ -11,6 +11,7 @@ import { BingoInspectorScroll } from './presentation/components/scrolls/BingoIns
 import { BattleChronicleLog } from './presentation/components/scrolls/BattleChronicleLog';
 import { ChakraDuelModal } from './presentation/components/combat/ChakraDuelModal';
 import { VictoryModal } from './presentation/components/modals/VictoryModal';
+import { NarutoMangaBackground } from './presentation/components/common/NarutoMangaBackground';
 
 type AppScreen = 'menu' | 'game' | 'guide' | 'codex';
 
@@ -118,13 +119,8 @@ export default function App() {
 
   // Screen 4: Tactical Arena Game
   return (
-    <div
-      className="min-h-screen flex flex-col text-stone-900 select-none bg-[#140e0a]"
-      style={{
-        backgroundImage:
-          'radial-gradient(circle at 50% 20%, rgba(185, 28, 28, 0.09), transparent 70%), repeating-linear-gradient(45deg, #18110c 0px, #18110c 12px, #140e0a 12px, #140e0a 24px)',
-      }}
-    >
+    <div className="min-h-screen flex flex-col text-stone-900 select-none relative bg-transparent">
+      <NarutoMangaBackground />
       {/* Header Bar */}
       <Header
         state={state}
@@ -137,9 +133,9 @@ export default function App() {
       />
 
       {/* Main 3-Column Layout */}
-      <main className="flex-1 max-w-[1440px] w-full mx-auto p-2.5 md:p-4 grid grid-cols-1 lg:grid-cols-12 gap-4 items-start">
+      <main className="flex-1 max-w-[1440px] w-full mx-auto p-2 md:p-3 grid grid-cols-1 lg:grid-cols-12 gap-2.5 md:gap-3 items-start">
         {/* Left Column: Bingo Inspector (3 Cols) */}
-        <section className="lg:col-span-3 flex flex-col gap-3 order-2 lg:order-1">
+        <section className="lg:col-span-3 flex flex-col gap-2 order-2 lg:order-1">
           <BingoInspectorScroll
             figure={inspectedFigure}
             state={state}
@@ -148,7 +144,7 @@ export default function App() {
         </section>
 
         {/* Center Column: Chunin Arena & Command Bars (6 Cols) */}
-        <section className="lg:col-span-6 flex flex-col gap-2.5 order-1 lg:order-2">
+        <section className="lg:col-span-6 flex flex-col gap-2 order-1 lg:order-2">
           <PlayerCommandBar
             player={2}
             state={state}
@@ -172,7 +168,7 @@ export default function App() {
         </section>
 
         {/* Right Column: Laws & Chronicle Log (3 Cols) */}
-        <section className="lg:col-span-3 flex flex-col gap-3 order-3">
+        <section className="lg:col-span-3 flex flex-col gap-2 order-3">
           <BattleChronicleLog
             logs={state.logs}
             onPassTurn={() => dispatch({ type: 'END_TURN' })}
