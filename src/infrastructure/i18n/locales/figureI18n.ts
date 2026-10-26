@@ -479,12 +479,12 @@ const SCROLL_I18N: Record<SupportedLanguage, Record<string, LocalizedScrollData>
   },
 };
 
-export function getLocalizedFigure<T extends { key: string; name: string; shortName: string; archetype: string; ability: string; segments?: WheelSegment[] }>(
+export function getLocalizedFigure<T extends { key: string; characterId?: string; name: string; shortName: string; archetype: string; ability: string; segments?: WheelSegment[] }>(
   fig: T,
   lang: SupportedLanguage
 ): T {
   const dict = FIGURE_I18N[lang] || FIGURE_I18N.es;
-  const loc = dict[fig.key];
+  const loc = dict[fig.key] || (fig.characterId ? dict[fig.characterId] : undefined);
   if (!loc) return fig;
 
   const localizedSegments = fig.segments

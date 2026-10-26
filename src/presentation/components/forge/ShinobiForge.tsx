@@ -13,7 +13,8 @@ import {
   Play,
   RotateCcw,
   Info,
-  Gift
+  Gift,
+  Lock
 } from 'lucide-react';
 import { GameState } from '../../../application/state/gameInitialState';
 import { 
@@ -23,7 +24,8 @@ import {
   WHEEL_COLORS, 
   WHEEL_TOTAL_SEGMENTS,
   getComputedFigureSegments,
-  getFigureColorBreakdown
+  getFigureColorBreakdown,
+  DEFAULT_STARTER_FIGURE_KEYS
 } from '../../../domain/models/ShinobiFigure';
 import { 
   FigureRarity, 
@@ -36,7 +38,7 @@ import {
   shinobiDbRepository, 
   UserShinobiProfile 
 } from '../../../infrastructure/repositories/SupabaseShinobiRepository';
-import { SHINOBI_FIGURES_CATALOG } from '../../../infrastructure/repositories/MockShinobiRepository';
+import { SHINOBI_FIGURES_CATALOG } from '../../../domain/catalogs/ShinobiCatalog';
 import { CHAR_SVG_FALLBACKS } from '../../../infrastructure/assets/animeAssets';
 import { ChakraDiskSVG } from '../wheel/ChakraDiskSVG';
 import { soundEngine } from '../../../infrastructure/audio/ShinobiAudioEngine';
@@ -51,6 +53,7 @@ interface ShinobiForgeProps {
   dispatch: React.Dispatch<any>;
   onBackToMenu: () => void;
   onPlayGame: () => void;
+  onOpenGacha?: () => void;
 }
 
 const RARITY_BADGE_STYLES: Record<FigureRarity, { bg: string; text: string; border: string; label: string }> = {
@@ -74,6 +77,7 @@ export const ShinobiForge: React.FC<ShinobiForgeProps> = ({
   dispatch,
   onBackToMenu,
   onPlayGame,
+  onOpenGacha,
 }) => {
   const { t, language } = useTranslation();
   const [profile, setProfile] = useState<UserShinobiProfile>(() => shinobiDbRepository.getProfile());
@@ -139,13 +143,18 @@ export const ShinobiForge: React.FC<ShinobiForgeProps> = ({
     showNotification('¡Suministros de entrenamiento ninja acreditados (+3,000 🪙 y Polvos de Chakra)!', 'success');
   };
 
+  const unlockedKeys = profile.unlockedFigureKeys || DEFAULT_STARTER_FIGURE_KEYS;
+  const isFigureUnlocked = unlockedKeys.includes(selectedFig.key);
+
   // Upgrading level (1 -> 5)
   const targetLevel = custom.level + 1;
   const levelUpCost = targetLevel <= 5 ? LEVEL_UP_COSTS[targetLevel] : null;
   const dustKey = selectedFig.rarity.toLowerCase() as keyof ChakraDustInventory;
   const availableDustForFigure = profile.dust[dustKey] || 0;
 
-  const canLevelUpResult = targetLevel <= 5 
+  const canLevelUpResult = !isFigureUnlocked
+    ? { allowed: false, reason: 'Figura no desbloqueada (obtener en Gacha)' }
+    : targetLevel <= 5 
     ? shinobiDbRepository.canLevelUp(profile, selectedFig.rarity as FigureRarity, targetLevel)
     : { allowed: false, reason: 'Nivel Máximo (Lv 5)' };
 
@@ -179,7 +188,9 @@ export const ShinobiForge: React.FC<ShinobiForgeProps> = ({
   };
 
   // Upgrading Chakra Level (0 -> 10)
-  const canChLvUpResult = shinobiDbRepository.canUpgradeChLv(profile, selectedFig.rarity as FigureRarity, custom.clv);
+  const canChLvUpResult = !isFigureUnlocked
+    ? { allowed: false, reason: 'Figura no desbloqueada (obtener en Gacha)' }
+    : shinobiDbRepository.canUpgradeChLv(profile, selectedFig.rarity as FigureRarity, custom.clv);
 
   const handleUpgradeChLv = () => {
     if (!canChLvUpResult.allowed) {
@@ -213,6 +224,7 @@ export const ShinobiForge: React.FC<ShinobiForgeProps> = ({
 
   // Reset figure to base Lv.1 & ChLv 0
   const handleResetFigure = () => {
+    if (!isFigureUnlocked) return;
     soundEngine.play('select');
     dispatch({
       type: 'UPDATE_FIGURE_WORKSHOP',
@@ -254,7 +266,7 @@ export const ShinobiForge: React.FC<ShinobiForgeProps> = ({
         <div className="flex items-center gap-3">
           <button
             onClick={onBackToMenu}
-            className="manga-btn-white px-3.5 py-2 text-xs md:text-sm font-bold uppercase tracking-wide border-2 border-black shadow-[2px_2px_0px_#000] cursor-pointer focus-visible:ring-2 focus-visible:ring-[#fa9427]"
+            className="manga-btn-white px-3.5 py-2 min-h-[44px] text-xs md:text-sm font-bold uppercase tracking-wide border-2 border-black shadow-[2px_2px_0px_#000] cursor-pointer focus-visible:ring-2 focus-visible:ring-[#fa9427] flex items-center"
           >
             ← {t('common.backToMenu')}
           </button>
@@ -276,7 +288,7 @@ export const ShinobiForge: React.FC<ShinobiForgeProps> = ({
         {/* Resources Badges & Free Supplies Button */}
         <div className="flex items-center gap-2 flex-wrap">
           {/* Ryo & Gems */}
-          <div className="flex items-center gap-2 bg-stone-900 px-2.5 py-1.5 border-2 border-black shadow-[2px_2px_0px_#FA9427]">
+          <div className="flex items-center gap-2 bg-stone-900 px-2.5 py-1.5 min-h-[44px] border-2 border-black shadow-[2px_2px_0px_#FA9427]">
             <span className="text-xs sm:text-sm font-black text-amber-400">🪙 {profile.ryoCoins.toLocaleString()}</span>
             <span className="text-stone-500">|</span>
             <span className="text-xs sm:text-sm font-black text-cyan-400">💎 {profile.chakraGems.toLocaleString()}</span>
@@ -284,7 +296,7 @@ export const ShinobiForge: React.FC<ShinobiForgeProps> = ({
 
           <button
             onClick={handleClaimFreeSupplies}
-            className="px-2.5 py-1.5 bg-[#FA9427] hover:bg-[#ffaa42] text-black font-black text-xs uppercase border-2 border-black shadow-[2px_2px_0px_#000] flex items-center gap-1 cursor-pointer active:scale-95 transition-transform"
+            className="px-2.5 py-2 min-h-[44px] bg-[#FA9427] hover:bg-[#ffaa42] text-black font-black text-xs uppercase border-2 border-black shadow-[2px_2px_0px_#000] flex items-center gap-1 cursor-pointer active:scale-95 transition-transform"
             title="Recargar suministros de entrenamiento"
           >
             <Gift className="w-3.5 h-3.5" /> +Suministros
@@ -292,7 +304,7 @@ export const ShinobiForge: React.FC<ShinobiForgeProps> = ({
 
           <button
             onClick={handleResetAllFigures}
-            className="px-2.5 py-1.5 bg-stone-800 hover:bg-stone-700 text-stone-200 font-bold text-xs uppercase border-2 border-black shadow-[2px_2px_0px_#000] flex items-center gap-1 cursor-pointer active:scale-95 transition-transform"
+            className="px-2.5 py-2 min-h-[44px] bg-stone-800 hover:bg-stone-700 text-stone-200 font-bold text-xs uppercase border-2 border-black shadow-[2px_2px_0px_#000] flex items-center gap-1 cursor-pointer active:scale-95 transition-transform"
             title="Restablecer todas las figuras a Nivel 1 y ChLv 0"
           >
             <RotateCcw className="w-3.5 h-3.5" /> Reset Nv.1
@@ -400,6 +412,8 @@ export const ShinobiForge: React.FC<ShinobiForgeProps> = ({
                   {SHINOBI_FIGURES_CATALOG.map(raw => {
                     const fig = getLocalizedFigure(raw, language);
                     const isSelected = fig.key === selectedFigKey;
+                    const isFigUnlocked = unlockedKeys.includes(fig.key);
+                    const isStarter = DEFAULT_STARTER_FIGURE_KEYS.includes(fig.key);
                     const figCustom = state.customizations[fig.key] || { level: 1, clv: 0 };
                     const rStyle = RARITY_BADGE_STYLES[fig.rarity as FigureRarity] || RARITY_BADGE_STYLES.C;
 
@@ -413,27 +427,52 @@ export const ShinobiForge: React.FC<ShinobiForgeProps> = ({
                         className={`w-full p-2 border-2 text-left flex items-center justify-between transition cursor-pointer ${
                           isSelected
                             ? 'bg-[#FA9427] text-black border-2 border-black shadow-[3px_3px_0px_#000]'
-                            : 'bg-white text-stone-900 border-2 border-black hover:bg-stone-50 shadow-[1px_1px_0px_#000]'
+                            : isFigUnlocked
+                            ? 'bg-white text-stone-900 border-2 border-black hover:bg-stone-50 shadow-[1px_1px_0px_#000]'
+                            : 'bg-stone-100 text-stone-700 border-2 border-stone-400 hover:bg-stone-200 shadow-[1px_1px_0px_#000]'
                         }`}
                       >
                         <div className="flex items-center gap-2 min-w-0">
-                          <img
-                            src={fig.portraitUrl}
-                            alt={fig.name}
-                            className="w-10 h-10 object-cover object-top border-2 border-black bg-stone-900 shadow-[1px_1px_0px_#000]"
-                            onError={e => {
-                              e.currentTarget.src = CHAR_SVG_FALLBACKS[fig.key] || '';
-                            }}
-                          />
+                          <div className="relative shrink-0">
+                            <img
+                              src={fig.portraitUrl}
+                              alt={fig.name}
+                              className={`w-10 h-10 object-cover object-top border-2 border-black bg-stone-900 shadow-[1px_1px_0px_#000] ${
+                                !isFigUnlocked ? 'grayscale contrast-75 brightness-75' : ''
+                              }`}
+                              onError={e => {
+                                e.currentTarget.src = CHAR_SVG_FALLBACKS[fig.key] || '';
+                              }}
+                            />
+                            {!isFigUnlocked && (
+                              <div className="absolute inset-0 bg-black/55 flex items-center justify-center">
+                                <Lock className="w-4 h-4 text-white drop-shadow" />
+                              </div>
+                            )}
+                          </div>
                           <div className="truncate">
                             <div className="text-xs sm:text-sm font-bold uppercase truncate">{fig.name}</div>
                             <div className="flex items-center gap-1.5 mt-0.5">
                               <span className={`text-[9px] font-bold px-1.5 py-0.2 border ${rStyle.bg} ${rStyle.text} ${rStyle.border}`}>
                                 {fig.rarity}
                               </span>
-                              <span className="text-[10px] font-mono font-bold text-stone-700">
-                                Nv.{figCustom.level} • ChLv +{figCustom.clv}
-                              </span>
+                              {isFigUnlocked ? (
+                                <>
+                                  {isStarter && (
+                                    <span className="text-[9px] font-bold px-1 py-0.2 bg-amber-200 text-amber-900 border border-amber-400">
+                                      Inicial
+                                    </span>
+                                  )}
+                                  <span className="text-[10px] font-mono font-bold text-stone-700">
+                                    Nv.{figCustom.level} • ChLv +{figCustom.clv}
+                                  </span>
+                                </>
+                              ) : (
+                                <span className="text-[9px] font-bold px-1.5 py-0.2 bg-stone-800 text-stone-300 border border-black flex items-center gap-1">
+                                  <Lock className="w-2.5 h-2.5 text-stone-400" />
+                                  Bloqueado
+                                </span>
+                              )}
                             </div>
                           </div>
                         </div>
@@ -482,7 +521,7 @@ export const ShinobiForge: React.FC<ShinobiForgeProps> = ({
                     <span className="px-3 py-1 bg-emerald-600 text-white font-impact text-xs tracking-wider border border-black shadow-[2px_2px_0px_#000]">
                       CHAKRA ChLv +{custom.clv} DMG
                     </span>
-                    {(custom.level > 1 || custom.clv > 0) && (
+                    {isFigureUnlocked && (custom.level > 1 || custom.clv > 0) && (
                       <button
                         onClick={handleResetFigure}
                         className="px-2 py-0.5 bg-stone-100 hover:bg-red-50 text-stone-700 hover:text-red-700 text-[10px] font-bold uppercase border border-stone-400 hover:border-red-500 flex items-center gap-1 cursor-pointer active:scale-95 transition-all shadow-[1px_1px_0px_#000]"
@@ -493,6 +532,32 @@ export const ShinobiForge: React.FC<ShinobiForgeProps> = ({
                     )}
                   </div>
                 </div>
+
+                {!isFigureUnlocked && (
+                  <div className="p-3 bg-stone-900 border-2 border-black text-white flex items-center justify-between gap-3 shadow-[2px_2px_0px_#000]">
+                    <div className="flex items-center gap-2.5">
+                      <div className="p-2 bg-stone-800 border border-stone-600 shrink-0">
+                        <Lock className="w-5 h-5 text-amber-400" />
+                      </div>
+                      <div>
+                        <div className="font-impact uppercase tracking-wider text-xs sm:text-sm text-[#FA9427]">
+                          FIGURA BLOQUEADA
+                        </div>
+                        <p className="text-[11px] sm:text-xs text-stone-300">
+                          No posees esta figura en tu alineación. Puedes desbloquearla abriendo pergaminos en el Gacha.
+                        </p>
+                      </div>
+                    </div>
+                    {onOpenGacha && (
+                      <button
+                        onClick={onOpenGacha}
+                        className="px-3 py-1.5 bg-[#FA9427] hover:bg-[#ffaa42] text-black font-impact text-xs uppercase tracking-wider border-2 border-black shadow-[2px_2px_0px_#000] cursor-pointer whitespace-nowrap active:scale-95 transition-all"
+                      >
+                        Ir al Gacha →
+                      </button>
+                    )}
+                  </div>
+                )}
 
                 {/* TWO FORGE PANELS (LEVEL UP & CHLV UP) */}
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-3.5">
@@ -548,15 +613,15 @@ export const ShinobiForge: React.FC<ShinobiForgeProps> = ({
 
                     <button
                       onClick={handleLevelUp}
-                      disabled={!canLevelUpResult.allowed || targetLevel > 5}
-                      className={`w-full py-2 px-3 text-xs font-impact uppercase tracking-wider border-2 border-black flex items-center justify-center gap-2 transition cursor-pointer ${
-                        canLevelUpResult.allowed && targetLevel <= 5
-                          ? 'bg-[#FA9427] hover:bg-[#ffaa42] text-black shadow-[2px_2px_0px_#000] active:scale-95'
+                      disabled={!canLevelUpResult.allowed || targetLevel > 5 || !isFigureUnlocked}
+                      className={`w-full py-2 px-3 text-xs font-impact uppercase tracking-wider border-2 border-black flex items-center justify-center gap-2 transition ${
+                        isFigureUnlocked && canLevelUpResult.allowed && targetLevel <= 5
+                          ? 'bg-[#FA9427] hover:bg-[#ffaa42] text-black shadow-[2px_2px_0px_#000] active:scale-95 cursor-pointer'
                           : 'bg-stone-200 text-stone-400 cursor-not-allowed border-stone-300'
                       }`}
                     >
                       <Hammer className="w-3.5 h-3.5" />
-                      {targetLevel <= 5 ? `Forjar Nivel ${targetLevel}` : 'Nivel Máximo'}
+                      {!isFigureUnlocked ? 'Figura Bloqueada' : targetLevel <= 5 ? `Forjar Nivel ${targetLevel}` : 'Nivel Máximo'}
                     </button>
                   </div>
 
@@ -611,15 +676,15 @@ export const ShinobiForge: React.FC<ShinobiForgeProps> = ({
 
                     <button
                       onClick={handleUpgradeChLv}
-                      disabled={!canChLvUpResult.allowed || custom.clv >= 10}
-                      className={`w-full py-2 px-3 text-xs font-impact uppercase tracking-wider border-2 border-black flex items-center justify-center gap-2 transition cursor-pointer ${
-                        canChLvUpResult.allowed && custom.clv < 10
-                          ? 'bg-emerald-500 hover:bg-emerald-400 text-white shadow-[2px_2px_0px_#000] active:scale-95'
+                      disabled={!canChLvUpResult.allowed || custom.clv >= 10 || !isFigureUnlocked}
+                      className={`w-full py-2 px-3 text-xs font-impact uppercase tracking-wider border-2 border-black flex items-center justify-center gap-2 transition ${
+                        isFigureUnlocked && canChLvUpResult.allowed && custom.clv < 10
+                          ? 'bg-emerald-500 hover:bg-emerald-400 text-white shadow-[2px_2px_0px_#000] active:scale-95 cursor-pointer'
                           : 'bg-stone-200 text-stone-400 cursor-not-allowed border-stone-300'
                       }`}
                     >
                       <Zap className="w-3.5 h-3.5" />
-                      {custom.clv < 10 ? `Infundir Chakra (ChLv +${custom.clv + 1})` : 'Chakra Máximo (+10)'}
+                      {!isFigureUnlocked ? 'Figura Bloqueada' : custom.clv < 10 ? `Infundir Chakra (ChLv +${custom.clv + 1})` : 'Chakra Máximo (+10)'}
                     </button>
                   </div>
                 </div>
@@ -651,16 +716,20 @@ export const ShinobiForge: React.FC<ShinobiForgeProps> = ({
                             <button
                               key={idx}
                               onClick={() => {
+                                if (!isFigureUnlocked) return;
                                 soundEngine.play('select');
                                 dispatch({
                                   type: 'UPDATE_FIGURE_WORKSHOP',
                                   payload: { ...custom, figKey: selectedFig.key, lvTargetIndex: idx },
                                 });
                               }}
-                              className={`w-full p-1.5 text-xs text-left border flex items-center justify-between transition cursor-pointer ${
-                                isTarget
-                                  ? 'border-2 border-black bg-amber-100 shadow-[2px_2px_0px_#000] font-black'
-                                  : 'border-stone-300 bg-white hover:bg-stone-50'
+                              disabled={!isFigureUnlocked}
+                              className={`w-full p-1.5 text-xs text-left border flex items-center justify-between transition ${
+                                !isFigureUnlocked
+                                  ? 'border-stone-200 bg-stone-100 opacity-60 cursor-not-allowed'
+                                  : isTarget
+                                  ? 'border-2 border-black bg-amber-100 shadow-[2px_2px_0px_#000] font-black cursor-pointer'
+                                  : 'border-stone-300 bg-white hover:bg-stone-50 cursor-pointer'
                               }`}
                             >
                               <div className="flex items-center gap-2 truncate">

@@ -35,17 +35,21 @@ src/
 │   │   ├── BoardGraph.ts                 # Topología del grafo de 28 nodos, 38 aristas y metas
 │   │   ├── TacticalScroll.ts             # Pergaminos tácticos (límite canónico de 6 puntos)
 │   │   └── BattleResult.ts               # Interfaces y tipos de resolución de combate
+│   ├── catalogs/
+│   │   ├── ShinobiCatalog.ts             # Catálogo canónico de figuras ninja y ruedas de 96 segmentos
+│   │   └── GachaBannersCatalog.ts        # Configuración de pergaminos, tasas y pity
 │   ├── services/
 │   │   ├── BoardMovementService.ts       # Algoritmo BFS puro con poda de colisiones y MP
 │   │   ├── SurroundService.ts            # Detección de Rodeo (Fuinjutsu KO) y buffer de prisión
 │   │   ├── CombatResolver.ts             # Jerarquía de colores y resolución Mew-style
+│   │   ├── GachaService.ts               # Lógica de invocaciones, tasas y protección Pity
 │   │   └── AiTacticalEngine.ts           # IA Akatsuki heurística
 │   └── repositories/
 │       └── IShinobiRepository.ts         # Contrato desacoplado para fuentes de datos
 │
 ├── infrastructure/                       # Implementaciones concretas de I/O y datos
 │   ├── repositories/
-│   │   └── MockShinobiRepository.ts      # Repositorio mock (8 ninjas y pergaminos)
+│   │   └── SupabaseShinobiRepository.ts  # Repositorio Supabase/Local (perfil, forja, mazos e inventario)
 │   ├── audio/
 │   │   └── ShinobiAudioEngine.ts         # Sintetizador procedural Web Audio API
 │   └── assets/

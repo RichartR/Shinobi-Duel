@@ -11,6 +11,7 @@ import {
   Zap,
   ChevronRight,
   Award,
+  Lock,
 } from 'lucide-react';
 import { useTranslation } from '../../context/I18nContext';
 import { LanguageSwitcher } from '../common/LanguageSwitcher';
@@ -27,6 +28,8 @@ import {
 } from '../../../domain/services/GachaService';
 import { FigureRarity } from '../../../domain/models/CraftingEconomy';
 import { CHAR_SVG_FALLBACKS } from '../../../infrastructure/assets/animeAssets';
+import { DEFAULT_STARTER_FIGURE_KEYS } from '../../../domain/models/ShinobiFigure';
+import { SHINOBI_FIGURES_CATALOG } from '../../../domain/catalogs/ShinobiCatalog';
 
 interface ShinobiGachaProps {
   onBackToMenu: () => void;
@@ -34,53 +37,12 @@ interface ShinobiGachaProps {
   onOpenForge?: () => void;
 }
 
-interface GachaBannerConfig {
-  key: string;
-  title: string;
-  subtitle: string;
-  jpTitle: string;
-  rateUpShinobis: string[];
-  costSingle: number;
-  costMulti: number;
-  badgeBg: string;
-  accentColor: string;
-}
-
-const BANNERS: GachaBannerConfig[] = [
-  {
-    key: 'arc1_novatos_konoha',
-    title: 'Pergamino I: Los Novatos de Konoha',
-    subtitle: 'Elenco inicial del 1er Arco. Los 10 ninjas recién graduados de la Academia cuando eran niños (Rango C).',
-    jpTitle: '巻之一 • 木ノ葉のルーキー (初編)',
-    rateUpShinobis: ['naruto', 'sasuke', 'sakura', 'shikamaru'],
-    costSingle: 50,
-    costMulti: 450,
-    badgeBg: 'bg-black text-[#FA9427]',
-    accentColor: '#FA9427',
-  },
-  {
-    key: 'arc2_chunin_exam',
-    title: 'Pergamino II: Exámenes Chūnin (Próximo Arco)',
-    subtitle: 'Próxima expansión de historia: Introducirá a Gaara, Neji, Temari y versiones evolucionadas UC/R.',
-    jpTitle: '巻之二 • 中忍選抜試験 (近日開放)',
-    rateUpShinobis: ['lee', 'sasuke', 'naruto'],
-    costSingle: 60,
-    costMulti: 540,
-    badgeBg: 'bg-[#14532D] text-emerald-300',
-    accentColor: '#16A34A',
-  },
-  {
-    key: 'arc3_sannin_clash',
-    title: 'Pergamino III: Los Tres Sannin (Bloqueado)',
-    subtitle: 'Se desbloqueará al avanzar en la historia ninja. Jiraiya, Orochimaru y Tsunade.',
-    jpTitle: '巻之三 • 伝説の三竦み (封印中)',
-    rateUpShinobis: ['naruto', 'sasuke'],
-    costSingle: 70,
-    costMulti: 630,
-    badgeBg: 'bg-stone-800 text-stone-400',
-    accentColor: '#9333EA',
-  },
-];
+import { 
+  GACHA_BANNERS_CATALOG as BANNERS, 
+  GachaBannerConfig, 
+  PITY_THRESHOLD, 
+  CANONICAL_GACHA_RATES 
+} from '../../../domain/catalogs/GachaBannersCatalog';
 
 type SummonStage = 
   | 'idle' 
@@ -156,7 +118,7 @@ export const ShinobiGacha: React.FC<ShinobiGachaProps> = ({
 }) => {
   const { t } = useTranslation();
   const [profile, setProfile] = useState<UserShinobiProfile>(() => shinobiDbRepository.getProfile());
-  const [activeBannerKey, setActiveBannerKey] = useState<string>('hokage_legends');
+  const [activeBannerKey, setActiveBannerKey] = useState<string>('arc1_novatos_konoha');
   const [pityCount, setPityCount] = useState<number>(14);
   const [summonStage, setSummonStage] = useState<SummonStage>('idle');
   const [lastSummonResponse, setLastSummonResponse] = useState<GachaSummonResponse | null>(null);
@@ -193,7 +155,19 @@ export const ShinobiGacha: React.FC<ShinobiGachaProps> = ({
     shinobiDbRepository.saveProfile(updated);
   };
 
+  const handleResetToStarters = () => {
+    soundEngine.play('select');
+    const reset = shinobiDbRepository.resetStarterFigures(profile);
+    setProfile(reset);
+  };
+
   const handleTriggerSummon = (pullCount: 1 | 10) => {
+    if (!activeBanner.isActive) {
+      soundEngine.play('ko');
+      alert('Este pergamino se encuentra sellado temporalmente. Se desbloqueará en futuros arcos de la historia ninja.');
+      return;
+    }
+
     const cost = pullCount === 1 ? activeBanner.costSingle : activeBanner.costMulti;
     if (profile.chakraGems < cost) {
       soundEngine.play('ko');
@@ -201,9 +175,12 @@ export const ShinobiGacha: React.FC<ShinobiGachaProps> = ({
       return;
     }
 
-    const ownedKeys = ['naruto', 'sasuke', 'lee']; // Figuras en posesión para duplicados
-    const response = gachaService.executeSummon(activeBanner.key, pullCount, pityCount, ownedKeys);
+    const currentOwned = profile.unlockedFigureKeys && profile.unlockedFigureKeys.length > 0
+      ? profile.unlockedFigureKeys
+      : DEFAULT_STARTER_FIGURE_KEYS;
+    const response = gachaService.executeSummon(activeBanner.key, pullCount, pityCount, currentOwned);
 
+    const nextUnlocked = [...currentOwned];
     let updatedProfile = {
       ...profile,
       chakraGems: profile.chakraGems - response.gemsSpent,
@@ -220,8 +197,23 @@ export const ShinobiGacha: React.FC<ShinobiGachaProps> = ({
             [dustKey]: (updatedProfile.dust[dustKey] || 0) + res.dustYield.amount,
           },
         };
+      } else {
+        if (!nextUnlocked.includes(res.figure.key)) {
+          nextUnlocked.push(res.figure.key);
+        }
       }
     });
+
+    updatedProfile.unlockedFigureKeys = nextUnlocked;
+
+    // Fill squad up to 6 members when unlocking new ninjas
+    let currentDeck = [...(profile.selectedTeamKeys || DEFAULT_STARTER_FIGURE_KEYS)];
+    for (const key of nextUnlocked) {
+      if (currentDeck.length < 6 && !currentDeck.includes(key)) {
+        currentDeck.push(key);
+      }
+    }
+    updatedProfile.selectedTeamKeys = currentDeck;
 
     setProfile(updatedProfile);
     shinobiDbRepository.saveProfile(updatedProfile);
@@ -309,7 +301,7 @@ export const ShinobiGacha: React.FC<ShinobiGachaProps> = ({
         <div className="flex items-center gap-3">
           <button
             onClick={onBackToMenu}
-            className="manga-btn-white px-3.5 py-2 text-xs md:text-sm font-bold uppercase tracking-wide border-2 border-black shadow-[2px_2px_0px_#000] cursor-pointer focus-visible:ring-2 focus-visible:ring-[#fa9427]"
+            className="manga-btn-white px-3.5 py-2 min-h-[44px] text-xs md:text-sm font-bold uppercase tracking-wide border-2 border-black shadow-[2px_2px_0px_#000] cursor-pointer focus-visible:ring-2 focus-visible:ring-[#fa9427] flex items-center"
           >
             ← {t('common.backToMenu')}
           </button>
@@ -330,7 +322,7 @@ export const ShinobiGacha: React.FC<ShinobiGachaProps> = ({
 
         {/* Currency Display & Free Gems Button */}
         <div className="flex items-center gap-2.5 flex-wrap">
-          <div className="flex items-center gap-2 bg-stone-900 px-3 py-1.5 border-2 border-black shadow-[2px_2px_0px_#FA9427]">
+          <div className="flex items-center gap-2 bg-stone-900 px-3 py-1.5 min-h-[44px] border-2 border-black shadow-[2px_2px_0px_#FA9427]">
             <span className="text-sm font-black text-amber-400">🪙 {profile.ryoCoins.toLocaleString()}</span>
             <span className="text-stone-500">|</span>
             <span className="text-sm font-black text-cyan-400">💎 {profile.chakraGems.toLocaleString()}</span>
@@ -338,10 +330,18 @@ export const ShinobiGacha: React.FC<ShinobiGachaProps> = ({
 
           <button
             onClick={handleClaimDailyGems}
-            className="px-3 py-1.5 bg-[#FA9427] hover:bg-[#ffaa42] text-black font-black text-xs uppercase border-2 border-black shadow-[2px_2px_0px_#000] flex items-center gap-1.5 cursor-pointer active:scale-95 transition-transform"
+            className="px-3 py-2 min-h-[44px] bg-[#FA9427] hover:bg-[#ffaa42] text-black font-black text-xs uppercase border-2 border-black shadow-[2px_2px_0px_#000] flex items-center gap-1.5 cursor-pointer active:scale-95 transition-transform"
             title="Reclamar 150 gemas y 1000 ryo para pruebas"
           >
             <Gift className="w-3.5 h-3.5" /> +150 💎 Misión
+          </button>
+
+          <button
+            onClick={handleResetToStarters}
+            className="px-2.5 py-2 min-h-[44px] bg-stone-800 hover:bg-stone-700 text-stone-200 font-bold text-xs uppercase border-2 border-black shadow-[2px_2px_0px_#000] flex items-center gap-1 cursor-pointer active:scale-95 transition-transform"
+            title="Restablecer colección al Trío Inicial (Naruto, Sasuke, Sakura)"
+          >
+            <RotateCcw className="w-3.5 h-3.5" /> Reset Trío
           </button>
 
           <LanguageSwitcher compact />
@@ -366,13 +366,21 @@ export const ShinobiGacha: React.FC<ShinobiGachaProps> = ({
                       soundEngine.play('select');
                       setActiveBannerKey(banner.key);
                     }}
-                    className={`px-3 sm:px-4 py-2 min-h-[44px] text-xs sm:text-sm font-bold uppercase transition border-2 border-black cursor-pointer ${
+                    className={`px-3 sm:px-4 py-2 min-h-[44px] text-xs sm:text-sm font-bold uppercase transition border-2 border-black cursor-pointer flex items-center gap-1.5 ${
                       isSelected
                         ? 'bg-[#FA9427] text-black shadow-[3px_3px_0px_#000] font-black'
-                        : 'bg-stone-100 text-stone-800 hover:bg-stone-200 shadow-[1px_1px_0px_#000]'
+                        : banner.isActive
+                        ? 'bg-stone-100 text-stone-800 hover:bg-stone-200 shadow-[1px_1px_0px_#000]'
+                        : 'bg-stone-200 text-stone-600 hover:bg-stone-300 shadow-[1px_1px_0px_#000]'
                     }`}
                   >
-                    {banner.title}
+                    {!banner.isActive && <Lock className="w-3.5 h-3.5 text-stone-500 shrink-0" />}
+                    <span>{banner.title}</span>
+                    {!banner.isActive && (
+                      <span className="text-[9px] bg-stone-800 text-stone-300 px-1.5 py-0.2 font-mono font-bold border border-black">
+                        Sellado
+                      </span>
+                    )}
                   </button>
                 );
               })}
@@ -380,7 +388,7 @@ export const ShinobiGacha: React.FC<ShinobiGachaProps> = ({
 
             <button
               onClick={() => setShowRatesModal(true)}
-              className="px-3 py-2 text-xs font-bold bg-stone-100 hover:bg-stone-200 border-2 border-black flex items-center gap-1.5 shadow-[2px_2px_0px_#000] cursor-pointer"
+              className="px-3 py-2 min-h-[44px] text-xs font-bold bg-stone-100 hover:bg-stone-200 border-2 border-black flex items-center gap-1.5 shadow-[2px_2px_0px_#000] cursor-pointer"
             >
               <Info className="w-3.5 h-3.5 text-stone-700" /> Probabilidades
             </button>
@@ -398,7 +406,7 @@ export const ShinobiGacha: React.FC<ShinobiGachaProps> = ({
                   </span>
                   <div className="flex items-center gap-1.5 text-xs text-amber-300 font-bold bg-black/60 px-2.5 py-1 border border-stone-800">
                     <Sparkles className="w-3.5 h-3.5 text-amber-400" />
-                    Pity actual: <span className="font-mono text-white font-black">{pityCount}/40</span>
+                    Pity actual: <span className="font-mono text-white font-black">{pityCount}/{PITY_THRESHOLD}</span>
                   </div>
                 </div>
 
@@ -408,35 +416,46 @@ export const ShinobiGacha: React.FC<ShinobiGachaProps> = ({
                 <p className="text-sm text-stone-300 max-w-xl font-medium mt-1 leading-relaxed">
                   {activeBanner.subtitle}
                 </p>
+
+                {!activeBanner.isActive && (
+                  <div className="mt-3 p-3 bg-red-950/80 border-2 border-red-600 text-white flex items-center gap-3 shadow-[2px_2px_0px_#000]">
+                    <div className="p-2 bg-red-900 border border-red-500 shrink-0">
+                      <Lock className="w-5 h-5 text-amber-300" />
+                    </div>
+                    <div>
+                      <div className="font-impact uppercase tracking-wider text-xs sm:text-sm text-amber-300">
+                        PERGAMINO SELLADO • PRÓXIMAMENTE
+                      </div>
+                      <p className="text-[11px] sm:text-xs text-stone-200">
+                        Este contrato ninja aún no está disponible para invocaciones. Se desbloqueará en el siguiente arco de la historia.
+                      </p>
+                    </div>
+                  </div>
+                )}
               </div>
 
               {/* Featured Ninjas Portrait Spotlight */}
               <div className="relative z-10 grid grid-cols-2 sm:grid-cols-4 gap-3 my-4">
                 {activeBanner.rateUpShinobis.map(shinobiKey => {
-                  const names: Record<string, string> = {
-                    minato: 'Minato (EX)',
-                    kakashi: 'Kakashi (EX)',
-                    itachi: 'Itachi (EX)',
-                    naruto: 'Naruto (EX)',
-                    sasuke: 'Sasuke (EX)',
-                    gaara: 'Gaara (EX)',
-                    lee: 'Rock Lee (R)',
-                  };
+                  const fig = SHINOBI_FIGURES_CATALOG.find(f => f.key === shinobiKey);
+                  const figName = fig ? fig.shortName : shinobiKey;
+                  const figRarity = fig ? fig.rarity : 'C';
+                  const figUrl = fig ? fig.portraitUrl : `/assets/${shinobiKey}_hero.jpg`;
                   return (
                     <div 
                       key={shinobiKey} 
                       className="bg-black/80 border-2 border-stone-700 p-2 flex flex-col items-center text-center shadow-[2px_2px_0px_#FA9427]"
                     >
                       <img 
-                        src={`/assets/${shinobiKey}_hero.jpg`} 
+                        src={figUrl} 
                         alt={shinobiKey} 
-                        className="w-16 h-16 object-cover object-top border border-black shadow-sm mb-1.5"
+                        className="w-16 h-16 object-cover object-top border border-black shadow-sm mb-1.5 bg-stone-900"
                         onError={e => {
                           e.currentTarget.src = CHAR_SVG_FALLBACKS[shinobiKey] || '';
                         }}
                       />
                       <span className="text-xs font-black text-amber-300 uppercase truncate w-full">
-                        {names[shinobiKey] || shinobiKey}
+                        {figName} [{figRarity}]
                       </span>
                       <span className="text-[10px] text-stone-400 font-bold uppercase">
                         ★ RATE UP x3
@@ -450,12 +469,12 @@ export const ShinobiGacha: React.FC<ShinobiGachaProps> = ({
               <div className="relative z-10 pt-2 border-t border-stone-800">
                 <div className="flex justify-between text-xs font-bold text-stone-300 mb-1">
                   <span>Protección de Invocación (Pity)</span>
-                  <span className="text-amber-400">{40 - pityCount} tiradas para EX/UX garantizado</span>
+                  <span className="text-amber-400">{Math.max(0, PITY_THRESHOLD - pityCount)} tiradas para EX/UX garantizado</span>
                 </div>
                 <div className="w-full h-3 bg-stone-800 border border-black overflow-hidden">
                   <div 
                     className="h-full bg-gradient-to-r from-[#fa9427] to-[#e77100] transition-all duration-300"
-                    style={{ width: `${Math.min(100, (pityCount / 40) * 100)}%` }}
+                    style={{ width: `${Math.min(100, (pityCount / PITY_THRESHOLD) * 100)}%` }}
                   />
                 </div>
               </div>
@@ -524,31 +543,59 @@ export const ShinobiGacha: React.FC<ShinobiGachaProps> = ({
               <div className="space-y-3 pt-2">
                 <button
                   onClick={() => handleTriggerSummon(1)}
-                  className="w-full manga-btn-white py-3 px-4 flex items-center justify-between border-3 border-black shadow-[4px_4px_0px_#000] hover:shadow-[6px_6px_0px_#000] cursor-pointer"
+                  disabled={!activeBanner.isActive}
+                  className={`w-full py-3 px-4 flex items-center justify-between border-3 border-black transition ${
+                    activeBanner.isActive
+                      ? 'manga-btn-white shadow-[4px_4px_0px_#000] hover:shadow-[6px_6px_0px_#000] cursor-pointer active:scale-95'
+                      : 'bg-stone-200 text-stone-400 border-stone-400 cursor-not-allowed shadow-none'
+                  }`}
                 >
                   <div className="text-left">
-                    <div className="text-sm font-black uppercase text-black">Invocación Individual</div>
-                    <div className="text-xs text-stone-600 font-bold">1 Figura Shinobi</div>
+                    <div className="text-sm font-black uppercase">
+                      {activeBanner.isActive ? 'Invocación Individual' : 'Pergamino Sellado'}
+                    </div>
+                    <div className="text-xs font-bold text-stone-500">
+                      {activeBanner.isActive ? '1 Figura Shinobi' : 'No disponible'}
+                    </div>
                   </div>
-                  <div className="px-3 py-1 bg-black text-[#FA9427] font-black text-xs border border-black shadow-[1px_1px_0px_#FA9427]">
+                  <div className={`px-3 py-1 font-black text-xs border ${
+                    activeBanner.isActive
+                      ? 'bg-black text-[#FA9427] border-black shadow-[1px_1px_0px_#FA9427]'
+                      : 'bg-stone-300 text-stone-500 border-stone-400'
+                  }`}>
                     💎 {activeBanner.costSingle}
                   </div>
                 </button>
 
                 <button
                   onClick={() => handleTriggerSummon(10)}
-                  className="w-full manga-btn-orange py-3.5 px-4 flex items-center justify-between border-3 border-black shadow-[4px_4px_0px_#000] hover:shadow-[6px_6px_0px_#000] cursor-pointer relative overflow-hidden"
+                  disabled={!activeBanner.isActive}
+                  className={`w-full py-3.5 px-4 flex items-center justify-between border-3 border-black relative overflow-hidden transition ${
+                    activeBanner.isActive
+                      ? 'manga-btn-orange shadow-[4px_4px_0px_#000] hover:shadow-[6px_6px_0px_#000] cursor-pointer active:scale-95'
+                      : 'bg-stone-200 text-stone-400 border-stone-400 cursor-not-allowed shadow-none'
+                  }`}
                 >
                   <div className="text-left relative z-10">
                     <div className="flex items-center gap-1.5">
-                      <span className="text-base font-black uppercase text-black">Invocación x10</span>
-                      <span className="px-1.5 py-0.5 bg-black text-[#FA9427] text-[9px] font-black uppercase border border-black">
-                        1 R+ GARANTIZADA
+                      <span className="text-base font-black uppercase">
+                        {activeBanner.isActive ? 'Invocación x10' : 'Pergamino Sellado'}
                       </span>
+                      {activeBanner.isActive && (
+                        <span className="px-1.5 py-0.5 bg-black text-[#FA9427] text-[9px] font-black uppercase border border-black">
+                          1 R+ GARANTIZADA
+                        </span>
+                      )}
                     </div>
-                    <div className="text-xs text-stone-900 font-bold">10 Figuras + 1 Gratis</div>
+                    <div className="text-xs font-bold text-stone-500">
+                      {activeBanner.isActive ? '10 Figuras + 1 Gratis' : 'Bloqueado hasta nuevo arco'}
+                    </div>
                   </div>
-                  <div className="px-3 py-1 bg-black text-white font-black text-xs border border-black shadow-[1px_1px_0px_#fff] relative z-10">
+                  <div className={`px-3 py-1 font-black text-xs border relative z-10 ${
+                    activeBanner.isActive
+                      ? 'bg-black text-white border-black shadow-[1px_1px_0px_#fff]'
+                      : 'bg-stone-300 text-stone-500 border-stone-400'
+                  }`}>
                     💎 {activeBanner.costMulti}
                   </div>
                 </button>
@@ -1027,29 +1074,29 @@ export const ShinobiGacha: React.FC<ShinobiGachaProps> = ({
             <div className="space-y-2 text-xs">
               <div className="flex justify-between items-center p-2 bg-purple-50 border border-black">
                 <span className="font-black text-purple-900">UX (Ultra Secreto)</span>
-                <span className="font-mono font-black text-purple-950">1.5%</span>
+                <span className="font-mono font-black text-purple-950">{CANONICAL_GACHA_RATES.UX.toFixed(1)}%</span>
               </div>
               <div className="flex justify-between items-center p-2 bg-amber-50 border border-black">
                 <span className="font-black text-amber-900">EX (Extremadamente Raro)</span>
-                <span className="font-mono font-black text-amber-950">12.0%</span>
+                <span className="font-mono font-black text-amber-950">{CANONICAL_GACHA_RATES.EX.toFixed(1)}%</span>
               </div>
               <div className="flex justify-between items-center p-2 bg-sky-50 border border-black">
                 <span className="font-black text-sky-900">R (Raro)</span>
-                <span className="font-mono font-black text-sky-950">25.0%</span>
+                <span className="font-mono font-black text-sky-950">{CANONICAL_GACHA_RATES.R.toFixed(1)}%</span>
               </div>
               <div className="flex justify-between items-center p-2 bg-emerald-50 border border-black">
                 <span className="font-black text-emerald-900">UC (Infrecuente)</span>
-                <span className="font-mono font-black text-emerald-950">31.5%</span>
+                <span className="font-mono font-black text-emerald-950">{CANONICAL_GACHA_RATES.UC.toFixed(1)}%</span>
               </div>
               <div className="flex justify-between items-center p-2 bg-stone-100 border border-black">
                 <span className="font-black text-stone-800">C (Común)</span>
-                <span className="font-mono font-black text-stone-900">30.0%</span>
+                <span className="font-mono font-black text-stone-900">{CANONICAL_GACHA_RATES.C.toFixed(1)}%</span>
               </div>
             </div>
 
             <div className="text-[11px] text-stone-600 bg-stone-100 p-2.5 border border-black space-y-1">
               <p>• <strong>Tirada x10:</strong> Garantiza al menos 1 figura de rareza R o superior en el slot final.</p>
-              <p>• <strong>Pity System:</strong> Si alcanzas 40 tiradas sin una figura EX/UX, la siguiente tirada garantiza un EX o UX.</p>
+              <p>• <strong>Pity System:</strong> Si alcanzas {PITY_THRESHOLD} tiradas sin una figura EX/UX, la siguiente tirada garantiza un EX o UX.</p>
             </div>
 
             <button

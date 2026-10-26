@@ -1,6 +1,7 @@
-import { SHINOBI_FIGURES_CATALOG } from '../../infrastructure/repositories/MockShinobiRepository';
+import { SHINOBI_FIGURES_CATALOG } from '../catalogs/ShinobiCatalog';
 import { ShinobiFigureCatalogItem } from '../models/ShinobiFigure';
 import { FigureRarity, DISENCHANT_YIELD } from '../models/CraftingEconomy';
+import { getBannerByKey, PITY_THRESHOLD, GachaBannerConfig } from '../catalogs/GachaBannersCatalog';
 
 export interface GachaPullResultItem {
   figure: ShinobiFigureCatalogItem;
@@ -21,26 +22,29 @@ export interface GachaSummonResponse {
 }
 
 export class GachaService {
-  /**
-   * Ejecuta una tirada (1x o 10x) para un banner determinado
-   */
   public executeSummon(
     bannerKey: string,
     pullCount: 1 | 10,
     currentPity: number,
     ownedFigureKeys: string[]
   ): GachaSummonResponse {
+    const banner = getBannerByKey(bannerKey);
     const results: GachaPullResultItem[] = [];
     let pity = currentPity;
+    const activeOwned = [...ownedFigureKeys];
 
     for (let i = 0; i < pullCount; i++) {
       pity += 1;
-      const isGuaranteedRPlus = pullCount === 10 && i === 9; // En la última tirada de 10x garantiza R+
-      const isPityTrigger = pity >= 40;
+      const isGuaranteedRPlus = pullCount === 10 && i === 9;
+      const isPityTrigger = pity >= PITY_THRESHOLD;
 
-      const pull = this.pullSingle(bannerKey, isPityTrigger, isGuaranteedRPlus, ownedFigureKeys);
+      const pull = this.pullSingle(banner, isPityTrigger, isGuaranteedRPlus, activeOwned);
       if (pull.figure.rarity === 'EX' || pull.figure.rarity === 'UX') {
-        pity = 0; // Reiniciar pity al sacar EX o UX
+        pity = 0;
+      }
+
+      if (!pull.isDuplicate) {
+        activeOwned.push(pull.figure.key);
       }
 
       results.push({
@@ -49,14 +53,12 @@ export class GachaService {
       });
     }
 
-    // Determinar la rareza más alta para el efecto visual del chakra
     const rarityRanks: Record<FigureRarity, number> = { C: 1, UC: 2, R: 3, EX: 4, UX: 5 };
     const highestRarity = results.reduce<FigureRarity>((maxR, item) => {
       return rarityRanks[item.figure.rarity] > rarityRanks[maxR] ? item.figure.rarity : maxR;
     }, 'C');
 
-    const costPerPull = bannerKey === 'standard_ninja_summon' ? 50 : 60;
-    const gemsSpent = pullCount === 1 ? costPerPull : costPerPull * 9; // Descuento en 10x (1 gratis)
+    const gemsSpent = pullCount === 1 ? banner.costSingle : banner.costMulti;
 
     return {
       results,
@@ -67,7 +69,7 @@ export class GachaService {
   }
 
   private pullSingle(
-    bannerKey: string,
+    banner: GachaBannerConfig,
     isPity: boolean,
     isGuaranteedRPlus: boolean,
     ownedFigureKeys: string[]
@@ -75,39 +77,42 @@ export class GachaService {
     let rarity: FigureRarity = 'C';
 
     if (isPity) {
-      // Pity: 90% EX, 10% UX
       rarity = Math.random() < 0.10 ? 'UX' : 'EX';
     } else {
       const roll = Math.random() * 100;
-      if (roll < 1.5) {
+      const rates = banner.rates;
+      const thresholdUX = rates.UX;
+      const thresholdEX = thresholdUX + rates.EX;
+      const thresholdR = thresholdEX + rates.R;
+      const thresholdUC = thresholdR + rates.UC;
+
+      if (roll < thresholdUX) {
         rarity = 'UX';
-      } else if (roll < 13.5) {
+      } else if (roll < thresholdEX) {
         rarity = 'EX';
-      } else if (roll < 38.5 || isGuaranteedRPlus) {
+      } else if (roll < thresholdR || isGuaranteedRPlus) {
         rarity = 'R';
-      } else if (roll < 70) {
+      } else if (roll < thresholdUC) {
         rarity = 'UC';
       } else {
         rarity = 'C';
       }
     }
 
-    // Filtrar figuras según rareza
-    let candidateFigures = SHINOBI_FIGURES_CATALOG.filter(f => f.rarity === rarity);
+    // Filter candidate figures within the banner's designated pool
+    const poolFigures = SHINOBI_FIGURES_CATALOG.filter(f => banner.poolFigureKeys.includes(f.key));
+    const effectivePool = poolFigures.length > 0 ? poolFigures : SHINOBI_FIGURES_CATALOG;
+
+    let candidateFigures = effectivePool.filter(f => f.rarity === rarity);
     if (candidateFigures.length === 0) {
-      candidateFigures = SHINOBI_FIGURES_CATALOG;
+      candidateFigures = effectivePool;
     }
 
-    // Si es un banner destacado con personajes específicos con Rate-Up:
     let selectedFigure: ShinobiFigureCatalogItem;
-    if (bannerKey === 'arc1_novatos_konoha' && candidateFigures.some(f => f.key === 'naruto' || f.key === 'sasuke')) {
-      const isRateUp = Math.random() < 0.5; // 50% probabilidad de que sea Naruto o Sasuke
-      if (isRateUp) {
-        const featured = candidateFigures.filter(f => f.key === 'naruto' || f.key === 'sasuke');
-        selectedFigure = featured[Math.floor(Math.random() * featured.length)];
-      } else {
-        selectedFigure = candidateFigures[Math.floor(Math.random() * candidateFigures.length)];
-      }
+    const rateUpCandidates = candidateFigures.filter(f => banner.rateUpShinobis.includes(f.key));
+
+    if (rateUpCandidates.length > 0 && Math.random() < 0.50) {
+      selectedFigure = rateUpCandidates[Math.floor(Math.random() * rateUpCandidates.length)];
     } else {
       selectedFigure = candidateFigures[Math.floor(Math.random() * candidateFigures.length)];
     }

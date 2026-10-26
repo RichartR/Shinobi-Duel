@@ -8,14 +8,16 @@ import {
   WheelColor,
 } from '../../../domain/models/ShinobiFigure';
 import { TACTICAL_SCROLLS_CATALOG, MAX_PLATE_CAPACITY } from '../../../domain/models/TacticalScroll';
-import { SHINOBI_FIGURES_CATALOG } from '../../../infrastructure/repositories/MockShinobiRepository';
+import { SHINOBI_FIGURES_CATALOG } from '../../../domain/catalogs/ShinobiCatalog';
 import { CHAR_SVG_FALLBACKS } from '../../../infrastructure/assets/animeAssets';
 import { ChakraDiskSVG } from '../wheel/ChakraDiskSVG';
-import { Play, BookOpen, Hammer } from 'lucide-react';
+import { Play, BookOpen, Hammer, Lock, Sparkles } from 'lucide-react';
 import { useTranslation } from '../../context/I18nContext';
 import { LanguageSwitcher } from '../common/LanguageSwitcher';
 import { getLocalizedFigure, getLocalizedScroll } from '../../../infrastructure/i18n/locales/figureI18n';
 import { NarutoMangaBackground } from '../common/NarutoMangaBackground';
+import { shinobiDbRepository } from '../../../infrastructure/repositories/SupabaseShinobiRepository';
+import { DEFAULT_STARTER_FIGURE_KEYS } from '../../../domain/models/ShinobiFigure';
 
 interface ShinobiCodexProps {
   state: GameState;
@@ -24,6 +26,7 @@ interface ShinobiCodexProps {
   onBackToMenu: () => void;
   onPlayGame: () => void;
   onOpenForge?: () => void;
+  onOpenGacha?: () => void;
 }
 
 export const ShinobiCodex: React.FC<ShinobiCodexProps> = ({
@@ -32,8 +35,11 @@ export const ShinobiCodex: React.FC<ShinobiCodexProps> = ({
   onBackToMenu,
   onPlayGame,
   onOpenForge,
+  onOpenGacha,
 }) => {
   const { t, language } = useTranslation();
+  const profile = shinobiDbRepository.getProfile();
+  const unlockedKeys = profile.unlockedFigureKeys || DEFAULT_STARTER_FIGURE_KEYS;
   const [selectedKey, setSelectedKey] = useState<string>('naruto');
   const [activeTab, setActiveTab] = useState<'catalog' | 'deck'>('catalog');
 
@@ -77,7 +83,7 @@ export const ShinobiCodex: React.FC<ShinobiCodexProps> = ({
         <div className="flex items-center gap-3">
           <button
             onClick={onBackToMenu}
-            className="manga-btn-white px-3.5 py-2 text-xs md:text-sm font-bold uppercase tracking-wide border-2 border-black shadow-[2px_2px_0px_#000] cursor-pointer focus-visible:ring-2 focus-visible:ring-[#fa9427]"
+            className="manga-btn-white px-3.5 py-2 min-h-[44px] text-xs md:text-sm font-bold uppercase tracking-wide border-2 border-black shadow-[2px_2px_0px_#000] cursor-pointer focus-visible:ring-2 focus-visible:ring-[#fa9427] flex items-center"
           >
             ← {t('common.backToMenu')}
           </button>
@@ -99,7 +105,7 @@ export const ShinobiCodex: React.FC<ShinobiCodexProps> = ({
           <LanguageSwitcher compact />
           <button
             onClick={onPlayGame}
-            className="manga-btn-orange px-4 py-2 text-xs md:text-sm font-bold uppercase tracking-wide flex items-center gap-2 border-2 border-black shadow-[2px_2px_0px_#000] cursor-pointer focus-visible:ring-2 focus-visible:ring-white"
+            className="manga-btn-orange px-4 py-2 min-h-[44px] text-xs md:text-sm font-bold uppercase tracking-wide flex items-center gap-2 border-2 border-black shadow-[2px_2px_0px_#000] cursor-pointer focus-visible:ring-2 focus-visible:ring-white"
           >
             <Play className="w-4 h-4 fill-current" /> {t('common.playNow')}
           </button>
@@ -185,6 +191,7 @@ export const ShinobiCodex: React.FC<ShinobiCodexProps> = ({
                     {SHINOBI_FIGURES_CATALOG.map(figRaw => {
                       const fig = getLocalizedFigure(figRaw, language);
                       const isSelected = fig.key === selectedKey;
+                      const isUnlocked = unlockedKeys.includes(fig.key);
                       const isInTeam = state.selectedTeamKeys.includes(fig.key);
                       return (
                         <button
@@ -193,22 +200,40 @@ export const ShinobiCodex: React.FC<ShinobiCodexProps> = ({
                           className={`w-full p-2.5 border-2 text-left flex items-center justify-between transition cursor-pointer ${
                             isSelected
                               ? 'bg-[#FA9427] text-black border-2 border-black shadow-[3px_3px_0px_#000]'
+                              : !isUnlocked
+                              ? 'bg-stone-50 text-stone-500 border-2 border-dashed border-stone-300 hover:bg-stone-100 shadow-[1px_1px_0px_#000]'
                               : 'bg-white text-stone-900 border-2 border-black hover:bg-stone-50 shadow-[2px_2px_0px_#000]'
                           }`}
                         >
                           <div className="flex items-center gap-2.5 min-w-0">
-                            <img
-                              src={fig.portraitUrl}
-                              alt={fig.name}
-                              className="w-10 h-10 object-cover object-top border-2 border-black shrink-0 bg-stone-900 shadow-[1px_1px_0px_#000]"
-                              onError={e => {
-                                e.currentTarget.src = CHAR_SVG_FALLBACKS[fig.key] || '';
-                              }}
-                            />
+                            <div className="relative shrink-0">
+                              <img
+                                src={fig.portraitUrl}
+                                alt={fig.name}
+                                className={`w-10 h-10 object-cover object-top border-2 border-black shrink-0 bg-stone-900 shadow-[1px_1px_0px_#000] ${!isUnlocked ? 'grayscale opacity-75' : ''}`}
+                                onError={e => {
+                                  e.currentTarget.src = CHAR_SVG_FALLBACKS[fig.key] || '';
+                                }}
+                              />
+                              {!isUnlocked && (
+                                <div className="absolute inset-0 bg-black/50 flex items-center justify-center">
+                                  <Lock className="w-3.5 h-3.5 text-white" />
+                                </div>
+                              )}
+                            </div>
                             <div className="truncate">
                               <div className="text-sm font-bold uppercase tracking-wide truncate text-black">{fig.name}</div>
-                              <div className="text-xs font-mono font-bold text-stone-800">
-                                [{fig.rarity}] • {fig.mp} MP
+                              <div className="text-xs font-mono font-bold text-stone-800 flex items-center gap-2">
+                                <span>[{fig.rarity}] • {fig.mp} MP</span>
+                                {!isUnlocked ? (
+                                  <span className="text-[10px] text-amber-800 font-bold bg-amber-100 px-1 py-0.2 border border-amber-300">
+                                    Bloqueado
+                                  </span>
+                                ) : figRaw.isStarter ? (
+                                  <span className="text-[10px] text-emerald-800 font-bold bg-emerald-100 px-1 py-0.2 border border-emerald-300">
+                                    Inicial
+                                  </span>
+                                ) : null}
                               </div>
                             </div>
                           </div>
@@ -251,6 +276,24 @@ export const ShinobiCodex: React.FC<ShinobiCodexProps> = ({
                       </div>
                     </div>
                   </div>
+
+                  {/* Lock Notice if Figure Not Unlocked */}
+                  {!unlockedKeys.includes(selectedFigTemplate.key) && (
+                    <div className="p-3 bg-amber-50 border-2 border-dashed border-amber-400 text-stone-900 flex items-center justify-between gap-3 shadow-[2px_2px_0px_#000]">
+                      <div className="flex items-center gap-2 text-xs font-bold">
+                        <Lock className="w-4 h-4 text-amber-700 shrink-0" />
+                        <span>Este shinobi aún no está en tu colección. Desbloquéalo invocando en la Sala Gacha.</span>
+                      </div>
+                      {onOpenGacha && (
+                        <button
+                          onClick={onOpenGacha}
+                          className="px-3 py-1.5 bg-[#FA9427] hover:bg-[#ffaa42] text-black font-impact text-xs uppercase border-2 border-black shadow-[2px_2px_0px_#000] cursor-pointer shrink-0"
+                        >
+                          Ir a Invocar →
+                        </button>
+                      )}
+                    </div>
+                  )}
 
                   {/* Link to Full Shinobi Forge */}
                   {onOpenForge && (
@@ -441,20 +484,38 @@ export const ShinobiCodex: React.FC<ShinobiCodexProps> = ({
                       <p className="text-[11px] text-stone-700 font-medium">
                         {t('codex.squadDesc')}
                       </p>
+                      {state.selectedTeamKeys.length < 6 && (
+                        <div className="flex items-center gap-2 mt-1.5 flex-wrap">
+                          <span className="text-[11px] font-bold text-amber-900 bg-amber-100 px-2 py-0.5 border border-amber-300">
+                            {state.selectedTeamKeys.length}/6 Shinobis equipados
+                          </span>
+                          {onOpenGacha && (
+                            <button
+                              onClick={onOpenGacha}
+                              className="text-xs text-[#FA9427] hover:underline font-impact uppercase tracking-wide cursor-pointer flex items-center gap-1"
+                            >
+                              <Sparkles className="w-3.5 h-3.5" /> Invocar nuevos ninjas en el Gacha →
+                            </button>
+                          )}
+                        </div>
+                      )}
                     </div>
                   </div>
 
                   <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
                     {SHINOBI_FIGURES_CATALOG.map(figRaw => {
                       const fig = getLocalizedFigure(figRaw, language);
+                      const isUnlocked = unlockedKeys.includes(fig.key);
                       const inTeam = state.selectedTeamKeys.includes(fig.key);
                       return (
                         <button
                           key={fig.key}
+                          disabled={!isUnlocked}
                           onClick={() => {
+                            if (!isUnlocked) return;
                             let nextKeys = [...state.selectedTeamKeys];
                             if (inTeam) {
-                              if (nextKeys.length <= 6) return; // Keep at least 6
+                              if (nextKeys.length <= 1) return;
                               nextKeys = nextKeys.filter(k => k !== fig.key);
                             } else {
                               if (nextKeys.length >= 6) nextKeys.shift();
@@ -468,22 +529,34 @@ export const ShinobiCodex: React.FC<ShinobiCodexProps> = ({
                               },
                             });
                           }}
-                          className={`p-2.5 border-2 text-left flex items-center gap-2.5 transition cursor-pointer ${
-                            inTeam
-                              ? 'bg-[#fa9427] text-stone-950 border-2 border-black font-black shadow-[2px_2px_0px_#000]'
-                              : 'bg-white text-stone-900 border-2 border-black hover:bg-stone-50 font-bold shadow-[2px_2px_0px_#000]'
+                          className={`p-2.5 border-2 text-left flex items-center gap-2.5 transition ${
+                            !isUnlocked
+                              ? 'bg-stone-100 text-stone-400 border-dashed border-stone-300 cursor-not-allowed opacity-60'
+                              : inTeam
+                              ? 'bg-[#fa9427] text-stone-950 border-2 border-black font-black shadow-[2px_2px_0px_#000] cursor-pointer'
+                              : 'bg-white text-stone-900 border-2 border-black hover:bg-stone-50 font-bold shadow-[2px_2px_0px_#000] cursor-pointer'
                           }`}
                         >
-                          <img
-                            src={fig.portraitUrl}
-                            alt={fig.shortName}
-                            className="w-9 h-9 object-cover object-top border-2 border-black shrink-0 bg-stone-900 shadow-[2px_2px_0px_#000]"
-                            onError={e => {
-                              e.currentTarget.src = CHAR_SVG_FALLBACKS[fig.key] || '';
-                            }}
-                          />
-                          <div className="truncate">
-                            <div className="text-xs truncate font-impact uppercase tracking-wide">{fig.shortName}</div>
+                          <div className="relative shrink-0">
+                            <img
+                              src={fig.portraitUrl}
+                              alt={fig.shortName}
+                              className={`w-9 h-9 object-cover object-top border-2 border-black shrink-0 bg-stone-900 shadow-[2px_2px_0px_#000] ${!isUnlocked ? 'grayscale' : ''}`}
+                              onError={e => {
+                                e.currentTarget.src = CHAR_SVG_FALLBACKS[fig.key] || '';
+                              }}
+                            />
+                            {!isUnlocked && (
+                              <div className="absolute inset-0 bg-black/60 flex items-center justify-center">
+                                <Lock className="w-4 h-4 text-white" />
+                              </div>
+                            )}
+                          </div>
+                          <div className="truncate flex-1">
+                            <div className="text-xs truncate font-impact uppercase tracking-wide flex items-center justify-between">
+                              <span>{fig.shortName}</span>
+                              {!isUnlocked && <span className="text-[9px] text-stone-500 font-bold">Bloqueado</span>}
+                            </div>
                             <div className="text-[10px] font-mono font-bold text-stone-700">{fig.mp} MP</div>
                           </div>
                         </button>

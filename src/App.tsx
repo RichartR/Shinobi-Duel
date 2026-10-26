@@ -9,6 +9,7 @@ import { ShinobiForge } from './presentation/components/forge/ShinobiForge';
 import { ShinobiArenaSelector } from './presentation/components/arena/ShinobiArenaSelector';
 import { shinobiDbRepository } from './infrastructure/repositories/SupabaseShinobiRepository';
 import { CANONICAL_ARENA_THEMES } from './domain/models/CraftingEconomy';
+import { DEFAULT_STARTER_FIGURE_KEYS } from './domain/models/ShinobiFigure';
 import { Header } from './presentation/components/common/Header';
 import { ChuninArenaSVG } from './presentation/components/board/ChuninArenaSVG';
 import { PlayerCommandBar } from './presentation/components/scrolls/PlayerCommandBar';
@@ -67,6 +68,17 @@ export default function App() {
 
   const handleStartGame = (mode: 'ai' | 'local') => {
     soundEngine.play('select');
+    const freshProfile = shinobiDbRepository.getProfile();
+    const currentKeys = freshProfile.selectedTeamKeys || DEFAULT_STARTER_FIGURE_KEYS;
+    if (JSON.stringify(currentKeys) !== JSON.stringify(state.selectedTeamKeys)) {
+      dispatch({
+        type: 'UPDATE_DECK_LOADOUT',
+        payload: {
+          selectedTeamKeys: currentKeys,
+          selectedPlateIds: state.selectedPlateIds,
+        },
+      });
+    }
     if (state.mode !== mode) {
       dispatch({ type: 'TOGGLE_MODE' });
     }
@@ -132,6 +144,7 @@ export default function App() {
         dispatch={dispatch}
         onBackToMenu={() => {
           soundEngine.play('select');
+          setProfile(shinobiDbRepository.getProfile());
           setCurrentScreen('menu');
         }}
         onPlayGame={() => {
@@ -143,6 +156,11 @@ export default function App() {
           setProfile(shinobiDbRepository.getProfile());
           setCurrentScreen('forge');
         }}
+        onOpenGacha={() => {
+          soundEngine.play('select');
+          setProfile(shinobiDbRepository.getProfile());
+          setCurrentScreen('gacha');
+        }}
       />
     );
   }
@@ -153,11 +171,26 @@ export default function App() {
       <ShinobiGacha
         onBackToMenu={() => {
           soundEngine.play('select');
-          setProfile(shinobiDbRepository.getProfile());
+          const p = shinobiDbRepository.getProfile();
+          setProfile(p);
+          if (p.selectedTeamKeys) {
+            dispatch({
+              type: 'UPDATE_DECK_LOADOUT',
+              payload: { selectedTeamKeys: p.selectedTeamKeys, selectedPlateIds: state.selectedPlateIds },
+            });
+          }
           setCurrentScreen('menu');
         }}
         onOpenCodex={() => {
           soundEngine.play('select');
+          const p = shinobiDbRepository.getProfile();
+          setProfile(p);
+          if (p.selectedTeamKeys) {
+            dispatch({
+              type: 'UPDATE_DECK_LOADOUT',
+              payload: { selectedTeamKeys: p.selectedTeamKeys, selectedPlateIds: state.selectedPlateIds },
+            });
+          }
           setCurrentScreen('codex');
         }}
         onOpenForge={() => {
@@ -184,6 +217,11 @@ export default function App() {
           soundEngine.play('select');
           setProfile(shinobiDbRepository.getProfile());
           setCurrentScreen('game');
+        }}
+        onOpenGacha={() => {
+          soundEngine.play('select');
+          setProfile(shinobiDbRepository.getProfile());
+          setCurrentScreen('gacha');
         }}
       />
     );

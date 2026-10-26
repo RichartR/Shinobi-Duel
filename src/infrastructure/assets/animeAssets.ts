@@ -150,6 +150,16 @@ export const CHAR_SVG_FALLBACKS: Record<string, string> = {
   kiba: createGeninAvatarSvg('#7f1d1d', '#fca5a5', '牙', 'INUZUKA'),
   shino: createGeninAvatarSvg('#064e3b', '#6ee7b7', '志', 'ABURAME'),
   lee: createGeninAvatarSvg('#047857', '#fed7aa', '李', 'TAIJUTSU'),
+  naruto_genin: createGeninAvatarSvg('#ea580c', '#fef08a', '鳴', 'UZUMAKI'),
+  sasuke_genin: createGeninAvatarSvg('#1e3a8a', '#93c5fd', '佐', 'UCHIHA'),
+  sakura_genin: createGeninAvatarSvg('#be185d', '#fbcfe8', '桜', 'HARUNO'),
+  shikamaru_genin: createGeninAvatarSvg('#14532d', '#86efac', '鹿', 'NARA'),
+  choji_genin: createGeninAvatarSvg('#78350f', '#fde68a', '丁', 'AKIMICHI'),
+  ino_genin: createGeninAvatarSvg('#581c87', '#d8b4fe', '亥', 'YAMANAKA'),
+  hinata_genin: createGeninAvatarSvg('#312e81', '#c7d2fe', '雛', 'HYUGA'),
+  kiba_genin: createGeninAvatarSvg('#7f1d1d', '#fca5a5', '牙', 'INUZUKA'),
+  shino_genin: createGeninAvatarSvg('#064e3b', '#6ee7b7', '志', 'ABURAME'),
+  lee_genin: createGeninAvatarSvg('#047857', '#fed7aa', '李', 'TAIJUTSU'),
 };
 
 

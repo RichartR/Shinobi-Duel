@@ -2,9 +2,10 @@ import {
   ShinobiFigureState,
   FigureCustomization,
   getComputedFigureSegments,
+  DEFAULT_STARTER_FIGURE_KEYS,
 } from '../../domain/models/ShinobiFigure';
 import { TacticalScroll, TACTICAL_SCROLLS_CATALOG } from '../../domain/models/TacticalScroll';
-import { SHINOBI_FIGURES_CATALOG } from '../../infrastructure/repositories/MockShinobiRepository';
+import { SHINOBI_FIGURES_CATALOG } from '../../domain/catalogs/ShinobiCatalog';
 import { ActiveBattleState } from '../../domain/models/BattleResult';
 import { shinobiDbRepository } from '../../infrastructure/repositories/SupabaseShinobiRepository';
 
@@ -68,7 +69,7 @@ export interface GameState {
   logs: GameLogEntry[];
 }
 
-export const DEFAULT_TEAM_KEYS = ['naruto', 'sasuke', 'sakura', 'shikamaru', 'choji', 'lee'];
+export const DEFAULT_TEAM_KEYS = DEFAULT_STARTER_FIGURE_KEYS;
 export const DEFAULT_PLATE_DECK = ['goal_block', 'max_revive', 'double_chance', 'x_attack'];
 
 export function createDefaultCustomizations(): Record<string, FigureCustomization> {
@@ -105,6 +106,7 @@ export function instantiateTeamRoster(
     const figObj: ShinobiFigureState = {
       id: `p${playerNumber}_${tpl.key}_${idx}`,
       owner: playerNumber,
+      characterId: tpl.characterId,
       key: tpl.key,
       rarity: tpl.rarity,
       archetype: tpl.archetype,
@@ -137,12 +139,14 @@ export function instantiateTeamRoster(
 
 export function createInitialGameState(
   mode: 'ai' | 'local' = 'ai',
-  selectedTeamKeys: string[] = DEFAULT_TEAM_KEYS,
+  selectedTeamKeys?: string[],
   selectedPlateIds: string[] = DEFAULT_PLATE_DECK,
   customizations: Record<string, FigureCustomization> = createDefaultCustomizations()
 ): GameState {
+  const profile = shinobiDbRepository.getProfile();
+  const effectiveTeamKeys = selectedTeamKeys || profile.selectedTeamKeys || DEFAULT_TEAM_KEYS;
   const figures = [
-    ...instantiateTeamRoster(1, selectedTeamKeys, customizations),
+    ...instantiateTeamRoster(1, effectiveTeamKeys, customizations),
     ...instantiateTeamRoster(2, ['kiba', 'shino', 'hinata', 'ino', 'sasuke', 'naruto'], customizations),
   ];
 
@@ -162,7 +166,7 @@ export function createInitialGameState(
     swapCandidateId: null,
     validMoveNodes: {},
     validAttackFigureIds: [],
-    selectedTeamKeys,
+    selectedTeamKeys: effectiveTeamKeys,
     selectedPlateIds,
     customizations,
     activeBuffs: {

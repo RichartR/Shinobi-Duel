@@ -19,6 +19,8 @@ export interface FigureCustomization {
 }
 
 export interface ShinobiFigureCatalogItem {
+  id: string;
+  characterId: string;
   key: string;
   name: string;
   shortName: string;
@@ -31,7 +33,10 @@ export interface ShinobiFigureCatalogItem {
   blocksPassThrough?: boolean;
   portraitUrl: string;
   segments: WheelSegment[];
+  isStarter?: boolean;
 }
+
+export const DEFAULT_STARTER_FIGURE_KEYS: string[] = ['naruto_genin', 'sasuke_genin', 'sakura_genin'];
 
 export interface ShinobiFigureState extends ShinobiFigureCatalogItem {
   id: string;

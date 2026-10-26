@@ -1,6 +1,6 @@
 import { supabase, isSupabaseConfigured } from '../database/supabaseClient';
-import { ShinobiFigureCatalogItem, WheelSegment, WheelColor, FigureCustomization } from '../../domain/models/ShinobiFigure';
-import { SHINOBI_FIGURES_CATALOG } from './MockShinobiRepository';
+import { ShinobiFigureCatalogItem, WheelSegment, WheelColor, FigureCustomization, DEFAULT_STARTER_FIGURE_KEYS } from '../../domain/models/ShinobiFigure';
+import { SHINOBI_FIGURES_CATALOG } from '../../domain/catalogs/ShinobiCatalog';
 import { 
   CANONICAL_ARENA_THEMES, 
   ArenaThemeItem, 
@@ -21,6 +21,9 @@ export interface UserShinobiProfile {
   dust: ChakraDustInventory;
   selectedArenaKey: string;
   unlockedArenaKeys: string[];
+  unlockedFigureKeys: string[];
+  selectedTeamKeys?: string[];
+  pityCount?: number;
 }
 
 export const DEFAULT_GUEST_PROFILE: UserShinobiProfile = {
@@ -28,8 +31,9 @@ export const DEFAULT_GUEST_PROFILE: UserShinobiProfile = {
   username: 'Shinobi Invitado',
   ninjaRank: 'Genin',
   ryoCoins: 2500,
-  chakraGems: 150,
+  chakraGems: 500,
   eloRating: 1200,
+  pityCount: 0,
   dust: {
     c: 50,
     uc: 30,
@@ -38,7 +42,22 @@ export const DEFAULT_GUEST_PROFILE: UserShinobiProfile = {
     ux: 0,
   },
   selectedArenaKey: 'konoha_chunin',
-  unlockedArenaKeys: ['konoha_chunin'], // Solo Konoha habilitada al inicio
+  unlockedArenaKeys: ['konoha_chunin'],
+  unlockedFigureKeys: [...DEFAULT_STARTER_FIGURE_KEYS],
+  selectedTeamKeys: [...DEFAULT_STARTER_FIGURE_KEYS],
+};
+
+const LEGACY_FIGURE_KEY_MAP: Record<string, string> = {
+  naruto: 'naruto_genin',
+  sasuke: 'sasuke_genin',
+  sakura: 'sakura_genin',
+  shikamaru: 'shikamaru_genin',
+  choji: 'choji_genin',
+  ino: 'ino_genin',
+  hinata: 'hinata_genin',
+  kiba: 'kiba_genin',
+  shino: 'shino_genin',
+  lee: 'lee_genin',
 };
 
 const LOCAL_STORAGE_KEY_PROFILE = 'shinobi_duel_user_profile';
@@ -49,84 +68,7 @@ export class SupabaseShinobiRepository {
    * Carga el catálogo completo de figuras uniendo shinobi_figures, figure_attacks y attacks
    */
   async getFiguresCatalog(): Promise<ShinobiFigureCatalogItem[]> {
-    if (!isSupabaseConfigured) {
-      return SHINOBI_FIGURES_CATALOG;
-    }
-
-    try {
-      const { data: figuresData, error: figuresError } = await supabase
-        .from('shinobi_figures')
-        .select(`
-          id,
-          key,
-          name,
-          short_name,
-          rarity,
-          mp,
-          archetype,
-          ability_title,
-          ability_desc,
-          can_pass_through,
-          immune_to_surround,
-          portrait_url,
-          figure_attacks (
-            slot_index,
-            base_size,
-            custom_power,
-            custom_stars,
-            custom_effect,
-            attacks (
-              key,
-              name,
-              color,
-              base_power,
-              stars,
-              effect_type,
-              description
-            )
-          )
-        `);
-
-      if (figuresError || !figuresData || figuresData.length === 0) {
-        console.warn('Falling back to local catalog due to Supabase query error:', figuresError);
-        return SHINOBI_FIGURES_CATALOG;
-      }
-
-      // Mapear el resultado relacional a la interfaz de dominio ShinobiFigureCatalogItem
-      return figuresData.map(f => {
-        // Ordenar los segmentos según slot_index
-        const sortedAttacks = (f.figure_attacks || []).sort((a, b) => a.slot_index - b.slot_index);
-        
-        const segments: WheelSegment[] = sortedAttacks.map(fa => {
-          const atk = fa.attacks as any;
-          return {
-            name: atk?.name || 'Ataque',
-            color: (atk?.color || 'white') as WheelColor,
-            power: fa.custom_power !== null ? fa.custom_power : (atk?.base_power || 0),
-            stars: fa.custom_stars !== null ? fa.custom_stars : (atk?.stars || 0),
-            size: fa.base_size,
-            effect: fa.custom_effect || atk?.effect_type || null,
-          };
-        });
-
-        return {
-          key: f.key,
-          name: f.name,
-          shortName: f.short_name,
-          rarity: f.rarity as any,
-          mp: f.mp,
-          archetype: f.archetype || '',
-          ability: `${f.ability_title ? f.ability_title + ': ' : ''}${f.ability_desc || ''}`,
-          canPassThrough: f.can_pass_through ?? false,
-          immuneToSurround: f.immune_to_surround ?? false,
-          portraitUrl: f.portrait_url,
-          segments: segments.length > 0 ? segments : (SHINOBI_FIGURES_CATALOG.find(m => m.key === f.key)?.segments || []),
-        };
-      });
-    } catch (err) {
-      console.error('Error fetching figures from Supabase:', err);
-      return SHINOBI_FIGURES_CATALOG;
-    }
+    return Promise.resolve(SHINOBI_FIGURES_CATALOG);
   }
 
   /**
@@ -136,7 +78,26 @@ export class SupabaseShinobiRepository {
     try {
       const stored = localStorage.getItem(LOCAL_STORAGE_KEY_PROFILE);
       if (stored) {
-        return JSON.parse(stored);
+        const parsed: UserShinobiProfile = JSON.parse(stored);
+        let migrated = false;
+        if (!parsed.unlockedFigureKeys || !Array.isArray(parsed.unlockedFigureKeys) || parsed.unlockedFigureKeys.length === 0) {
+          parsed.unlockedFigureKeys = [...DEFAULT_STARTER_FIGURE_KEYS];
+          migrated = true;
+        } else if (parsed.unlockedFigureKeys.some(k => LEGACY_FIGURE_KEY_MAP[k])) {
+          parsed.unlockedFigureKeys = parsed.unlockedFigureKeys.map(k => LEGACY_FIGURE_KEY_MAP[k] || k);
+          migrated = true;
+        }
+        if (!parsed.selectedTeamKeys || !Array.isArray(parsed.selectedTeamKeys) || parsed.selectedTeamKeys.length === 0) {
+          parsed.selectedTeamKeys = [...DEFAULT_STARTER_FIGURE_KEYS];
+          migrated = true;
+        } else if (parsed.selectedTeamKeys.some(k => LEGACY_FIGURE_KEY_MAP[k])) {
+          parsed.selectedTeamKeys = parsed.selectedTeamKeys.map(k => LEGACY_FIGURE_KEY_MAP[k] || k);
+          migrated = true;
+        }
+        if (migrated) {
+          this.saveProfile(parsed);
+        }
+        return parsed;
       }
     } catch (e) {
       console.warn('Could not read profile from localStorage:', e);
@@ -144,15 +105,34 @@ export class SupabaseShinobiRepository {
     return DEFAULT_GUEST_PROFILE;
   }
 
-  /**
-   * Guarda las actualizaciones del perfil (Ryo, Polvos, Arena activa)
-   */
   saveProfile(profile: UserShinobiProfile): void {
     try {
       localStorage.setItem(LOCAL_STORAGE_KEY_PROFILE, JSON.stringify(profile));
     } catch (e) {
       console.error('Could not save profile to localStorage:', e);
     }
+  }
+
+  unlockFigure(profile: UserShinobiProfile, figureKey: string): UserShinobiProfile {
+    if (profile.unlockedFigureKeys.includes(figureKey)) {
+      return profile;
+    }
+    const updated: UserShinobiProfile = {
+      ...profile,
+      unlockedFigureKeys: [...profile.unlockedFigureKeys, figureKey],
+    };
+    this.saveProfile(updated);
+    return updated;
+  }
+
+  resetStarterFigures(profile: UserShinobiProfile): UserShinobiProfile {
+    const updated: UserShinobiProfile = {
+      ...profile,
+      unlockedFigureKeys: [...DEFAULT_STARTER_FIGURE_KEYS],
+      selectedTeamKeys: [...DEFAULT_STARTER_FIGURE_KEYS],
+    };
+    this.saveProfile(updated);
+    return updated;
   }
 
   /**

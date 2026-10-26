@@ -152,9 +152,15 @@ export function gameReducer(state: GameState, action: GameAction): GameState {
 
     case 'UPDATE_DECK_LOADOUT': {
       const { selectedTeamKeys, selectedPlateIds } = action.payload;
+      const nextTeamKeys = selectedTeamKeys || state.selectedTeamKeys;
+      const profile = shinobiDbRepository.getProfile();
+      shinobiDbRepository.saveProfile({
+        ...profile,
+        selectedTeamKeys: nextTeamKeys,
+      });
       return createInitialGameState(
         state.mode,
-        selectedTeamKeys || state.selectedTeamKeys,
+        nextTeamKeys,
         selectedPlateIds || state.selectedPlateIds,
         state.customizations
       );
