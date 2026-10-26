@@ -6,6 +6,7 @@ import {
 import { TacticalScroll, TACTICAL_SCROLLS_CATALOG } from '../../domain/models/TacticalScroll';
 import { SHINOBI_FIGURES_CATALOG } from '../../infrastructure/repositories/MockShinobiRepository';
 import { ActiveBattleState } from '../../domain/models/BattleResult';
+import { shinobiDbRepository } from '../../infrastructure/repositories/SupabaseShinobiRepository';
 
 export type GamePhase =
   | 'SELECT'
@@ -71,11 +72,12 @@ export const DEFAULT_TEAM_KEYS = ['naruto', 'sasuke', 'sakura', 'shikamaru', 'ch
 export const DEFAULT_PLATE_DECK = ['goal_block', 'max_revive', 'double_chance', 'x_attack'];
 
 export function createDefaultCustomizations(): Record<string, FigureCustomization> {
+  const saved = shinobiDbRepository.getCustomizations();
   const map: Record<string, FigureCustomization> = {};
   SHINOBI_FIGURES_CATALOG.forEach(tpl => {
-    map[tpl.key] = {
-      level: 5,
-      clv: 1,
+    map[tpl.key] = saved[tpl.key] || {
+      level: 1,
+      clv: 0,
       lvTargetIndex: 0,
       clvTargetIndex: 0,
     };
@@ -94,8 +96,8 @@ export function instantiateTeamRoster(
 
   return chosenTemplates.map((tpl, idx) => {
     const custom = customizations[tpl.key] || {
-      level: 5,
-      clv: 1,
+      level: 1,
+      clv: 0,
       lvTargetIndex: 0,
       clvTargetIndex: 0,
     };
@@ -113,8 +115,8 @@ export function instantiateTeamRoster(
       portraitUrl: tpl.portraitUrl,
       ability: tpl.ability,
       evolved: false,
-      level: custom.level ?? 5,
-      clv: custom.clv ?? 1,
+      level: custom.level ?? 1,
+      clv: custom.clv ?? 0,
       lvTargetIndex: custom.lvTargetIndex ?? 0,
       clvTargetIndex: custom.clvTargetIndex ?? 0,
       canPassThrough: Boolean(tpl.canPassThrough),

@@ -13,6 +13,7 @@ import {
 } from '../../domain/services/BoardMovementService';
 import { evaluateSurroundAndInfirmary, sendUnitToInfirmaryPure } from '../../domain/services/SurroundService';
 import { spinFigureChakraWheel, resolveChakraDuelOutcome } from '../../domain/services/CombatResolver';
+import { shinobiDbRepository } from '../../infrastructure/repositories/SupabaseShinobiRepository';
 
 function appendLogs(
   stateLogs: GameLogEntry[],
@@ -91,6 +92,7 @@ export function gameReducer(state: GameState, action: GameAction): GameState {
         ...state.customizations,
         [figKey]: { level, clv, lvTargetIndex, clvTargetIndex },
       };
+      shinobiDbRepository.saveCustomizations(nextCustomizations);
       const nextFigures = state.figures.map(f => {
         if (f.key !== figKey) return f;
         const updated = {
@@ -110,6 +112,38 @@ export function gameReducer(state: GameState, action: GameAction): GameState {
         logs: appendLogs(state.logs, state.turnCount, [
           {
             text: `⚒️ Forja Shinobi: ${figKey.toUpperCase()} actualizado a Nv.${level} y CLv +${clv}.`,
+            tone: 'highlight',
+          },
+        ]),
+      };
+    }
+
+    case 'RESET_ALL_FIGURE_WORKSHOP': {
+      const defaultCustoms = shinobiDbRepository.resetAllCustomizations();
+      const nextFigures = state.figures.map(f => {
+        const custom = defaultCustoms[f.key] || {
+          level: 1,
+          clv: 0,
+          lvTargetIndex: 0,
+          clvTargetIndex: 0,
+        };
+        const updated = {
+          ...f,
+          level: custom.level,
+          clv: custom.clv,
+          lvTargetIndex: custom.lvTargetIndex,
+          clvTargetIndex: custom.clvTargetIndex,
+        };
+        updated.segments = getComputedFigureSegments(updated);
+        return updated;
+      });
+      return {
+        ...state,
+        customizations: defaultCustoms,
+        figures: nextFigures,
+        logs: appendLogs(state.logs, state.turnCount, [
+          {
+            text: '⚒️ Forja Shinobi: Todas las figuras restablecidas a Nivel 1 y ChLv 0.',
             tone: 'highlight',
           },
         ]),

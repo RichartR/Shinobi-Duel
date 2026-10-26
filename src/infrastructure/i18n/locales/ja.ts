@@ -2,7 +2,7 @@ import { TranslationDictionary } from '../types';
 
 export const jaLocale: TranslationDictionary = {
   common: {
-    backToMenu: '← メインメニューへ',
+    backToMenu: 'メインメニューへ',
     playNow: '対戦開始',
     playVsAi: 'AI対戦 (暁ボット)',
     playLocal2P: '2人対戦 (ローカル)',

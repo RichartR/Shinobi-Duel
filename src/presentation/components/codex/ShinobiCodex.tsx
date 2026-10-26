@@ -41,8 +41,8 @@ export const ShinobiCodex: React.FC<ShinobiCodexProps> = ({
   const selectedFigTemplate = getLocalizedFigure(rawTemplate, language);
 
   const custom = state.customizations[selectedFigTemplate.key] || {
-    level: 5,
-    clv: 1,
+    level: 1,
+    clv: 0,
     lvTargetIndex: 0,
     clvTargetIndex: 0,
   };

@@ -14,6 +14,7 @@ export type GameAction =
       type: 'UPDATE_FIGURE_WORKSHOP';
       payload: FigureCustomization & { figKey: string };
     }
+  | { type: 'RESET_ALL_FIGURE_WORKSHOP' }
   | {
       type: 'UPDATE_DECK_LOADOUT';
       payload: {

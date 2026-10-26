@@ -2,7 +2,7 @@ import { TranslationDictionary } from '../types';
 
 export const enLocale: TranslationDictionary = {
   common: {
-    backToMenu: '← Back to Menu',
+    backToMenu: 'Back to Menu',
     playNow: 'Enter Arena',
     playVsAi: 'Quick Duel (vs AI)',
     playLocal2P: '2-Player Local',

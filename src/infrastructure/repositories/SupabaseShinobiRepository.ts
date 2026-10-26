@@ -1,5 +1,5 @@
 import { supabase, isSupabaseConfigured } from '../database/supabaseClient';
-import { ShinobiFigureCatalogItem, WheelSegment, WheelColor } from '../../domain/models/ShinobiFigure';
+import { ShinobiFigureCatalogItem, WheelSegment, WheelColor, FigureCustomization } from '../../domain/models/ShinobiFigure';
 import { SHINOBI_FIGURES_CATALOG } from './MockShinobiRepository';
 import { 
   CANONICAL_ARENA_THEMES, 
@@ -332,6 +332,53 @@ export class SupabaseShinobiRepository {
     };
     this.saveProfile(updatedProfile);
     return { success: true, updatedProfile };
+  }
+
+  /**
+   * Obtiene las personalizaciones de nivel y ChLv de las figuras guardadas
+   */
+  getCustomizations(): Record<string, FigureCustomization> {
+    try {
+      const stored = localStorage.getItem(LOCAL_STORAGE_KEY_CUSTOMS);
+      if (stored) {
+        return JSON.parse(stored);
+      }
+    } catch (e) {
+      console.warn('Could not read customizations from localStorage:', e);
+    }
+    return {};
+  }
+
+  /**
+   * Guarda las personalizaciones de nivel y ChLv en localStorage
+   */
+  saveCustomizations(customs: Record<string, FigureCustomization>): void {
+    try {
+      localStorage.setItem(LOCAL_STORAGE_KEY_CUSTOMS, JSON.stringify(customs));
+    } catch (e) {
+      console.error('Could not save customizations to localStorage:', e);
+    }
+  }
+
+  /**
+   * Restablece todas las figuras a Nivel 1 y ChLv 0
+   */
+  resetAllCustomizations(): Record<string, FigureCustomization> {
+    try {
+      localStorage.removeItem(LOCAL_STORAGE_KEY_CUSTOMS);
+    } catch (e) {
+      console.error('Could not clear customizations from localStorage:', e);
+    }
+    const defaults: Record<string, FigureCustomization> = {};
+    SHINOBI_FIGURES_CATALOG.forEach(tpl => {
+      defaults[tpl.key] = {
+        level: 1,
+        clv: 0,
+        lvTargetIndex: 0,
+        clvTargetIndex: 0,
+      };
+    });
+    return defaults;
   }
 }
 

@@ -211,6 +211,29 @@ export const ShinobiForge: React.FC<ShinobiForgeProps> = ({
     showNotification(`¡Chakra Infundido! Nivel de Chakra subió a ChLv +${nextClv} (+${nextClv} daño de desempate).`, 'success');
   };
 
+  // Reset figure to base Lv.1 & ChLv 0
+  const handleResetFigure = () => {
+    soundEngine.play('select');
+    dispatch({
+      type: 'UPDATE_FIGURE_WORKSHOP',
+      payload: {
+        figKey: selectedFig.key,
+        level: 1,
+        clv: 0,
+        lvTargetIndex: 0,
+        clvTargetIndex: 0,
+      },
+    });
+    showNotification(`¡${selectedFig.name} restablecido a Nivel 1 y ChLv 0!`, 'success');
+  };
+
+  // Reset all figures to base Lv.1 & ChLv 0
+  const handleResetAllFigures = () => {
+    soundEngine.play('select');
+    dispatch({ type: 'RESET_ALL_FIGURE_WORKSHOP' });
+    showNotification('¡Todas las figuras han sido restablecidas a Nivel 1 y ChLv 0!', 'success');
+  };
+
   // Disenchant figure for dust & ryo
   const handleDisenchant = (rarity: FigureRarity) => {
     soundEngine.play('jutsu');
@@ -265,6 +288,14 @@ export const ShinobiForge: React.FC<ShinobiForgeProps> = ({
             title="Recargar suministros de entrenamiento"
           >
             <Gift className="w-3.5 h-3.5" /> +Suministros
+          </button>
+
+          <button
+            onClick={handleResetAllFigures}
+            className="px-2.5 py-1.5 bg-stone-800 hover:bg-stone-700 text-stone-200 font-bold text-xs uppercase border-2 border-black shadow-[2px_2px_0px_#000] flex items-center gap-1 cursor-pointer active:scale-95 transition-transform"
+            title="Restablecer todas las figuras a Nivel 1 y ChLv 0"
+          >
+            <RotateCcw className="w-3.5 h-3.5" /> Reset Nv.1
           </button>
 
           <LanguageSwitcher compact />
@@ -451,6 +482,15 @@ export const ShinobiForge: React.FC<ShinobiForgeProps> = ({
                     <span className="px-3 py-1 bg-emerald-600 text-white font-impact text-xs tracking-wider border border-black shadow-[2px_2px_0px_#000]">
                       CHAKRA ChLv +{custom.clv} DMG
                     </span>
+                    {(custom.level > 1 || custom.clv > 0) && (
+                      <button
+                        onClick={handleResetFigure}
+                        className="px-2 py-0.5 bg-stone-100 hover:bg-red-50 text-stone-700 hover:text-red-700 text-[10px] font-bold uppercase border border-stone-400 hover:border-red-500 flex items-center gap-1 cursor-pointer active:scale-95 transition-all shadow-[1px_1px_0px_#000]"
+                        title="Restablecer esta figura a Nivel 1 y ChLv 0"
+                      >
+                        <RotateCcw className="w-3 h-3" /> Restablecer Nv.1
+                      </button>
+                    )}
                   </div>
                 </div>
 
