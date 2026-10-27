@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useMemo, useEffect } from 'react';
 import { GameState } from '../../../application/state/gameInitialState';
 import {
   WHEEL_COLORS,
@@ -43,6 +43,76 @@ export const ShinobiCodex: React.FC<ShinobiCodexProps> = ({
   const [selectedKey, setSelectedKey] = useState<string>('naruto');
   const [activeTab, setActiveTab] = useState<'catalog' | 'deck'>('catalog');
 
+  // Filtros de checks para mazo y catálogo
+  const [filterInDeck, setFilterInDeck] = useState<boolean>(true);
+  const [filterUnlocked, setFilterUnlocked] = useState<boolean>(true);
+  const [filterLocked, setFilterLocked] = useState<boolean>(true);
+
+  const getFigureStatus = (key: string): 'in_deck' | 'unlocked' | 'locked' => {
+    if (state.selectedTeamKeys.includes(key)) return 'in_deck';
+    if (unlockedKeys.includes(key)) return 'unlocked';
+    return 'locked';
+  };
+
+  // Orden prioritario: 1º En el mazo, 2º Obtenidas, 3º Falta por desbloquear
+  const statusPriority: Record<'in_deck' | 'unlocked' | 'locked', number> = {
+    in_deck: 1,
+    unlocked: 2,
+    locked: 3,
+  };
+
+  const sortedFigures = useMemo(() => {
+    return [...SHINOBI_FIGURES_CATALOG].sort((a, b) => {
+      const pA = statusPriority[getFigureStatus(a.key)];
+      const pB = statusPriority[getFigureStatus(b.key)];
+      if (pA !== pB) return pA - pB;
+      return SHINOBI_FIGURES_CATALOG.indexOf(a) - SHINOBI_FIGURES_CATALOG.indexOf(b);
+    });
+  }, [state.selectedTeamKeys, unlockedKeys]);
+
+  const filteredFigures = useMemo(() => {
+    return sortedFigures.filter(fig => {
+      const status = getFigureStatus(fig.key);
+      if (status === 'in_deck') return filterInDeck;
+      if (status === 'unlocked') return filterUnlocked;
+      if (status === 'locked') return filterLocked;
+      return false;
+    });
+  }, [sortedFigures, filterInDeck, filterUnlocked, filterLocked]);
+
+  const countInDeck = useMemo(
+    () => SHINOBI_FIGURES_CATALOG.filter(f => getFigureStatus(f.key) === 'in_deck').length,
+    [state.selectedTeamKeys, unlockedKeys]
+  );
+  const countUnlocked = useMemo(
+    () => SHINOBI_FIGURES_CATALOG.filter(f => getFigureStatus(f.key) === 'unlocked').length,
+    [state.selectedTeamKeys, unlockedKeys]
+  );
+  const countLocked = useMemo(
+    () => SHINOBI_FIGURES_CATALOG.filter(f => getFigureStatus(f.key) === 'locked').length,
+    [state.selectedTeamKeys, unlockedKeys]
+  );
+  const isAllChecked = filterInDeck && filterUnlocked && filterLocked;
+
+  const handleToggleAll = () => {
+    if (isAllChecked) {
+      setFilterInDeck(false);
+      setFilterUnlocked(false);
+      setFilterLocked(false);
+    } else {
+      setFilterInDeck(true);
+      setFilterUnlocked(true);
+      setFilterLocked(true);
+    }
+  };
+
+  // Mantener selectedKey sincronizado con la lista filtrada
+  useEffect(() => {
+    if (filteredFigures.length > 0 && !filteredFigures.some(f => f.key === selectedKey)) {
+      setSelectedKey(filteredFigures[0].key);
+    }
+  }, [filteredFigures, selectedKey]);
+
   const rawTemplate = SHINOBI_FIGURES_CATALOG.find(f => f.key === selectedKey) || SHINOBI_FIGURES_CATALOG[0];
   const selectedFigTemplate = getLocalizedFigure(rawTemplate, language);
 
@@ -73,6 +143,118 @@ export const ShinobiCodex: React.FC<ShinobiCodexProps> = ({
     const tPlate = TACTICAL_SCROLLS_CATALOG.find(s => s.id === pid);
     return acc + (tPlate ? tPlate.cost : 1);
   }, 0);
+
+  const renderFilterCheckboxes = (isCompact = false) => (
+    <div className={`flex items-center flex-wrap gap-1.5 p-2 bg-[#f6eee3] border-2 border-black shadow-[2px_2px_0px_#000] ${isCompact ? 'mb-2' : 'mb-3'}`}>
+      <span className="text-[10px] font-impact uppercase tracking-wider text-black mr-1 flex items-center gap-1 shrink-0">
+        FILTROS:
+      </span>
+
+      {/* Check Todos */}
+      <label
+        className={`inline-flex items-center gap-1.5 px-2 py-1 text-xs font-bold uppercase tracking-wider border-2 cursor-pointer transition select-none ${
+          isAllChecked
+            ? 'bg-[#111111] text-[#FA9427] border-black shadow-[2px_2px_0px_#000]'
+            : 'bg-white text-stone-800 border-stone-400 hover:border-black shadow-[1px_1px_0px_#000]'
+        }`}
+      >
+        <input
+          type="checkbox"
+          checked={isAllChecked}
+          onChange={handleToggleAll}
+          className="accent-[#FA9427] w-3.5 h-3.5 cursor-pointer"
+        />
+        <span>{t('codex.filterAll')}</span>
+        <span
+          className={`text-[10px] font-mono px-1 border ${
+            isAllChecked
+              ? 'bg-[#FA9427] text-black border-black font-black'
+              : 'bg-stone-100 text-stone-700 border-stone-300'
+          }`}
+        >
+          {SHINOBI_FIGURES_CATALOG.length}
+        </span>
+      </label>
+
+      {/* Check En Mazo */}
+      <label
+        className={`inline-flex items-center gap-1.5 px-2 py-1 text-xs font-bold uppercase tracking-wider border-2 cursor-pointer transition select-none ${
+          filterInDeck
+            ? 'bg-[#FA9427] text-black border-black shadow-[2px_2px_0px_#000]'
+            : 'bg-white text-stone-700 border-stone-400 hover:border-black shadow-[1px_1px_0px_#000]'
+        }`}
+      >
+        <input
+          type="checkbox"
+          checked={filterInDeck}
+          onChange={e => setFilterInDeck(e.target.checked)}
+          className="accent-black w-3.5 h-3.5 cursor-pointer"
+        />
+        <span>{t('codex.filterInDeck')}</span>
+        <span
+          className={`text-[10px] font-mono px-1 border ${
+            filterInDeck
+              ? 'bg-black text-[#FA9427] border-black font-black'
+              : 'bg-stone-100 text-stone-700 border-stone-300'
+          }`}
+        >
+          {countInDeck}
+        </span>
+      </label>
+
+      {/* Check Obtenidos */}
+      <label
+        className={`inline-flex items-center gap-1.5 px-2 py-1 text-xs font-bold uppercase tracking-wider border-2 cursor-pointer transition select-none ${
+          filterUnlocked
+            ? 'bg-emerald-600 text-white border-black shadow-[2px_2px_0px_#000]'
+            : 'bg-white text-stone-700 border-stone-400 hover:border-black shadow-[1px_1px_0px_#000]'
+        }`}
+      >
+        <input
+          type="checkbox"
+          checked={filterUnlocked}
+          onChange={e => setFilterUnlocked(e.target.checked)}
+          className="accent-emerald-700 w-3.5 h-3.5 cursor-pointer"
+        />
+        <span>{t('codex.filterUnlocked')}</span>
+        <span
+          className={`text-[10px] font-mono px-1 border ${
+            filterUnlocked
+              ? 'bg-black text-emerald-300 border-black font-black'
+              : 'bg-stone-100 text-stone-700 border-stone-300'
+          }`}
+        >
+          {countUnlocked}
+        </span>
+      </label>
+
+      {/* Check No Obtenidos */}
+      <label
+        className={`inline-flex items-center gap-1.5 px-2 py-1 text-xs font-bold uppercase tracking-wider border-2 cursor-pointer transition select-none ${
+          filterLocked
+            ? 'bg-stone-700 text-amber-200 border-black shadow-[2px_2px_0px_#000]'
+            : 'bg-white text-stone-700 border-stone-400 hover:border-black shadow-[1px_1px_0px_#000]'
+        }`}
+      >
+        <input
+          type="checkbox"
+          checked={filterLocked}
+          onChange={e => setFilterLocked(e.target.checked)}
+          className="accent-stone-700 w-3.5 h-3.5 cursor-pointer"
+        />
+        <span>{t('codex.filterLocked')}</span>
+        <span
+          className={`text-[10px] font-mono px-1 border ${
+            filterLocked
+              ? 'bg-black text-amber-300 border-black font-black'
+              : 'bg-stone-100 text-stone-700 border-stone-300'
+          }`}
+        >
+          {countLocked}
+        </span>
+      </label>
+    </div>
+  );
 
   return (
     <div className="min-h-screen text-stone-900 flex flex-col justify-between p-3 sm:p-5 md:p-6 select-none relative bg-transparent overflow-x-hidden">
@@ -184,67 +366,97 @@ export const ShinobiCodex: React.FC<ShinobiCodexProps> = ({
                       忍者
                     </span>
                     <h3 className="text-xs font-impact text-black uppercase tracking-widest">
-                      {t('codex.officialFigures')} ({SHINOBI_FIGURES_CATALOG.length})
+                      {t('codex.officialFigures')} ({filteredFigures.length}/{SHINOBI_FIGURES_CATALOG.length})
                     </h3>
                   </div>
+
+                  {/* Filtro de Checks para Catálogo */}
+                  {renderFilterCheckboxes(true)}
+
                   <div className="space-y-1.5 max-h-[500px] overflow-y-auto pr-1">
-                    {SHINOBI_FIGURES_CATALOG.map(figRaw => {
-                      const fig = getLocalizedFigure(figRaw, language);
-                      const isSelected = fig.key === selectedKey;
-                      const isUnlocked = unlockedKeys.includes(fig.key);
-                      const isInTeam = state.selectedTeamKeys.includes(fig.key);
-                      return (
+                    {filteredFigures.length === 0 ? (
+                      <div className="p-4 border-2 border-dashed border-stone-400 bg-stone-50 text-center space-y-2">
+                        <p className="text-xs font-bold text-stone-600 uppercase">
+                          No hay figuras con los filtros seleccionados
+                        </p>
                         <button
-                          key={fig.key}
-                          onClick={() => setSelectedKey(fig.key)}
-                          className={`w-full p-2.5 border-2 text-left flex items-center justify-between transition cursor-pointer ${
-                            isSelected
-                              ? 'bg-[#FA9427] text-black border-2 border-black shadow-[3px_3px_0px_#000]'
-                              : !isUnlocked
-                              ? 'bg-stone-50 text-stone-500 border-2 border-dashed border-stone-300 hover:bg-stone-100 shadow-[1px_1px_0px_#000]'
-                              : 'bg-white text-stone-900 border-2 border-black hover:bg-stone-50 shadow-[2px_2px_0px_#000]'
-                          }`}
+                          onClick={() => {
+                            setFilterInDeck(true);
+                            setFilterUnlocked(true);
+                            setFilterLocked(true);
+                          }}
+                          className="manga-btn-orange px-3 py-1 text-xs font-bold uppercase border-2 border-black"
                         >
-                          <div className="flex items-center gap-2.5 min-w-0">
-                            <div className="relative shrink-0">
-                              <img
-                                src={fig.portraitUrl}
-                                alt={fig.name}
-                                className={`w-10 h-10 object-cover object-top border-2 border-black shrink-0 bg-stone-900 shadow-[1px_1px_0px_#000] ${!isUnlocked ? 'grayscale opacity-75' : ''}`}
-                                onError={e => {
-                                  e.currentTarget.src = CHAR_SVG_FALLBACKS[fig.key] || '';
-                                }}
-                              />
-                              {!isUnlocked && (
-                                <div className="absolute inset-0 bg-black/50 flex items-center justify-center">
-                                  <Lock className="w-3.5 h-3.5 text-white" />
+                          Mostrar todas
+                        </button>
+                      </div>
+                    ) : (
+                      filteredFigures.map(figRaw => {
+                        const fig = getLocalizedFigure(figRaw, language);
+                        const isSelected = fig.key === selectedKey;
+                        const isUnlocked = unlockedKeys.includes(fig.key);
+                        const isInTeam = state.selectedTeamKeys.includes(fig.key);
+                        return (
+                          <button
+                            key={fig.key}
+                            onClick={() => setSelectedKey(fig.key)}
+                            className={`w-full p-2.5 border-2 text-left flex items-center justify-between transition cursor-pointer ${
+                              isSelected
+                                ? 'bg-[#FA9427] text-black border-2 border-black shadow-[3px_3px_0px_#000]'
+                                : !isUnlocked
+                                ? 'bg-stone-50 text-stone-500 border-2 border-dashed border-stone-300 hover:bg-stone-100 shadow-[1px_1px_0px_#000]'
+                                : 'bg-white text-stone-900 border-2 border-black hover:bg-stone-50 shadow-[2px_2px_0px_#000]'
+                            }`}
+                          >
+                            <div className="flex items-center gap-2.5 min-w-0">
+                              <div className="relative shrink-0">
+                                <img
+                                  src={fig.portraitUrl}
+                                  alt={fig.name}
+                                  className={`w-10 h-10 object-cover object-top border-2 border-black shrink-0 bg-stone-900 shadow-[1px_1px_0px_#000] ${!isUnlocked ? 'grayscale opacity-75' : ''}`}
+                                  onError={e => {
+                                    e.currentTarget.src = CHAR_SVG_FALLBACKS[fig.key] || '';
+                                  }}
+                                />
+                                {!isUnlocked && (
+                                  <div className="absolute inset-0 bg-black/50 flex items-center justify-center">
+                                    <Lock className="w-3.5 h-3.5 text-white" />
+                                  </div>
+                                )}
+                              </div>
+                              <div className="truncate">
+                                <div className="text-sm font-bold uppercase tracking-wide truncate text-black">{fig.name}</div>
+                                <div className="text-xs font-mono font-bold text-stone-800 flex items-center gap-2">
+                                  <span>[{fig.rarity}] • {fig.mp} MP</span>
+                                  {isInTeam ? (
+                                    <span className="text-[10px] text-amber-950 font-black bg-[#FA9427] px-1 py-0.2 border border-black">
+                                      {t('codex.inDeck')}
+                                    </span>
+                                  ) : !isUnlocked ? (
+                                    <span className="text-[10px] text-amber-800 font-bold bg-amber-100 px-1 py-0.2 border border-amber-300">
+                                      Bloqueado
+                                    </span>
+                                  ) : figRaw.isStarter ? (
+                                    <span className="text-[10px] text-emerald-800 font-bold bg-emerald-100 px-1 py-0.2 border border-emerald-300">
+                                      Inicial
+                                    </span>
+                                  ) : (
+                                    <span className="text-[10px] text-emerald-800 font-bold bg-emerald-50 px-1 py-0.2 border border-emerald-200">
+                                      Obtenido
+                                    </span>
+                                  )}
                                 </div>
-                              )}
-                            </div>
-                            <div className="truncate">
-                              <div className="text-sm font-bold uppercase tracking-wide truncate text-black">{fig.name}</div>
-                              <div className="text-xs font-mono font-bold text-stone-800 flex items-center gap-2">
-                                <span>[{fig.rarity}] • {fig.mp} MP</span>
-                                {!isUnlocked ? (
-                                  <span className="text-[10px] text-amber-800 font-bold bg-amber-100 px-1 py-0.2 border border-amber-300">
-                                    Bloqueado
-                                  </span>
-                                ) : figRaw.isStarter ? (
-                                  <span className="text-[10px] text-emerald-800 font-bold bg-emerald-100 px-1 py-0.2 border border-emerald-300">
-                                    Inicial
-                                  </span>
-                                ) : null}
                               </div>
                             </div>
-                          </div>
-                          {isInTeam && (
-                            <span className="px-2 py-0.5 text-[10px] font-bold uppercase bg-black text-[#FA9427] border border-black shrink-0 shadow-[1px_1px_0px_#000]">
-                              {t('codex.inDeck')}
-                            </span>
-                          )}
-                        </button>
-                      );
-                    })}
+                            {isInTeam && (
+                              <span className="px-2 py-0.5 text-[10px] font-bold uppercase bg-black text-[#FA9427] border border-black shrink-0 shadow-[1px_1px_0px_#000]">
+                                {t('codex.inDeck')}
+                              </span>
+                            )}
+                          </button>
+                        );
+                      })
+                    )}
                   </div>
                 </div>
 
@@ -502,67 +714,96 @@ export const ShinobiCodex: React.FC<ShinobiCodexProps> = ({
                     </div>
                   </div>
 
-                  <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
-                    {SHINOBI_FIGURES_CATALOG.map(figRaw => {
-                      const fig = getLocalizedFigure(figRaw, language);
-                      const isUnlocked = unlockedKeys.includes(fig.key);
-                      const inTeam = state.selectedTeamKeys.includes(fig.key);
-                      return (
-                        <button
-                          key={fig.key}
-                          disabled={!isUnlocked}
-                          onClick={() => {
-                            if (!isUnlocked) return;
-                            let nextKeys = [...state.selectedTeamKeys];
-                            if (inTeam) {
-                              if (nextKeys.length <= 1) return;
-                              nextKeys = nextKeys.filter(k => k !== fig.key);
-                            } else {
-                              if (nextKeys.length >= 6) nextKeys.shift();
-                              nextKeys.push(fig.key);
-                            }
-                            dispatch({
-                              type: 'UPDATE_DECK_LOADOUT',
-                              payload: {
-                                selectedTeamKeys: nextKeys,
-                                selectedPlateIds: state.selectedPlateIds,
-                              },
-                            });
-                          }}
-                          className={`p-2.5 border-2 text-left flex items-center gap-2.5 transition ${
-                            !isUnlocked
-                              ? 'bg-stone-100 text-stone-400 border-dashed border-stone-300 cursor-not-allowed opacity-60'
-                              : inTeam
-                              ? 'bg-[#fa9427] text-stone-950 border-2 border-black font-black shadow-[2px_2px_0px_#000] cursor-pointer'
-                              : 'bg-white text-stone-900 border-2 border-black hover:bg-stone-50 font-bold shadow-[2px_2px_0px_#000] cursor-pointer'
-                          }`}
-                        >
-                          <div className="relative shrink-0">
-                            <img
-                              src={fig.portraitUrl}
-                              alt={fig.shortName}
-                              className={`w-9 h-9 object-cover object-top border-2 border-black shrink-0 bg-stone-900 shadow-[2px_2px_0px_#000] ${!isUnlocked ? 'grayscale' : ''}`}
-                              onError={e => {
-                                e.currentTarget.src = CHAR_SVG_FALLBACKS[fig.key] || '';
-                              }}
-                            />
-                            {!isUnlocked && (
-                              <div className="absolute inset-0 bg-black/60 flex items-center justify-center">
-                                <Lock className="w-4 h-4 text-white" />
-                              </div>
-                            )}
-                          </div>
-                          <div className="truncate flex-1">
-                            <div className="text-xs truncate font-impact uppercase tracking-wide flex items-center justify-between">
-                              <span>{fig.shortName}</span>
-                              {!isUnlocked && <span className="text-[9px] text-stone-500 font-bold">Bloqueado</span>}
+                  {/* Filtros de Checks para el Mazo */}
+                  {renderFilterCheckboxes(false)}
+
+                  {filteredFigures.length === 0 ? (
+                    <div className="p-4 border-2 border-dashed border-stone-400 bg-stone-50 text-center space-y-2">
+                      <p className="text-xs font-bold text-stone-600 uppercase">
+                        No hay figuras con los filtros seleccionados
+                      </p>
+                      <button
+                        onClick={() => {
+                          setFilterInDeck(true);
+                          setFilterUnlocked(true);
+                          setFilterLocked(true);
+                        }}
+                        className="manga-btn-orange px-3 py-1 text-xs font-bold uppercase border-2 border-black"
+                      >
+                        Mostrar todas
+                      </button>
+                    </div>
+                  ) : (
+                    <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
+                      {filteredFigures.map(figRaw => {
+                        const fig = getLocalizedFigure(figRaw, language);
+                        const isUnlocked = unlockedKeys.includes(fig.key);
+                        const inTeam = state.selectedTeamKeys.includes(fig.key);
+                        return (
+                          <button
+                            key={fig.key}
+                            disabled={!isUnlocked}
+                            onClick={() => {
+                              if (!isUnlocked) return;
+                              let nextKeys = [...state.selectedTeamKeys];
+                              if (inTeam) {
+                                if (nextKeys.length <= 1) return;
+                                nextKeys = nextKeys.filter(k => k !== fig.key);
+                              } else {
+                                if (nextKeys.length >= 6) nextKeys.shift();
+                                nextKeys.push(fig.key);
+                              }
+                              dispatch({
+                                type: 'UPDATE_DECK_LOADOUT',
+                                payload: {
+                                  selectedTeamKeys: nextKeys,
+                                  selectedPlateIds: state.selectedPlateIds,
+                                },
+                              });
+                            }}
+                            className={`p-2.5 border-2 text-left flex items-center gap-2.5 transition ${
+                              !isUnlocked
+                                ? 'bg-stone-100 text-stone-400 border-dashed border-stone-300 cursor-not-allowed opacity-60'
+                                : inTeam
+                                ? 'bg-[#fa9427] text-stone-950 border-2 border-black font-black shadow-[2px_2px_0px_#000] cursor-pointer'
+                                : 'bg-white text-stone-900 border-2 border-black hover:bg-stone-50 font-bold shadow-[2px_2px_0px_#000] cursor-pointer'
+                            }`}
+                          >
+                            <div className="relative shrink-0">
+                              <img
+                                src={fig.portraitUrl}
+                                alt={fig.shortName}
+                                className={`w-9 h-9 object-cover object-top border-2 border-black shrink-0 bg-stone-900 shadow-[2px_2px_0px_#000] ${!isUnlocked ? 'grayscale' : ''}`}
+                                onError={e => {
+                                  e.currentTarget.src = CHAR_SVG_FALLBACKS[fig.key] || '';
+                                }}
+                              />
+                              {!isUnlocked && (
+                                <div className="absolute inset-0 bg-black/60 flex items-center justify-center">
+                                  <Lock className="w-4 h-4 text-white" />
+                                </div>
+                              )}
                             </div>
-                            <div className="text-[10px] font-mono font-bold text-stone-700">{fig.mp} MP</div>
-                          </div>
-                        </button>
-                      );
-                    })}
-                  </div>
+                            <div className="truncate flex-1">
+                              <div className="text-xs truncate font-impact uppercase tracking-wide flex items-center justify-between">
+                                <span>{fig.shortName}</span>
+                                {inTeam ? (
+                                  <span className="text-[9px] text-amber-950 font-black bg-white/70 px-1 border border-black/30">
+                                    {t('codex.inDeck')}
+                                  </span>
+                                ) : !isUnlocked ? (
+                                  <span className="text-[9px] text-stone-500 font-bold">Bloqueado</span>
+                                ) : (
+                                  <span className="text-[9px] text-emerald-800 font-bold">Obtenido</span>
+                                )}
+                              </div>
+                              <div className="text-[10px] font-mono font-bold text-stone-700">{fig.mp} MP</div>
+                            </div>
+                          </button>
+                        );
+                      })}
+                    </div>
+                  )}
                 </div>
 
                 {/* Plates Selection */}

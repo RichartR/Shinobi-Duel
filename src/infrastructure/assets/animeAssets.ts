@@ -119,15 +119,6 @@ export const JUTSU_ANIME_CUTINS: Record<string, string> = {
   `)
 };
 
-export const CHAR_REAL_ARTWORK: Record<string, string> = {
-  naruto: '/assets/naruto_hero.jpg',
-  sasuke: '/assets/sasuke_hero.jpg',
-  kakashi: '/assets/kakashi_hero.jpg',
-  gaara: '/assets/gaara_hero.jpg',
-  itachi: '/assets/itachi_hero.jpg',
-  minato: '/assets/minato_hero.jpg',
-};
-
 const createGeninAvatarSvg = (bgColor: string, accentColor: string, kanji: string, clanName: string) => svgToDataUri(`
   <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200">
     <rect width="200" height="200" fill="${bgColor}" />

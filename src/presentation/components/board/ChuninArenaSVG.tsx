@@ -320,9 +320,21 @@ export const ChuninArenaSVG: React.FC<ChuninArenaSVGProps> = ({
                 {/* Inner Dark Frame */}
                 <circle r="20" fill="#140f0c" stroke={isP1 ? '#0c4a6e' : '#450a0a'} strokeWidth="1.5" />
 
-                {/* Deterministic SVG Fallback + Anime Portrait */}
-                <image href={fallbackUri} x="-19" y="-19" width="38" height="38" clipPath="url(#tokenPortraitClip)" preserveAspectRatio="xMidYMin slice" />
-                <image href={fig.portraitUrl} x="-19" y="-19" width="38" height="38" clipPath="url(#tokenPortraitClip)" preserveAspectRatio="xMidYMin slice" />
+                {/* Anime Portrait with Fallback */}
+                <image
+                  href={fig.portraitUrl || fallbackUri}
+                  x="-19"
+                  y="-19"
+                  width="38"
+                  height="38"
+                  clipPath="url(#tokenPortraitClip)"
+                  preserveAspectRatio="xMidYMin slice"
+                  onError={(e) => {
+                    if (fallbackUri && e.currentTarget.getAttribute('href') !== fallbackUri) {
+                      e.currentTarget.setAttribute('href', fallbackUri);
+                    }
+                  }}
+                />
 
                 {/* Owner Faction Badge (Top-Left) */}
                 <g transform="translate(-18, -18)">

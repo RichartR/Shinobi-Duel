@@ -1,5 +1,3 @@
-import { FigureRarity } from '../models/CraftingEconomy';
-
 export interface GachaRatesConfig {
   UX: number;
   EX: number;

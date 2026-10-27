@@ -82,7 +82,10 @@ export function gameReducer(state: GameState, action: GameAction): GameState {
         action.payload?.mode || state.mode,
         action.payload?.selectedTeamKeys || state.selectedTeamKeys,
         action.payload?.selectedPlateIds || state.selectedPlateIds,
-        action.payload?.customizations || state.customizations
+        action.payload?.customizations || state.customizations,
+        action.payload?.opponentTeamKeys,
+        action.payload?.opponentCustomizations,
+        action.payload?.opponentPlateIds
       );
     }
 

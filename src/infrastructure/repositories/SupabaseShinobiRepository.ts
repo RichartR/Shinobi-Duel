@@ -1,5 +1,4 @@
-import { supabase, isSupabaseConfigured } from '../database/supabaseClient';
-import { ShinobiFigureCatalogItem, WheelSegment, WheelColor, FigureCustomization, DEFAULT_STARTER_FIGURE_KEYS } from '../../domain/models/ShinobiFigure';
+import { ShinobiFigureCatalogItem, FigureCustomization, DEFAULT_STARTER_FIGURE_KEYS } from '../../domain/models/ShinobiFigure';
 import { SHINOBI_FIGURES_CATALOG } from '../../domain/catalogs/ShinobiCatalog';
 import { 
   CANONICAL_ARENA_THEMES, 

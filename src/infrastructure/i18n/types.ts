@@ -149,6 +149,10 @@ export interface TranslationDictionary {
     tabDeck: string;
     officialFigures: string;
     inDeck: string;
+    filterAll: string;
+    filterInDeck: string;
+    filterUnlocked: string;
+    filterLocked: string;
     movementPoints: string;
     figureLevel: string;
     segmentsGain: string;

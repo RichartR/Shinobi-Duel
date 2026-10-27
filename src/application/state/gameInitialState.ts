@@ -41,7 +41,7 @@ export interface GameLogEntry {
 }
 
 export interface GameState {
-  mode: 'ai' | 'local';
+  mode: 'ai' | 'local' | 'online';
   turnPlayer: 1 | 2;
   turnCount: number;
   phase: GamePhase;
@@ -69,6 +69,15 @@ export interface GameState {
   logs: GameLogEntry[];
 }
 
+export const DEFAULT_AI_OPPONENT_TEAM: string[] = [
+  'kiba_genin',
+  'shino_genin',
+  'hinata_genin',
+  'ino_genin',
+  'sasuke_genin',
+  'naruto_genin',
+];
+
 export const DEFAULT_TEAM_KEYS = DEFAULT_STARTER_FIGURE_KEYS;
 export const DEFAULT_PLATE_DECK = ['goal_block', 'max_revive', 'double_chance', 'x_attack'];
 
@@ -92,11 +101,11 @@ export function instantiateTeamRoster(
   customizations: Record<string, FigureCustomization> = {}
 ): ShinobiFigureState[] {
   const chosenTemplates = teamKeys
-    .map(k => SHINOBI_FIGURES_CATALOG.find(t => t.key === k))
+    .map(k => SHINOBI_FIGURES_CATALOG.find(t => t.key === k || t.id === k))
     .filter((t): t is typeof SHINOBI_FIGURES_CATALOG[0] => Boolean(t));
 
   return chosenTemplates.map((tpl, idx) => {
-    const custom = customizations[tpl.key] || {
+    const custom = customizations[tpl.key] || customizations[tpl.id] || {
       level: 1,
       clv: 0,
       lvTargetIndex: 0,
@@ -138,16 +147,24 @@ export function instantiateTeamRoster(
 }
 
 export function createInitialGameState(
-  mode: 'ai' | 'local' = 'ai',
+  mode: 'ai' | 'local' | 'online' = 'ai',
   selectedTeamKeys?: string[],
   selectedPlateIds: string[] = DEFAULT_PLATE_DECK,
-  customizations: Record<string, FigureCustomization> = createDefaultCustomizations()
+  customizations: Record<string, FigureCustomization> = createDefaultCustomizations(),
+  opponentTeamKeys?: string[],
+  opponentCustomizations?: Record<string, FigureCustomization>,
+  opponentPlateIds?: string[]
 ): GameState {
   const profile = shinobiDbRepository.getProfile();
   const effectiveTeamKeys = selectedTeamKeys || profile.selectedTeamKeys || DEFAULT_TEAM_KEYS;
+  const effectiveP2TeamKeys = opponentTeamKeys && opponentTeamKeys.length > 0
+    ? opponentTeamKeys
+    : DEFAULT_AI_OPPONENT_TEAM;
+  const effectiveP2Customs = opponentCustomizations || customizations;
+
   const figures = [
     ...instantiateTeamRoster(1, effectiveTeamKeys, customizations),
-    ...instantiateTeamRoster(2, ['kiba', 'shino', 'hinata', 'ino', 'sasuke', 'naruto'], customizations),
+    ...instantiateTeamRoster(2, effectiveP2TeamKeys, effectiveP2Customs),
   ];
 
   const buildPlayerScrolls = (plateIds: string[]): EquippedScroll[] =>
@@ -177,7 +194,7 @@ export function createInitialGameState(
     koQueue: { 1: [], 2: [] },
     scrolls: {
       1: buildPlayerScrolls(selectedPlateIds),
-      2: buildPlayerScrolls(DEFAULT_PLATE_DECK),
+      2: buildPlayerScrolls(opponentPlateIds || DEFAULT_PLATE_DECK),
     },
     currentBattle: null,
     winner: null,

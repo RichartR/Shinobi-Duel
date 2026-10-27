@@ -40,9 +40,9 @@ export const ChakraDuelModal: React.FC<ChakraDuelModalProps> = ({
   const [isSpinning, setIsSpinning] = useState(true);
 
   useEffect(() => {
-    const battleKey = `${b.attackerId}_vs_${b.defenderId}_${b.atkRotations}`;
-    const isNewDuel = prevBattleKeyRef.current !== `${b.attackerId}_vs_${b.defenderId}`;
-    prevBattleKeyRef.current = `${b.attackerId}_vs_${b.defenderId}`;
+    const duelId = `${b.attackerId}_vs_${b.defenderId}`;
+    const isNewDuel = prevBattleKeyRef.current !== duelId;
+    prevBattleKeyRef.current = duelId;
 
     if (isNewDuel) {
       setAtkAngle(0);

@@ -14,6 +14,11 @@
   - 🟣 **Púrpura**: Jutsus de rango (vence a ataques blancos).
   - ⚪ **Blanco**: Ataque físico numérico.
   - 🔴 **Rojo**: Fallo (*Miss*).
+- **⚔️ Duelo Ninja Online 1 vs 1 (PvP en Tiempo Real)**:
+  - Multijugador remoto mediante **Supabase Realtime Broadcast** (comunicación efímera en memoria sin bloqueos de disco ni coste de base de datos).
+  - Emparejamiento por código de sala de 6 letras (`EJ: KONO42`) con soporte para compartir y copiar al portapapeles.
+  - Sincronización bidireccional de movimientos, duelos de ruleta y pergaminos en tiempo real.
+  - **Arquitectura Zero-Cost (Vercel & Supabase Free Tiers)**: 0 funciones serverless (SPA pura estática) y exactamente 3 escrituras DB por partida completa (creación, unión y fin de partida).
 - **⛩️ Forja de Shinobis (Libro Bingo)**:
   - **Niveles 1 al 5**: Expansión de sectores a costa del Fallo rojo (invariante 96 siempre conservada).
   - **Nivel Carmín (CLv 0 al 10)**: Daño adicional (+1 DMG) para desempatar combates.
@@ -38,14 +43,12 @@ src/
 │   ├── catalogs/
 │   │   ├── ShinobiCatalog.ts             # Catálogo canónico de figuras ninja y ruedas de 96 segmentos
 │   │   └── GachaBannersCatalog.ts        # Configuración de pergaminos, tasas y pity
-│   ├── services/
-│   │   ├── BoardMovementService.ts       # Algoritmo BFS puro con poda de colisiones y MP
-│   │   ├── SurroundService.ts            # Detección de Rodeo (Fuinjutsu KO) y buffer de prisión
-│   │   ├── CombatResolver.ts             # Jerarquía de colores y resolución Mew-style
-│   │   ├── GachaService.ts               # Lógica de invocaciones, tasas y protección Pity
-│   │   └── AiTacticalEngine.ts           # IA Akatsuki heurística
-│   └── repositories/
-│       └── IShinobiRepository.ts         # Contrato desacoplado para fuentes de datos
+│   └── services/
+│       ├── BoardMovementService.ts       # Algoritmo BFS puro con poda de colisiones y MP
+│       ├── SurroundService.ts            # Detección de Rodeo (Fuinjutsu KO) y buffer de prisión
+│       ├── CombatResolver.ts             # Jerarquía de colores y resolución Mew-style
+│       ├── GachaService.ts               # Lógica de invocaciones, tasas y protección Pity
+│       └── AiTacticalEngine.ts           # IA Akatsuki heurística
 │
 ├── infrastructure/                       # Implementaciones concretas de I/O y datos
 │   ├── repositories/
@@ -192,6 +195,19 @@ Toda figura posee una ruleta polar discretizada en **96 segmentos**. Cuando dos 
 - 蘇 **Max Revive (Coste 2)**: Resucita a un aliado de la prisión al banquillo sin Espera.
 - 眼 **Double Chance (Coste 1)**: Permite re-girar la ruleta de chakra en combate.
 - 力 **X Attack (Coste 1)**: +30 DMG a todos los ataques físicos y dorados este turno.
+
+---
+
+### 9. 🌐 Duelo Ninja Online 1 vs 1 (PvP Supabase Realtime)
+- **Topología de Comunicación**: Canal WebSockets efímero `room:<room_code>` en Supabase Realtime Broadcast.
+- **Eficiencia de Costes (Zero-Cost Free Tier)**:
+  - **Vercel**: Compilación 100% estática como SPA; 0 invocaciones serverless computadas.
+  - **Supabase**: Solo 3 escrituras DB por partida (`INSERT` de sala, `UPDATE` con jugador 2, `UPDATE` con resultado final).
+  - **Tráfico**: DTOs compactos (<300 bytes) que permiten más de 33.000 partidas completas al mes dentro del límite gratuito de 2.000.000 mensajes Realtime.
+- **Flujo de Emparejamiento**:
+  1. El Jugador 1 pulsa **Crear Sala** y obtiene un código de 6 caracteres (ej: `2GFVWW`).
+  2. El Jugador 2 introduce el código en la pestaña **Unirse con Código**.
+  3. El anfitrión inicia la partida; ambos dispositivos cargan los equipos y personalizaciones (Lv/CLv) de cada ninja en el tablero en tiempo real.
 
 ---
 

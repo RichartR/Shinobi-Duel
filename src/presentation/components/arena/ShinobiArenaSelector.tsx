@@ -9,10 +9,8 @@ import {
   Play, 
   Gift, 
   CloudRain, 
-  Wind, 
-  Flame, 
-  AlertCircle,
-  Eye
+  Wind,
+  AlertCircle
 } from 'lucide-react';
 import { 
   CANONICAL_ARENA_THEMES, 

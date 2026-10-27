@@ -39,6 +39,10 @@ export default {
         oswald: ['Oswald', 'sans-serif'],
         cinzel: ['Cinzel', 'serif'],
         kanji: ['Noto Serif JP', 'serif']
+      },
+      borderWidth: {
+        '2.5': '2.5px',
+        '3': '3px',
       }
     },
   },

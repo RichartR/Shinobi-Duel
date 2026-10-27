@@ -92,6 +92,20 @@
     box-shadow: 6px 6px 0px #111111;
   }
 
+  .manga-menu-card {
+    background-color: #ffffff;
+    color: #111111;
+    border: 3px solid #111111 !important;
+    box-shadow: 4px 4px 0px #111111;
+    transition: all 0.15s ease-in-out;
+  }
+  .manga-menu-card:hover {
+    background-color: #fa9427 !important;
+    color: #000000;
+    transform: translateY(-2px);
+    box-shadow: 6px 6px 0px #111111;
+  }
+
   .manga-btn-orange {
     background-color: #fa9427;
     color: #000000;

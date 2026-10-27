@@ -4,10 +4,13 @@ export type GameAction =
   | {
       type: 'RESET_GAME';
       payload?: {
-        mode?: 'ai' | 'local';
+        mode?: 'ai' | 'local' | 'online';
         selectedTeamKeys?: string[];
         selectedPlateIds?: string[];
         customizations?: Record<string, FigureCustomization>;
+        opponentTeamKeys?: string[];
+        opponentCustomizations?: Record<string, FigureCustomization>;
+        opponentPlateIds?: string[];
       };
     }
   | {

@@ -2,13 +2,10 @@ import React, { useState, useEffect } from 'react';
 import { 
   Hammer, 
   Sparkles, 
-  Flame, 
   Trash2, 
   ShieldAlert, 
   CheckCircle2, 
   ChevronRight, 
-  Coins, 
-  Gem, 
   Zap, 
   Play,
   RotateCcw,
@@ -18,11 +15,7 @@ import {
 } from 'lucide-react';
 import { GameState } from '../../../application/state/gameInitialState';
 import { 
-  ShinobiFigureCatalogItem, 
-  WheelSegment, 
-  WheelColor, 
   WHEEL_COLORS, 
-  WHEEL_TOTAL_SEGMENTS,
   getComputedFigureSegments,
   getFigureColorBreakdown,
   DEFAULT_STARTER_FIGURE_KEYS

@@ -11,7 +11,7 @@ export const SHINOBI_FIGURES_CATALOG: ShinobiFigureCatalogItem[] = [
     name: 'Naruto Uzumaki (Genin)',
     shortName: 'Naruto',
     mp: 3,
-    portraitUrl: 'https://cdn.myanimelist.net/images/characters/2/284121.jpg',
+    portraitUrl: '/assets/naruto_hero.jpg',
     ability: 'Perseverancia Shinobi: Su voluntad inquebrantable supera su falta de técnica inicial. Si empata en una batalla, gana +1 MP en su siguiente turno.',
     segments: [
       { name: 'Kage Bunshin no Jutsu', color: 'purple', power: 0, stars: 1, size: 24, effect: 'confuse_wait' },
@@ -31,7 +31,7 @@ export const SHINOBI_FIGURES_CATALOG: ShinobiFigureCatalogItem[] = [
     name: 'Sasuke Uchiha (Genin)',
     shortName: 'Sasuke',
     mp: 3,
-    portraitUrl: 'https://cdn.myanimelist.net/images/characters/9/131317.jpg',
+    portraitUrl: '/assets/sasuke_hero.jpg',
     ability: 'Orgullo Uchiha: Su Shurikenjutsu Dorado (24/96) destruye Jutsus Morados si el rival es de igual o menor rango.',
     segments: [
       { name: 'Katon: Gōkakyū no Jutsu', color: 'white', power: 50, stars: 0, size: 32, effect: null },
@@ -51,7 +51,7 @@ export const SHINOBI_FIGURES_CATALOG: ShinobiFigureCatalogItem[] = [
     name: 'Sakura Haruno (Genin)',
     shortName: 'Sakura',
     mp: 2,
-    portraitUrl: 'https://cdn.myanimelist.net/images/characters/16/323862.jpg',
+    portraitUrl: '/assets/sakura_hero.jpg',
     ability: 'Control Fino de Chakra: Las figuras aliadas adyacentes reducen su segmento de fallo Rojo en 4.',
     segments: [
       { name: '¡Shānnarō!', color: 'white', power: 50, stars: 0, size: 24, effect: null },
@@ -71,7 +71,7 @@ export const SHINOBI_FIGURES_CATALOG: ShinobiFigureCatalogItem[] = [
     name: 'Shikamaru Nara (Genin)',
     shortName: 'Shikamaru',
     mp: 2,
-    portraitUrl: 'https://cdn.myanimelist.net/images/characters/2/73171.jpg',
+    portraitUrl: '/assets/shikamaru_hero.jpg',
     ability: 'Estrategia de 200 IQ: Si una figura enemiga entra en su rango de control de sombra, el enemigo recibe Wait 1 inmediatamente.',
     immuneToSurround: true,
     segments: [
@@ -91,7 +91,7 @@ export const SHINOBI_FIGURES_CATALOG: ShinobiFigureCatalogItem[] = [
     name: 'Chōji Akimichi (Genin)',
     shortName: 'Chōji',
     mp: 2,
-    portraitUrl: 'https://cdn.myanimelist.net/images/characters/16/30018.jpg',
+    portraitUrl: '/assets/choji_hero.jpg',
     ability: 'Gula y Lealtad: Si derrota a una figura rival, obtiene +20 de daño base durante el resto del encuentro.',
     segments: [
       { name: 'Nikudan Sensha', color: 'white', power: 60, stars: 0, size: 36, effect: null },
@@ -110,7 +110,7 @@ export const SHINOBI_FIGURES_CATALOG: ShinobiFigureCatalogItem[] = [
     name: 'Ino Yamanaka (Genin)',
     shortName: 'Ino',
     mp: 3,
-    portraitUrl: 'https://cdn.myanimelist.net/images/characters/11/496525.jpg',
+    portraitUrl: '/assets/ino_hero.jpg',
     ability: 'Confusión Sensorial: Al vencer con Shintenshin, fuerza a la figura rival a intercambiar posiciones con un aliado cercano.',
     segments: [
       { name: 'Shintenshin no Jutsu', color: 'purple', power: 0, stars: 2, size: 28, effect: 'confuse_wait' },
@@ -129,7 +129,7 @@ export const SHINOBI_FIGURES_CATALOG: ShinobiFigureCatalogItem[] = [
     name: 'Hinata Hyūga (Genin)',
     shortName: 'Hinata',
     mp: 2,
-    portraitUrl: 'https://cdn.myanimelist.net/images/characters/7/284123.jpg',
+    portraitUrl: '/assets/hinata_hero.jpg',
     ability: 'Visión Byakugan: No puede ser rodeada (Immune to Surround) por figuras de igual o menor rango.',
     immuneToSurround: true,
     segments: [
@@ -149,7 +149,7 @@ export const SHINOBI_FIGURES_CATALOG: ShinobiFigureCatalogItem[] = [
     name: 'Kiba Inuzuka (Genin)',
     shortName: 'Kiba',
     mp: 3,
-    portraitUrl: 'https://cdn.myanimelist.net/images/characters/9/131321.jpg',
+    portraitUrl: '/assets/kiba_hero.jpg',
     ability: 'Rastreo Canino: Si Akamaru está con él, puede atravesar figuras enemigas que tengan la condición Wait.',
     canPassThrough: true,
     segments: [
@@ -169,7 +169,7 @@ export const SHINOBI_FIGURES_CATALOG: ShinobiFigureCatalogItem[] = [
     name: 'Shino Aburame (Genin)',
     shortName: 'Shino',
     mp: 2,
-    portraitUrl: 'https://cdn.myanimelist.net/images/characters/16/29986.jpg',
+    portraitUrl: '/assets/shino_hero.jpg',
     ability: 'Nido Kikaichū: Toda figura rival que inicie su turno adyacente a Shino pierde -10 de daño en su siguiente combate.',
     segments: [
       { name: 'Mushi Bunshin no Jutsu', color: 'purple', power: 0, stars: 2, size: 28, effect: 'confuse_wait' },
@@ -188,7 +188,7 @@ export const SHINOBI_FIGURES_CATALOG: ShinobiFigureCatalogItem[] = [
     name: 'Rock Lee (Genin)',
     shortName: 'Rock Lee',
     mp: 3,
-    portraitUrl: 'https://cdn.myanimelist.net/images/characters/13/11382.jpg',
+    portraitUrl: '/assets/lee_hero.jpg',
     ability: 'Espíritu de Loto: Su Konoha Senpū Dorado (36/96) rompe cualquier Jutsu Púrpura rival automáticamente.',
     segments: [
       { name: 'Konoha Senpū', color: 'gold', power: 40, stars: 0, size: 36, effect: null },
